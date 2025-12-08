@@ -9,9 +9,6 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
 
-    haumea.url = "github:nix-community/haumea";
-    haumea.inputs.nixpkgs.follows = "nixpkgs";
-
     # devshell
 
     devshell.url = "github:numtide/devshell";
@@ -24,9 +21,14 @@
       { lib, ... }:
       let
         selfLib = import ./lib { inherit inputs lib; };
+        modules = selfLib.listModules ./flake;
       in
       {
-        imports = selfLib.listModules ./flake;
+        imports = [
+          inputs.devshell.flakeModule
+        ]
+        ++ selfLib.mkImports modules;
+
         systems = [
           "aarch64-linux"
           "x86_64-linux"
