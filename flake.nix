@@ -4,15 +4,22 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.11";
 
-    # libs
+    # libraries
 
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
 
-    # devshell
+    blank.url = "github:divnix/blank";
+
+    # flake modules
 
     devshell.url = "github:numtide/devshell";
     devshell.inputs.nixpkgs.follows = "nixpkgs";
+
+    git-hooks.url = "github:cachix/git-hooks.nix";
+    git-hooks.inputs.flake-compat.follows = "blank";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
+    git-hooks.inputs.gitignore.follows = "blank";
   };
 
   outputs =
@@ -26,6 +33,7 @@
       {
         imports = [
           inputs.devshell.flakeModule
+          inputs.git-hooks.flakeModule
         ]
         ++ selfLib.mkImports modules;
 

@@ -1,5 +1,20 @@
 {
   "nodes": {
+    "blank": {
+      "locked": {
+        "lastModified": 1625557891,
+        "narHash": "sha256-O8/MWsPBGhhyPoPLHZAuoZiiHo9q6FLlEeIDEXuj6T4=",
+        "owner": "divnix",
+        "repo": "blank",
+        "rev": "5a5d2684073d9f563072ed07c871d577a6c614a8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "divnix",
+        "repo": "blank",
+        "type": "github"
+      }
+    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -40,6 +55,32 @@
         "type": "github"
       }
     },
+    "git-hooks": {
+      "inputs": {
+        "flake-compat": [
+          "blank"
+        ],
+        "gitignore": [
+          "blank"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765016596,
+        "narHash": "sha256-rhSqPNxDVow7OQKi4qS5H8Au0P4S3AYbawBSmJNUtBQ=",
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "rev": "548fc44fca28a5e81c5d6b846e555e6b9c2a5a3c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1764983851,
@@ -58,8 +99,10 @@
     },
     "root": {
       "inputs": {
+        "blank": "blank",
         "devshell": "devshell",
         "flake-parts": "flake-parts",
+        "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs"
       }
     }
