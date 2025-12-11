@@ -20,6 +20,9 @@
     git-hooks.inputs.flake-compat.follows = "blank";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
     git-hooks.inputs.gitignore.follows = "blank";
+
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -34,11 +37,11 @@
         imports = [
           inputs.devshell.flakeModule
           inputs.git-hooks.flakeModule
+          inputs.treefmt-nix.flakeModule
         ]
         ++ selfLib.mkImports modules;
 
         systems = [
-          "aarch64-linux"
           "x86_64-linux"
         ];
         flake.lib = selfLib;
