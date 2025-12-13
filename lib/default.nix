@@ -69,4 +69,11 @@ lib.makeExtensible (self: {
       (lib.concatMap (lib.collect lib.isPath))
       lib.unique
     ];
+
+  mkImported =
+    modules:
+    if lib.isAttrs modules then
+      lib.mapAttrsRecursive (_: path: import path) modules
+    else
+      import modules;
 })

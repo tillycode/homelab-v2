@@ -6,10 +6,12 @@
 
     # libraries
 
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+    systems.url = "github:nix-systems/x86_64-linux";
 
     blank.url = "github:divnix/blank";
+
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
 
     # flake modules
 
@@ -27,24 +29,22 @@
 
   outputs =
     { flake-parts, ... }@inputs:
-    flake-parts.lib.mkFlake { inherit inputs; } (
-      { lib, ... }:
-      let
-        selfLib = import ./lib { inherit inputs lib; };
-        modules = selfLib.listModules ./flake;
-      in
+    let
+      self-lib = import ./lib { inherit (inputs.nixpkgs) lib; };
+      modules = self-lib.listModules ./flake;
+    in
+    flake-parts.lib.mkFlake
+      {
+        inherit inputs;
+        specialArgs = { inherit self-lib; };
+      }
       {
         imports = [
           inputs.devshell.flakeModule
           inputs.git-hooks.flakeModule
           inputs.treefmt-nix.flakeModule
         ]
-        ++ selfLib.mkImports modules;
-
-        systems = [
-          "x86_64-linux"
-        ];
-        flake.lib = selfLib;
-      }
-    );
+        ++ self-lib.mkImports modules;
+        systems = import inputs.systems;
+      };
 }
