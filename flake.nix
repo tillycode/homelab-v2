@@ -31,20 +31,21 @@
     { flake-parts, ... }@inputs:
     let
       self-lib = import ./lib { inherit (inputs.nixpkgs) lib; };
-      modules = self-lib.listModules ./flake;
+      modules = self-lib.listModules ./flake-modules;
+      profiles = self-lib.listModules ./flake;
     in
-    flake-parts.lib.mkFlake
-      {
-        inherit inputs;
-        specialArgs = { inherit self-lib; };
-      }
-      {
-        imports = [
-          inputs.devshell.flakeModule
-          inputs.git-hooks.flakeModule
-          inputs.treefmt-nix.flakeModule
-        ]
-        ++ self-lib.mkImports modules;
-        systems = import inputs.systems;
-      };
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.devshell.flakeModule
+        inputs.git-hooks.flakeModule
+        inputs.treefmt-nix.flakeModule
+      ]
+      ++ self-lib.mkImports modules
+      ++ self-lib.mkImports profiles;
+
+      flake.lib = self-lib;
+      flake.flakeModules = self-lib.mkImported modules;
+
+      systems = import inputs.systems;
+    };
 }
