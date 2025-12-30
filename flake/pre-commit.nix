@@ -6,6 +6,9 @@
       check-added-large-files.enable = true;
       check-yaml.enable = true;
       treefmt.enable = true;
+
+      # custom hooks
+      flat-flake.enable = true;
     };
   };
 }

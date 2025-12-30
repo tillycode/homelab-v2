@@ -24,7 +24,10 @@ let
     };
   };
 
-  nixosModules = lib.attrValues self.nixosModules;
+  nixosModules = lib.attrValues self.nixosModules ++ [
+    inputs.preservation.nixosModules.default
+    inputs.disko.nixosModules.default
+  ];
   nixosSpecialArgs = {
     inherit inputs self profiles;
   };
