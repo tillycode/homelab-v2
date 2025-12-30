@@ -76,6 +76,7 @@ in
         suites.server
 
         boot.systemd-boot
+        hosts.hasee
       ];
       module =
         { pkgs, ... }:
