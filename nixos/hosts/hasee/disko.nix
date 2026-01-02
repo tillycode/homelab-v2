@@ -1,4 +1,10 @@
 {
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   disko.devices = {
     disk.main = {
       type = "disk";
@@ -92,4 +98,37 @@
   };
 
   fileSystems."/.persist".neededForBoot = true;
+
+  preservation.preserveAt.default.persistentStoragePath = "/.persist";
+
+  virtualisation.vmVariantWithDisko = {
+    disko.devices.disk.main.content.partitions.ESP.size = lib.mkForce "100M";
+    disko.devices.lvm_vg.pool.lvs.root.size = lib.mkForce "1G";
+    disko.devices.lvm_vg.pool.lvs.swap.size = lib.mkForce "1G";
+    disko.devices.lvm_vg.pool.lvs.ceph.size = lib.mkForce "1G";
+  };
+
+  # FIXME: LVM uses udev rules and systemd-run to activate the pool.
+  # However, activation may fail due to running before kernel modules are loaded.
+  # See https://github.com/NixOS/nixpkgs/issues/428775.
+  # Patch the udev rules, and manually setup LVM in initrd.
+  boot.initrd.services.lvm.enable = false;
+  boot.initrd.services.udev.packages =
+    let
+      pkg =
+        pkgs.runCommandLocal "lvm-udev-rules"
+          {
+            inherit (config.services.lvm) package;
+          }
+          ''
+            mkdir -p $out/lib/udev/rules.d
+            cp ''$package/lib/udev/rules.d/*.rules $out/lib/udev/rules.d
+            substituteInPlace $out/lib/udev/rules.d/69-dm-lvm.rules \
+              --replace-fail "systemd-run --no-block " \
+              "systemd-run --no-block --property=After=systemd-modules-load.service "
+          '';
+    in
+    [ pkg ];
+  boot.initrd.systemd.initrdBin = [ config.services.lvm.package ];
+  boot.initrd.services.udev.binPackages = [ config.services.lvm.package ];
 }

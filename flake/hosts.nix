@@ -10,7 +10,9 @@ let
     suites = with profiles; {
       base = [
         boot.nixos-init
+        environment.preservation
         networking.networkd
+        services.sshd
       ];
       server = [
         suites.base
@@ -78,19 +80,10 @@ in
         boot.systemd-boot
         hosts.hasee
       ];
-      module =
-        { pkgs, ... }:
-        {
-          users.users.nixos = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" ];
-            initialPassword = "nixos";
-          };
-          environment.systemPackages = with pkgs; [
-            htop
-          ];
-          system.stateVersion = "25.11";
-        };
+      module = {
+        systemd.network.networks."40-bond0".address = [ "10.9.0.11/24" ];
+        system.stateVersion = "25.11";
+      };
     })
   ];
 }
