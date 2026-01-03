@@ -23,6 +23,12 @@ let
       desktop = [
         suites.base
       ];
+      hasee = [
+        suites.server
+
+        boot.systemd-boot
+        hosts.hasee
+      ];
     };
   };
 
@@ -75,13 +81,32 @@ in
       name = "hasee01";
       system = "x86_64-linux";
       profiles = with profiles; [
-        suites.server
-
-        boot.systemd-boot
-        hosts.hasee
+        suites.hasee
       ];
       module = {
         systemd.network.networks."40-bond0".address = [ "10.9.0.11/24" ];
+        system.stateVersion = "25.11";
+      };
+    })
+    (mkHost {
+      name = "hasee02";
+      system = "x86_64-linux";
+      profiles = with profiles; [
+        suites.hasee
+      ];
+      module = {
+        systemd.network.networks."40-bond0".address = [ "10.9.0.12/24" ];
+        system.stateVersion = "25.11";
+      };
+    })
+    (mkHost {
+      name = "hasee03";
+      system = "x86_64-linux";
+      profiles = with profiles; [
+        suites.hasee
+      ];
+      module = {
+        systemd.network.networks."40-bond0".address = [ "10.9.0.13/24" ];
         system.stateVersion = "25.11";
       };
     })
