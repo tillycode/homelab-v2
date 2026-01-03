@@ -12,12 +12,15 @@ let
         boot.nixos-init
         environment.preservation
         networking.networkd
+        services.nix-gc
+        services.nix-optimise
         services.sshd
       ];
       server = [
         suites.base
 
         programs.minimal
+        programs.nix
         networking.bbr
       ];
       desktop = [
