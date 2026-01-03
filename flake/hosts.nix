@@ -11,7 +11,10 @@ let
       base = [
         boot.nixos-init
         environment.preservation
+        networking.firewall
         networking.networkd
+        programs.nix
+        programs.tools
         services.nix-gc
         services.nix-optimise
         services.sshd
@@ -20,7 +23,6 @@ let
         suites.base
 
         programs.minimal
-        programs.nix
         networking.bbr
       ];
       desktop = [
