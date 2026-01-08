@@ -9,6 +9,10 @@
           nixos-anywhere
           deploy-rs
           sops
+          devPackages.pkgmgr
+
+          # for IDEs
+          python3
         ];
       };
     };

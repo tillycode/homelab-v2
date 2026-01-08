@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-from dataclasses import dataclass, field
 import json
 import sys
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
