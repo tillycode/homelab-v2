@@ -6,9 +6,11 @@
 
     # libraries
 
-    systems.url = "github:nix-systems/x86_64-linux";
+    systems.url = "path:systems.nix";
+    systems.flake = false;
 
-    blank.url = "github:divnix/blank";
+    blank.url = "path:blank";
+    blank.flake = false;
 
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
