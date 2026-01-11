@@ -5,7 +5,15 @@
       # should be covered by pre-commit
       flakeCheck = false;
 
-      settings.on-unmatched = "warn";
+      settings.on-unmatched = "fatal";
+
+      # json
+      programs.prettier.enable = true;
+
+      # python
+      programs.ruff-format.enable = true;
+      programs.ruff-check.enable = true;
+      programs.ruff-check.extendSelect = [ "I" ];
 
       # nix
       programs.nixfmt.enable = true;
