@@ -6,13 +6,19 @@
         devshell.startup.pre-commit-hook.text = config.pre-commit.installationScript;
         devshell.startup.files.text = config.files.shellHook;
         devshell.packages = with pkgs; [
+          # for deployment
           nixos-anywhere
           deploy-rs
           sops
           devPackages.pkgmgr
 
-          # for IDEs
-          python3
+          # for IDEs and documentation
+          (python3.withPackages (
+            ps: with ps; [
+              mkdocs
+              mkdocs-material
+            ]
+          ))
         ];
       };
     };

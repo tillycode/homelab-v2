@@ -5,6 +5,7 @@
       check-json.enable = true;
       check-added-large-files.enable = true;
       check-yaml.enable = true;
+      check-yaml.args = [ "--unsafe" ]; # for !!python directives
       treefmt.enable = true;
 
       # custom hooks
