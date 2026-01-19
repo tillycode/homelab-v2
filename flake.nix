@@ -42,6 +42,9 @@
 
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
+
+    home-manager.url = "github:nix-community/home-manager?ref=release-25.11";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -56,12 +59,13 @@
         inputs.devshell.flakeModule
         inputs.git-hooks.flakeModule
         inputs.treefmt-nix.flakeModule
+        inputs.home-manager.flakeModules.default
       ]
       ++ self-lib.mkImports modules
       ++ self-lib.mkImports profiles;
 
       flake.lib = self-lib;
-      flake.flakeModules = self-lib.mkImported modules;
+      flake.flakeModules = self-lib.mkModules modules;
 
       systems = import inputs.systems;
     };

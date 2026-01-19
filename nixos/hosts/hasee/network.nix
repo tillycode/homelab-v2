@@ -45,8 +45,8 @@
     "40-bond0" = {
       matchConfig.Name = "bond0";
       linkConfig.MTUBytes = 9000;
-      gateway = [ "10.9.0.1" ];
-      dns = [ "10.9.0.1" ];
+      gateway = [ "10.112.8.1" ];
+      dns = [ "10.112.8.1" ];
       networkConfig = {
         DHCP = "no";
         IPv6AcceptRA = false;

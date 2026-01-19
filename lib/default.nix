@@ -23,24 +23,43 @@ let
         else
           { }
       ) children;
+
+  makeExtensibleCustomized =
+    custom: attrs:
+    lib.fix (
+      self:
+      (attrs self)
+      // {
+        extend = f: makeExtensibleCustomized custom (custom f attrs);
+      }
+    );
 in
-lib.makeExtensible (self: {
+rec {
   # Given a directory, return a recursive attrset of paths which mirror the filesystem structure.
   # Files and directories that start with `_` are not included.
   # If a directory contains `default.nix`, it won't be recursed.
+  # extendsRecursive =
+  #   overlay: f: final:
+  #   let
+  #     prev = f final;
+  #   in
+  #   lib.recursiveUpdate prev (overlay final prev);
   listModules =
     src:
-    let
-      type = lib.pathType src;
-    in
-    if !lib.pathExists src then
-      { }
-    else if type == "regular" then
-      src
-    else if type == "directory" then
-      _listModules src
-    else
-      { };
+    makeExtensibleCustomized
+      (
+        f: attrs: final:
+        let
+          prev = attrs final;
+        in
+        lib.recursiveUpdate prev (lib.mapAttrsRecursive (p: mkImports) (lib.toExtension f final prev))
+      )
+      (
+        self:
+        lib.optionalAttrs (
+          lib.pathExists src && lib.assertMsg (lib.pathType src == "directory") "src must be a directory"
+        ) (_listModules src)
+      );
 
   # Given a nested list of nest attrsets of paths, return a flattened paths
   #
@@ -70,10 +89,16 @@ lib.makeExtensible (self: {
       lib.unique
     ];
 
-  mkImported =
+  mkModules =
     modules:
-    if lib.isAttrs modules then
-      lib.mapAttrsRecursive (_: path: import path) modules
-    else
-      import modules;
-})
+    lib.pipe modules [
+      (lib.flip lib.removeAttrs [ "extend" ])
+      (lib.mapAttrsToListRecursive (
+        p: v: {
+          name = lib.concatStringsSep "." p;
+          value = import v;
+        }
+      ))
+      lib.listToAttrs
+    ];
+}

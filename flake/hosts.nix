@@ -6,10 +6,11 @@
   ...
 }:
 let
-  profiles = self.lib.listModules ../nixos // {
-    suites = with profiles; {
-      base = [
+  profiles = (self.lib.listModules ../nixos).extend (
+    final: prev: with final; {
+      suites.base = [
         boot.nixos-init
+        home-manager.common
         environment.preservation
         networking.firewall
         networking.networkd
@@ -19,37 +20,53 @@ let
         services.nix-optimise
         services.sshd
       ];
-      server = [
+      suites.server = [
         suites.base
-
         programs.minimal
         networking.bbr
       ];
-      desktop = [
+      suites.desktop = [
         suites.base
       ];
-      hasee = [
+      suites.hasee = [
         suites.server
-
         boot.systemd-boot
         hosts.hasee
       ];
-    };
-  };
+
+      nixos.hasee01 = [
+        suites.hasee
+      ];
+      nixos.hasee02 = [
+        suites.hasee
+      ];
+      nixos.hasee03 = [
+        suites.hasee
+      ];
+    }
+  );
+
+  homeProfiles = (self.lib.listModules ../home-manager);
 
   nixosModules = lib.attrValues self.nixosModules ++ [
     inputs.preservation.nixosModules.default
     inputs.disko.nixosModules.default
+    inputs.home-manager.nixosModules.default
   ];
   nixosSpecialArgs = {
-    inherit inputs self profiles;
+    inherit
+      inputs
+      self
+      profiles
+      homeProfiles
+      ;
   };
 
   mkHost =
     {
       name,
       system ? throw "system is required",
-      profiles ? [ ],
+      profiles ? specialArgs.profiles.nixos.${name} or [ ],
       module ? { },
 
       nixpkgs ? inputs.nixpkgs,
@@ -85,35 +102,27 @@ in
     (mkHost {
       name = "hasee01";
       system = "x86_64-linux";
-      profiles = with profiles; [
-        suites.hasee
-      ];
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.9.0.11/24" ];
-        system.stateVersion = "25.11";
+        systemd.network.networks."40-bond0".address = [ "10.112.8.2/24" ];
       };
     })
     (mkHost {
       name = "hasee02";
       system = "x86_64-linux";
-      profiles = with profiles; [
-        suites.hasee
-      ];
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.9.0.12/24" ];
-        system.stateVersion = "25.11";
+        systemd.network.networks."40-bond0".address = [ "10.112.8.3/24" ];
       };
     })
     (mkHost {
       name = "hasee03";
       system = "x86_64-linux";
-      profiles = with profiles; [
-        suites.hasee
-      ];
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.9.0.13/24" ];
-        system.stateVersion = "25.11";
+        systemd.network.networks."40-bond0".address = [ "10.112.8.4/24" ];
       };
     })
   ];
+
+  flake.passthru = {
+    nixosProfiles = profiles;
+  };
 }

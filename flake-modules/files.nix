@@ -40,12 +40,10 @@ let
       config = {
         target = mkDefault name;
         source = mkIf (config.text != null) (
-          mkDefault (
-            pkgs.writeTextFile {
-              name = name;
-              inherit (config) text executable;
-            }
-          )
+          pkgs.writeTextFile {
+            name = name;
+            inherit (config) text executable;
+          }
         );
       };
     };
