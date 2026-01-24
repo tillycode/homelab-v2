@@ -1,0 +1,56 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: cilium-to-node
+spec:
+  bgpInstances:
+    - name: cilium
+      localASN: 64512
+      peers:
+        - name: node
+          peerASN: 64513
+          peerAddress: 127.0.0.1
+          peerConfigRef:
+            name: node-local
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPPeerConfig
+metadata:
+  name: node-local
+spec:
+  timers:
+    connectRetryTimeSeconds: 5
+    holdTimeSeconds: 9
+    keepAliveTimeSeconds: 3
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: bgp
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: pods-and-services
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: PodCIDR
+    - advertisementType: Service
+      service:
+        addresses:
+          - ClusterIP
+          - LoadBalancerIP
+      selector:
+        matchExpressions: []
+---
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: public-auto-allocated
+spec:
+  blocks:
+    - cidr: 10.112.10.128/25

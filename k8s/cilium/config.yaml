@@ -1,0 +1,61 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-cilium
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    kubeProxyReplacement: true
+    k8s:
+      apiServerURLs: https://10.112.8.2:6443 https://10.112.8.3:6443 https://10.112.8.4:6443
+
+    bgpControlPlane:
+      enabled: true
+      routerIDAllocation:
+        # to avoid conflicts with BGP daemon on the host
+        mode: ip-pool
+        # any router ID that is unique is fine
+        # here we use a subset of the pod CIDR
+        ipPool: 10.112.0.0/24
+
+    routingMode: native
+    enableIPv4Masquerade: false
+    # enable L2 based routing
+    autoDirectNodeRoutes: true
+
+    gatewayAPI:
+      enabled: true
+
+    operator:
+      # TODO: increase the replicas later after join
+      replicas: 1
+
+    ipam:
+      mode: multi-pool
+      operator:
+        autoCreateCiliumPodIPPools:
+          default:
+            ipv4:
+              cidrs:
+                - 10.112.0.0/21
+              maskSize: 24
+    bpf:
+      # to enable external access to the ClusterIP services
+      lbExternalClusterIP: true
+      # allow all vlan traffic
+      vlanBypass:
+        - 0
+      # Note hostLegacyRouting defaults to false. As a result, netfilter is bypassed.
+
+    ingressController:
+      enable: true
+      default: true
+
+    hubble:
+      enabled: true
+      relay:
+        enabled: true
+      ui:
+        enabled: true
+        # TODO: ingress

@@ -1,0 +1,47 @@
+---
+title: IP and ASN Allocation
+---
+
+## IPs
+
+We decided to use `10.112.0.0/16` as the private IP address for all services.
+If we need more IP addresses, we may change the mask to `/12` in the future.
+
+### Regions
+
+| #      | Region    | IP CIDR        |
+| ------ | --------- | -------------- |
+| 0-31   | Home      | 10.112.0.0/19  |
+| 32     | _Anycast_ | 10.112.32.0/24 |
+| 33     | HGH       | 10.112.33.0/24 |
+| 34-255 | N/A       |                |
+
+### Details
+
+| #      | Region    | IP CIDR        | Usage                               |
+| ------ | --------- | -------------- | ----------------------------------- |
+| 0-7    | Home      | 10.112.0.0/21  | Hasee Pods                          |
+| 8      |           | 10.112.8.0/24  | Nodes                               |
+| 9      |           | 10.112.9.0/24  | Hasee ClusterIP Services            |
+| 10     |           | 10.112.10.0/24 | Hasee Public LoadBalancer Services  |
+| 11     |           | 10.112.11.0/24 | Hasee Private LoadBalancer Services |
+| 12     |           | 10.112.12.0/24 | Incus contains or VMs               |
+| 13-31  |           |                | Reserved                            |
+| 32     | _Anycast_ | 10.112.32.0/24 |                                     |
+| 33     | HGH       | 10.112.33.0/24 |                                     |
+| 34-255 | N/A       |                | Unallocated                         |
+
+### Well-known IPs
+
+| IP           | Owner      | Usage              |
+| ------------ | ---------- | ------------------ |
+| 10.112.8.1   | router     | DNS                |
+| 10.112.8.2-4 | hasee01-03 | RKE2 Server Nodes  |
+| 10.112.8.5   | desktop    | Incus Server Nodes |
+
+## ASNs
+
+| ASN   | Usage      |
+| ----- | ---------- |
+| 64512 | Cilium BGP |
+| 64513 | Home Nodes |

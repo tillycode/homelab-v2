@@ -36,6 +36,7 @@ let
 
       nixos.hasee01 = [
         suites.hasee
+        services.rke2.bootstrap
       ];
       nixos.hasee02 = [
         suites.hasee

@@ -4,7 +4,7 @@ nav:
   - SOP:
       - sop/rke2.md
   - Registry:
-      - registry/ip-allocation.md
+      - registry/ip-and-asn-allocation.md
 theme:
   name: material
   features:
