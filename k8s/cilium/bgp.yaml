@@ -38,7 +38,9 @@ metadata:
     advertise: bgp
 spec:
   advertisements:
-    - advertisementType: PodCIDR
+    - advertisementType: CiliumPodIPPool
+      selector:
+        matchLabels: {}
     - advertisementType: Service
       service:
         addresses:
@@ -50,7 +52,10 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: public-auto-allocated
+  name: public
 spec:
   blocks:
-    - cidr: 10.112.10.128/25
+    - cidr: 10.112.10.0/24
+  serviceSelector:
+    matchLabels:
+      lb-pool: public

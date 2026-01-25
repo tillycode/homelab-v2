@@ -57,6 +57,8 @@ lib.mkMerge [
     services.rke2 = {
       cni = "multus,cilium";
       extraFlags = [
+        "--tls-san=10.112.8.100"
+        "--tls-san=rke2-hasee.szp.io"
         "--cluster-cidr=10.112.0.0/21"
         "--service-cidr=10.112.9.0/24"
         "--cluster-dns=10.112.9.10"

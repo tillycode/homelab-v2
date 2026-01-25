@@ -15,7 +15,7 @@
           import all;
           export filter {
             if source != RTS_BGP then reject;
-            if proto = "cilium" then reject;
+            if bgp_path.last = 64512 then reject;
             accept;
           };
         };

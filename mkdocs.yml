@@ -2,7 +2,7 @@ site_name: Homelab Documentation
 nav:
   - Home: index.md
   - SOP:
-      - sop/rke2.md
+      - sop/rke2-hasee.md
   - Registry:
       - registry/ip-and-asn-allocation.md
 theme:
