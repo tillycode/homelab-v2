@@ -5,7 +5,9 @@
       # should be covered by pre-commit
       flakeCheck = false;
 
+      # see https://treefmt.com/latest/getting-started/configure/#global-options
       settings.on-unmatched = "fatal";
+      settings.excludes = [ "secrets/*" ];
 
       # json
       programs.prettier.enable = true;
@@ -23,6 +25,9 @@
       programs.shellcheck.enable = true;
       settings.formatter.shfmt.includes = [ ".envrc" ];
       settings.formatter.shellcheck.includes = [ ".envrc" ];
+
+      # toml
+      programs.taplo.enable = true;
     };
   };
 }

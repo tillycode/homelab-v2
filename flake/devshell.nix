@@ -10,13 +10,15 @@
           nixos-anywhere
           deploy-rs
           sops
-          devPackages.pkgmgr
+          ssh-to-age
 
           # for IDEs and documentation
           (python3.withPackages (
             ps: with ps; [
               mkdocs
               mkdocs-material
+              # for development
+              devPackages.scripts.editable
             ]
           ))
         ];

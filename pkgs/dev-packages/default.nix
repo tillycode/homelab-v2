@@ -8,6 +8,6 @@ lib.makeScope newScope (
     inherit (self) callPackage;
   in
   {
-    pkgmgr = callPackage ./pkgmgr { };
+    scripts = callPackage ./scripts.nix { };
   }
 )

@@ -6,3 +6,7 @@
 result
 result-*
 .pre-commit-config.yaml
+
+# python
+*.py[cod]
+__pycache__/

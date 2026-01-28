@@ -1,58 +1,26 @@
-#!/usr/bin/env python3
-
 import argparse
 import asyncio
 import contextlib
-import errno
 import json
 import os
 import subprocess
 import sys
 import tempfile
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from itertools import zip_longest
-from pathlib import Path
 from typing import Any
 
-PACKAGE_EVAL_SCRIPT_PATH = os.path.join(os.path.dirname(__file__), "eval.nix")
+from .utils import (
+    AsyncQueueIterator,
+    asyncio_run,
+    escape_nix_string,
+    get_root_directory,
+    lock_file,
+    print_table,
+    run,
+)
 
-
-def search_upwards_for_file(directory: Path, filename: str) -> Path | None:
-    root = Path(directory.root)
-    while directory != root:
-        attempt = directory / filename
-        if attempt.exists():
-            return directory
-        directory = directory.parent
-    return None
-
-
-async def run(
-    *args: str,
-    cwd: str | None = None,
-    env: dict[str, str] | None = None,
-    input: bytes | None = None,
-    stdout: int | None = asyncio.subprocess.PIPE,
-    stderr: int | None = None,
-) -> bytes:
-    process = await asyncio.create_subprocess_exec(
-        *args,
-        cwd=cwd,
-        env=env,
-        stdout=stdout,
-        stderr=stderr,
-    )
-    output, error = await process.communicate(input)
-    if process.returncode is not None and process.returncode != 0:
-        raise subprocess.CalledProcessError(
-            process.returncode,
-            list(args),
-            output,
-            error,
-        )
-
-    return output or b""
+PACKAGE_EVAL_SCRIPT_PATH = os.path.join(os.path.dirname(__file__), "pkgmgr-eval.nix")
 
 
 @dataclass(frozen=True)
@@ -79,11 +47,6 @@ class CommitChange:
     files: list[str]
     commitMessage: str | None = None
     commitBody: str | None = None
-
-
-def escape_nix_string(s: str) -> str:
-    """similar to lib.strings.escapeNixString"""
-    return json.dumps(s).replace("$", "\\$")
 
 
 async def evaluation(
@@ -151,29 +114,6 @@ async def make_worktree() -> AsyncGenerator[tuple[str, str], None]:
         finally:
             await run("git", "worktree", "remove", "--force", target_directory)
             await run("git", "branch", "-D", branch_name)
-
-
-def get_root_directory() -> Path:
-    root = search_upwards_for_file(Path.cwd(), "flake.nix")
-    if root is None:
-        raise FileNotFoundError("flake.nix not found")
-    return root
-
-
-class AsyncQueueIterator[T]:
-    queue: asyncio.Queue[T]
-
-    def __init__(self, queue: asyncio.Queue[T]):
-        self.queue = queue
-
-    def __aiter__(self) -> "AsyncQueueIterator[T]":
-        return self
-
-    async def __anext__(self) -> T:
-        try:
-            return await self.queue.get()
-        except asyncio.QueueShutDown:
-            raise StopAsyncIteration
 
 
 async def check_changes(
@@ -319,21 +259,6 @@ async def update_worker(
                 raise
 
 
-@contextlib.contextmanager
-def lock_file(path: Path) -> Generator[None, None, None]:
-    try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, mode=0o644)
-        os.close(fd)
-    except OSError as e:
-        if e.errno == errno.EEXIST:
-            raise FileExistsError(f"Lock file already exists: {path}")
-        raise
-    try:
-        yield
-    finally:
-        path.unlink(missing_ok=True)
-
-
 async def update(
     max_workers: int,
     keep_going: bool,
@@ -419,19 +344,11 @@ async def list_packages() -> None:
                 "" if package.updateScript else "",  # nf-fa-check and nf-fa-xmark
             ]
         )
-    widths = [
-        max(len(cell) for cell in column) for column in zip_longest(*rows, fillvalue="")
-    ]
-    sep = " " * 3
-    for row in rows:
-        for i, (cell, width) in enumerate(zip(row, widths)):
-            if i != len(row) - 1:
-                print(cell.ljust(width), end=sep)
-                continue
-            print(cell)
+    print_table(rows)
 
 
-def main() -> None:
+@asyncio_run
+async def main() -> None:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         dest="subcommand",
@@ -476,20 +393,14 @@ def main() -> None:
     match args.subcommand:  # pyright: ignore[reportMatchNotExhaustive]
         case "update":
             try:
-                asyncio.run(
-                    update(
-                        max_workers=args.max_workers,
-                        keep_going=args.keep_going,
-                        commit=args.commit,
-                        predicate=args.predicate,
-                        attrPaths=args.package or None,
-                    )
+                await update(
+                    max_workers=args.max_workers,
+                    keep_going=args.keep_going,
+                    commit=args.commit,
+                    predicate=args.predicate,
+                    attrPaths=args.package or None,
                 )
             except KeyboardInterrupt:
                 sys.exit(130)
         case "list":
-            asyncio.run(list_packages())
-
-
-if __name__ == "__main__":
-    main()
+            await list_packages()

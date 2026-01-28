@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import json
 import sys
@@ -35,8 +33,8 @@ def load_lock(path: str) -> Lock:
 @dataclass(frozen=True)
 class CheckFlatFlake:
     nodes: dict[str, Node]
-    paths: list[str] = field(default_factory=list, init=False)
-    violations: list[list[str]] = field(default_factory=list, init=False)
+    paths: list[str] = field(default_factory=list[str], init=False)
+    violations: list[list[str]] = field(default_factory=list[list[str]], init=False)
 
     def check(self, current: str, depth: int = 0) -> None:
         node = self.nodes[current]
@@ -52,23 +50,24 @@ class CheckFlatFlake:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser("check flat flake dependencies")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-f",
-        "--file",
-        default="flake.lock",
+        "file",
         help="path to the flake lock file",
+        nargs="+",
     )
 
     args = parser.parse_args()
-    lock = load_lock(args.file)
-    check = CheckFlatFlake(nodes=lock.nodes)
-    check.check(lock.root)
-    if len(check.violations) > 0:
-        print("found violations:", file=sys.stderr)
-        for violation in check.violations:
-            print(f"  {'/'.join(violation)}", file=sys.stderr)
-        sys.exit(1)
+    for file in args.file:
+        lock = load_lock(file)
+        check = CheckFlatFlake(nodes=lock.nodes)
+        check.check(lock.root)
+        if len(check.violations) > 0:
+            print(f"found violations in {file}", file=sys.stderr)
+            for violation in check.violations:
+                print(f"  {'/'.join(violation)}", file=sys.stderr)
+            sys.exit(1)
+    print("no violations found", file=sys.stderr)
 
 
 if __name__ == "__main__":

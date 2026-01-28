@@ -34,6 +34,8 @@
             accept;
           };
           next hop self;
+          add paths rx;
+          require add paths on;
         };
       }
 
@@ -51,5 +53,9 @@
         };
       }
     '';
+  };
+
+  boot.kernel.sysctl = {
+    "net.ipv4.fib_multipath_hash_policy" = 1;
   };
 }

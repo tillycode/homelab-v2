@@ -28,8 +28,7 @@ spec:
       enabled: true
 
     operator:
-      # TODO: increase the replicas later after join
-      replicas: 1
+      replicas: 2
 
     ipam:
       mode: multi-pool

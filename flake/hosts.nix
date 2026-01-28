@@ -40,9 +40,11 @@ let
       ];
       nixos.hasee02 = [
         suites.hasee
+        services.rke2-hasee.server
       ];
       nixos.hasee03 = [
         suites.hasee
+        services.rke2-hasee.server
       ];
     }
   );
@@ -53,6 +55,7 @@ let
     inputs.preservation.nixosModules.default
     inputs.disko.nixosModules.default
     inputs.home-manager.nixosModules.default
+    inputs.sops-nix.nixosModules.default
   ];
   nixosSpecialArgs = {
     inherit
@@ -86,6 +89,8 @@ let
 
           networking.hostName = lib.mkDefault name;
           nixpkgs.pkgs = lib.mkDefault pkgs;
+          sops.defaultSopsFile = lib.mkDefault ../secrets/hosts/${name}.yaml;
+          sops.age.sshKeyPaths = [ "/.persist/etc/ssh/ssh_host_ed25519_key" ];
         };
     in
     {
@@ -105,6 +110,7 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-bond0".address = [ "10.112.8.2/24" ];
+        sops.agePublicKey = "age1ksg30jggegpf9dzf0cpy7023htqjenhl6cf8qnuyffm5d4ay8unqlcrf3y";
       };
     })
     (mkHost {
@@ -112,6 +118,7 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-bond0".address = [ "10.112.8.3/24" ];
+        sops.agePublicKey = "age1mjutxzwpux0l0l6egyrnrm2z05d4sj03ctny7ts3uvuy0k457g5s6rvtta";
       };
     })
     (mkHost {
@@ -119,6 +126,7 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-bond0".address = [ "10.112.8.4/24" ];
+        sops.agePublicKey = "age17rgneujcf2f20qys0z5dupymn9y8xgq8v6c7y3ra2zgp2t8h89ks6pw235";
       };
     })
   ];
