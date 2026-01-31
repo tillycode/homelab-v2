@@ -11,5 +11,6 @@ let
 in
 {
   rke2 = callPackage ./rke2 { };
+  zteonu = callPackage ./zteonu.nix { };
   devPackages = lib.recurseIntoAttrs (callPackage ./dev-packages { });
 }

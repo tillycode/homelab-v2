@@ -46,6 +46,11 @@ let
         suites.hasee
         services.rke2-hasee.server
       ];
+      nixos.router = [
+        suites.server
+        boot.systemd-boot
+        hosts.router
+      ];
     }
   );
 
@@ -80,7 +85,12 @@ let
     }:
     let
       defaultModule =
-        { lib, self, ... }:
+        {
+          lib,
+          self,
+          config,
+          ...
+        }:
         {
           imports = [
             nixpkgs.nixosModules.readOnlyPkgs
@@ -90,7 +100,10 @@ let
           networking.hostName = lib.mkDefault name;
           nixpkgs.pkgs = lib.mkDefault pkgs;
           sops.defaultSopsFile = lib.mkDefault ../secrets/hosts/${name}.yaml;
-          sops.age.sshKeyPaths = [ "/.persist/etc/ssh/ssh_host_ed25519_key" ];
+          sops.age.sshKeyPaths = [
+            "${config.preservation.preserveAt.default.persistentStoragePath}/etc/ssh/ssh_host_ed25519_key"
+          ];
+          sops.gnupg.sshKeyPaths = [ ];
         };
     in
     {
@@ -127,6 +140,13 @@ in
       module = {
         systemd.network.networks."40-bond0".address = [ "10.112.8.4/24" ];
         sops.agePublicKey = "age17rgneujcf2f20qys0z5dupymn9y8xgq8v6c7y3ra2zgp2t8h89ks6pw235";
+      };
+    })
+    (mkHost {
+      name = "router";
+      system = "x86_64-linux";
+      module = {
+        sops.agePublicKey = "age1dtdquu63vrxag5pgs4yrqaarjywuksnw4nz2dq5t44v8tv24cy8qz7yfcn";
       };
     })
   ];

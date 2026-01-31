@@ -1,9 +1,15 @@
+{ config, lib, ... }:
+let
+  address = lib.head config.systemd.network.networks."40-bond0".address;
+  routerId = lib.head (lib.splitString "/" address);
+
+in
 {
   services.bird = {
     enable = true;
     config = ''
       log stderr all;
-      router id from "bond0";
+      router id from ${routerId};
 
       protocol device {
       }
