@@ -35,8 +35,7 @@ If we need more IP addresses, we may change the mask to `/12` in the future.
 | IP           | Usage                  |
 | ------------ | ---------------------- |
 | 10.112.8.100 | Hasee Cluster kube-vip |
-
-TODO: anycast DNS server
+| 10.112.32.1  | Anycast DNS server     |
 
 ## ASNs
 

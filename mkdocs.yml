@@ -5,6 +5,7 @@ nav:
       - sop/rke2-hasee.md
   - Registry:
       - registry/ip-and-asn-allocation.md
+      - registry/k8s-resources.md
 theme:
   name: material
   features:

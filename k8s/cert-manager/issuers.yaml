@@ -1,0 +1,56 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: cloudflare-api-key-secret
+  namespace: cert-manager
+spec:
+  encryptedData:
+    api-key: AgBxdgOmyZ3va28VtpStKhZyvehiJxLMoZAXNnh1Y3lX0rm0E6wEq2qpbbbZbIlRBe/ldG7PN9ZPwchgk/NUReQo/BwdGdA674dQux4rXpMMEz75zfgKQHYwLnrGR3u4HJyFf6uBiCptHq0ls3TLDXkt72oo/OY6UNU4JvvSWXahdgy/tExW4biMUE9hkOp02lsmNiLwE/LJ/FIC5F6A4PTG3mfUVu2gd2zaYeX6k7Imy6sjq+G/Ns2FmHVA4N1JiYXS1tVFARHeXx8QKLnEWqFwPDWj3gX2OQRAi98zhEsVJ1E+3ESb2rQO7EhWnDqjA12nGsd7ntTg1CW6ug3/2U2ZYUJfjuKtvu99EkuTqSpj80dhT2ZIocL8+iHE0nc5uxroUM+ySPVsiQNCqNURuaM6pH3CnpMtM4YDDNru1GFf/Lod83KHKGY0wMGSlwtZxRoRAMWEl1h4DzMejrrDofCE9GUsS4vWWFtBAIq0HeGUN4ochNC17VPW3UKYk6rKrbj876uyq1lJbmI4B5IfNNJlqZNUwqd3WGDTwnRjydJ54J0/3WrSA9ZGLWjUBgZW868hgQIywXZvamB0FMomjgqDnTl2kPEXRM1Su4hyK5LVrUU1cOHii69IHBjR+EGxb5UFALGUGn713rB6r9EpnwzZ/FFHkqupTB5zdZEPdcjBEg2xl5owPKjmZEbDvseD6bBpsNoKcFnzka90/OkQoAga9wCn472FYSbMRabBvLuOGSsRylA9W48/
+  template:
+    metadata:
+      name: cloudflare-api-key-secret
+      namespace: cert-manager
+    type: Opaque
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: me@szp.io
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-private-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-key-secret
+              key: api-key
+        selector:
+          dnsZones:
+            - szp15.com
+            - szp.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: me@szp.io
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging-private-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-key-secret
+              key: api-key
+        selector:
+          dnsZones:
+            - szp15.com
+            - szp.io

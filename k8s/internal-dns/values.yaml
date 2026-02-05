@@ -1,0 +1,41 @@
+domain: "szp.io szp15.com"
+watchedResources:
+  - HTTPRoute
+  - TLSRoute
+  - GRPCRoute
+
+service:
+  labels:
+    lb.szp.io/pool: default
+  annotations:
+    lbipam.cilium.io/ips: 10.112.10.10
+  externalTrafficPolicy: Local
+
+replicaCount: 2
+
+# TODO: check why there is ICMPv4 traffic to kube-dns
+
+extraZonePlugins:
+  - name: log
+  - name: errors
+  # Serves a /health endpoint on :8080, required for livenessProbe
+  - name: health
+    configBlock: |-
+      lameduck 5s
+  # Serves a /ready endpoint on :8181, required for readinessProbe
+  - name: ready
+  # Serves a /metrics endpoint on :9153, required for serviceMonitor
+  - name: prometheus
+    parameters: 0.0.0.0:9153
+  - name: reload
+  - name: loadbalance
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+# TODO: anti affinity
