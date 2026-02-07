@@ -21,5 +21,12 @@ Here're the NixOS profiles for the RKE2 cluster:
    kubectl apply -k k8s/kube-vip --server-side
    yq -i '.clusters[0].cluster.server = "https://10.112.8.100:6443"' ~/.kube/config
    ```
+3. Deploy the rest of server nodes.
+4. Deploy the agent nodes.
 
-TODO: deploy the rest of the nodes.
+!!! warning "Violating Cilium's Practice"
+
+    This process violates the cilium's practice "[Don’t change the IPAM mode of an existing cluster](https://docs.cilium.io/en/v1.18/network/concepts/ipam/)".
+    Note that RKE2 changes the default IPAM mode to Kubernetes Host Scope.
+
+[^1]: [rke2-charts/packages/rke2-cilium/generated-changes/patch/values.yaml.patch at main-source · rancher/rke2-charts](https://github.com/rancher/rke2-charts/blob/main-source/packages/rke2-cilium/generated-changes/patch/values.yaml.patch#L121)

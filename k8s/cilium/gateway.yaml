@@ -1,0 +1,64 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: k8s-internal
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.k8s.szp.io"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: k8s-internal-cert
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-redirect
+spec:
+  parentRefs:
+    - name: k8s-internal
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hubble-ui
+spec:
+  parentRefs:
+    - name: k8s-internal
+      sectionName: https
+  hostnames:
+    - hubble.k8s.szp.io
+  rules:
+    - backendRefs:
+        - name: hubble-ui
+          port: 80
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: k8s-internal-gateway
+specs:
+  - description: "Allow traffic from gateway to hubble-ui"
+    endpointSelector:
+      matchLabels:
+        k8s-app: hubble-ui
+    ingress:
+      - fromEntities:
+          - ingress

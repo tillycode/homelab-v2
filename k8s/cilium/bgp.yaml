@@ -2,7 +2,7 @@
 apiVersion: cilium.io/v2
 kind: CiliumBGPClusterConfig
 metadata:
-  name: cilium-to-node
+  name: default
 spec:
   bgpInstances:
     - name: cilium
@@ -12,12 +12,12 @@ spec:
           peerASN: 64513
           peerAddress: 127.0.0.1
           peerConfigRef:
-            name: node-local
+            name: default-peer
 ---
 apiVersion: cilium.io/v2
 kind: CiliumBGPPeerConfig
 metadata:
-  name: node-local
+  name: default-peer
 spec:
   timers:
     connectRetryTimeSeconds: 5
@@ -27,35 +27,32 @@ spec:
     - afi: ipv4
       safi: unicast
       advertisements:
-        matchLabels:
-          advertise: bgp
+        matchLabels: {}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumBGPAdvertisement
 metadata:
   name: pods-and-services
-  labels:
-    advertise: bgp
 spec:
   advertisements:
+    # required for reverse paths from the router, as we disabled masquerading
     - advertisementType: CiliumPodIPPool
       selector:
         matchLabels: {}
     - advertisementType: Service
       service:
         addresses:
-          - ClusterIP
           - LoadBalancerIP
       selector:
-        matchExpressions: []
+        matchLabels: {}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: public
+  name: default
 spec:
   blocks:
     - cidr: 10.112.10.0/24
   serviceSelector:
-    matchLabels:
-      lb-pool: public
+    # change it if we add more IP pools
+    matchLabels: {}

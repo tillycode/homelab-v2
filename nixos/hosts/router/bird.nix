@@ -38,4 +38,8 @@
   '';
 
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 179 ];
+
+  boot.kernel.sysctl = {
+    "net.ipv4.fib_multipath_hash_policy" = 1;
+  };
 }
