@@ -1,0 +1,74 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/cilium
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-vip
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/kube-vip
+  destination:
+    server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/gateway
+  destination:
+    server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: internal-dns
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: k8s-gateway
+      repoURL: https://k8s-gateway.github.io/k8s_gateway
+      targetRevision: 3.4.1
+      helm:
+        releaseName: internal-dns
+        valueFiles:
+          - $values/k8s/internal-dns/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: internal-dns
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

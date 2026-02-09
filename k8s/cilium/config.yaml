@@ -47,6 +47,8 @@ spec:
 
     gatewayAPI:
       enabled: true
+      # enable ALPN for h2 and gRPC
+      enableAlpn: true
 
     bpf:
       # allow all vlan traffic

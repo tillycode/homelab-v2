@@ -1,0 +1,65 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: cert-manager
+      repoURL: quay.io/jetstack/charts
+      targetRevision: v1.19.2
+      helm:
+        valueFiles:
+          - $values/k8s/cert-manager/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: issuers
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/issuers
+  destination:
+    server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sealed-secrets
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: sealed-secrets
+      repoURL: https://bitnami-labs.github.io/sealed-secrets
+      targetRevision: 2.18.0
+      helm:
+        valueFiles:
+          - $values/k8s/sealed-secrets/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sealed-secrets
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
