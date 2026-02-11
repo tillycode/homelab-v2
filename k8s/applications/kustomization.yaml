@@ -6,3 +6,4 @@ resources:
   - argocd.yaml
   - networking.yaml
   - security.yaml
+  - storage.yaml

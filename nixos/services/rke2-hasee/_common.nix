@@ -50,6 +50,11 @@ lib.mkMerge [
       }
       "/opt/cni"
       "/var/lib/cni"
+      # Rook Ceph
+      {
+        directory = "/var/lib/rook";
+        mode = "0700";
+      }
     ];
   }
 
