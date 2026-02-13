@@ -6,3 +6,4 @@ resources:
   - hubble-ui.yaml
   - argocd.yaml
   - sealed-secrets.yaml
+  - ceph.yaml

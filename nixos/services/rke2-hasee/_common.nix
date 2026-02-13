@@ -55,6 +55,11 @@ lib.mkMerge [
         directory = "/var/lib/rook";
         mode = "0700";
       }
+      # Local Path Provisioner
+      {
+        directory = "/opt/local-path-provisioner";
+        mode = "0700";
+      }
     ];
   }
 

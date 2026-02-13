@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR=$(dirname "$0")
 
 export VIP=10.112.8.100
-export INTERFACE=bond0
+export INTERFACE=svc
 KVVERSION=$(curl -sL https://api.github.com/repos/kube-vip/kube-vip/releases | jq -r ".[0].name")
 export KVVERSION
 

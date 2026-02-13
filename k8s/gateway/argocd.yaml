@@ -10,7 +10,6 @@ spec:
       kind: Gateway
       name: gateway
       namespace: gateway
-      sectionName: https
   hostnames:
     - argocd.k8s.szp.io
   rules:
@@ -35,7 +34,6 @@ spec:
       kind: Gateway
       name: gateway
       namespace: gateway
-      sectionName: https
   hostnames:
     - argocd.k8s.szp.io
   rules:

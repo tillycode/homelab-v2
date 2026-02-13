@@ -1,0 +1,35 @@
+---
+apiVersion: ceph.rook.io/v1
+kind: CephObjectStore
+metadata:
+  name: objectstore
+spec:
+  metadataPool:
+    failureDomain: host
+    replicated:
+      size: 3
+  dataPool:
+    failureDomain: host
+    erasureCoded:
+      dataChunks: 2
+      codingChunks: 1
+    parameters:
+      # Ceph Tentacle v20 has optimizations that need to be explicitly enabled
+      # allow_ec_optimizations: "true"
+  preservePoolsOnDelete: true
+  gateway:
+    port: 80
+    instances: 2
+  hosting:
+    dnsNames:
+      - s3.szp15.com
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rook-ceph-bucket
+provisioner: rook-ceph.ceph.rook.io/bucket
+reclaimPolicy: Delete
+parameters:
+  objectStoreName: objectstore
+  objectStoreNamespace: rook-ceph

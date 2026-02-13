@@ -32,22 +32,16 @@ let
         suites.server
         boot.systemd-boot
         hosts.hasee
+        services.ntp-home
+        services.rke2-hasee.server
       ];
 
-      nixos.hasee01 = [
-        suites.hasee
-        services.rke2-hasee.bootstrap
-      ];
-      nixos.hasee02 = [
-        suites.hasee
-        services.rke2-hasee.server
-      ];
-      nixos.hasee03 = [
-        suites.hasee
-        services.rke2-hasee.server
-      ];
+      nixos.hasee01 = suites.hasee;
+      nixos.hasee02 = suites.hasee;
+      nixos.hasee03 = suites.hasee;
       nixos.router = [
         suites.server
+        services.chrony
         boot.systemd-boot
         hosts.router
       ];
@@ -122,24 +116,24 @@ in
       name = "hasee01";
       system = "x86_64-linux";
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.112.8.2/24" ];
-        sops.agePublicKey = "age1ksg30jggegpf9dzf0cpy7023htqjenhl6cf8qnuyffm5d4ay8unqlcrf3y";
+        systemd.network.networks."40-svc".address = [ "10.112.8.2/24" ];
+        sops.agePublicKey = "age1etar9rrla2d79jfvmsqdzkag0dtjvzh7xf3zdlc5z3k53k6ncf3qthf8gp";
       };
     })
     (mkHost {
       name = "hasee02";
       system = "x86_64-linux";
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.112.8.3/24" ];
-        sops.agePublicKey = "age1mjutxzwpux0l0l6egyrnrm2z05d4sj03ctny7ts3uvuy0k457g5s6rvtta";
+        systemd.network.networks."40-svc".address = [ "10.112.8.3/24" ];
+        sops.agePublicKey = "age1fgz58ufhqxwvush0k26kajeamd3meh7ufy92vqd4yj9cup0dduls7dv9uc";
       };
     })
     (mkHost {
       name = "hasee03";
       system = "x86_64-linux";
       module = {
-        systemd.network.networks."40-bond0".address = [ "10.112.8.4/24" ];
-        sops.agePublicKey = "age17rgneujcf2f20qys0z5dupymn9y8xgq8v6c7y3ra2zgp2t8h89ks6pw235";
+        systemd.network.networks."40-svc".address = [ "10.112.8.4/24" ];
+        sops.agePublicKey = "age1mg0y7kd0zcggy9ukze4sg2drmaafdrwjs4zzqvzhznzhmhtw3a5serua3g";
       };
     })
     (mkHost {
