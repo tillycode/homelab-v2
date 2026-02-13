@@ -30,6 +30,38 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: rgw
+      protocol: HTTPS
+      port: 443
+      hostname: s3.szp15.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: objectstore-cert
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: rook-ceph
+    - name: rgw-wildcard
+      protocol: HTTPS
+      port: 443
+      hostname: "*.s3.szp15.com"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: objectstore-cert
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: rook-ceph
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute

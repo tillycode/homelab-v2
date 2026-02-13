@@ -1,4 +1,4 @@
-# https://github.com/rook/rook/blob/master/deploy/examples/cluster.yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/refs/heads/main/ceph.rook.io/cephcluster_v1.json
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
@@ -6,157 +6,24 @@ metadata:
 spec:
   cephVersion:
     image: quay.io/ceph/ceph:v19.2.3
-    allowUnsupported: false
   dataDirHostPath: /var/lib/rook
-  skipUpgradeChecks: false
-  continueUpgradeAfterChecksEvenIfNotHealthy: false
-  waitTimeoutForHealthyOSDInMinutes: 10
-  upgradeOSDRequiresHealthyPGs: false
   mon:
     count: 3
-    allowMultiplePerNode: false
   mgr:
-    count: 1
-    allowMultiplePerNode: false
-    modules:
-      - name: rook
-        enabled: true
+    count: 2
   dashboard:
     enabled: true
-    ssl: true
-    # ceph dashboard sso setup saml2 https://ceph.k8s.szp.io https://login.szp15.com/saml/v2/metadata UserName
-    # ceph dashboard ac-user-create ziping-sun -i password-file administrator
-  monitoring:
-    enabled: false
-    metricsDisabled: false
-    exporter:
-      perfCountersPrioLimit: 5
-      statsPeriodSeconds: 5
-  network:
-    connections:
-      encryption:
-        enabled: false
-      compression:
-        enabled: false
-      requireMsgr2: false
-  crashCollector:
-    disable: false
-  logCollector:
-    enabled: true
-    periodicity: daily
-    maxLogSize: 500M
-  cleanupPolicy:
-    confirmation: ""
-    sanitizeDisks:
-      method: quick
-      dataSource: zero
-      iteration: 1
-    allowUninstallWithVolumes: false
-  resources:
-    cleanup:
-      limits:
-        memory: 1Gi
-      requests:
-        cpu: 500m
-        memory: 100Mi
-    crashcollector:
-      limits:
-        memory: 60Mi
-      requests:
-        cpu: 100m
-        memory: 60Mi
-    exporter:
-      limits:
-        memory: 128Mi
-      requests:
-        cpu: 50m
-        memory: 50Mi
-    logcollector:
-      limits:
-        memory: 1Gi
-      requests:
-        cpu: 100m
-        memory: 100Mi
-    mgr:
-      limits:
-        memory: 1Gi
-      requests:
-        cpu: 500m
-        memory: 512Mi
-    mgr-sidecar:
-      limits:
-        memory: 100Mi
-      requests:
-        cpu: 100m
-        memory: 40Mi
-    mon:
-      limits:
-        memory: 2Gi
-      requests:
-        cpu: 1000m
-        memory: 1Gi
-    osd:
-      limits:
-        memory: 4Gi
-      requests:
-        cpu: 1000m
-        memory: 4Gi
-    prepareosd:
-      requests:
-        cpu: 500m
-        memory: 50Mi
-  removeOSDsIfOutAndSafeToRemove: false
-  priorityClassNames:
-    mon: system-node-critical
-    osd: system-node-critical
-    mgr: system-cluster-critical
   storage:
-    useAllDevices: false
-    useAllNodes: false
-    config: {}
-    allowDeviceClassUpdate: false
-    allowOsdCrushWeightUpdate: false
     nodes:
       - name: hasee01
         devices:
-          - name: /dev/pool/ceph
+          - name: /dev/pool/ceph01
+          - name: /dev/pool/ceph02
       - name: hasee02
         devices:
-          - name: /dev/pool/ceph
+          - name: /dev/pool/ceph01
+          - name: /dev/pool/ceph02
       - name: hasee03
         devices:
-          - name: /dev/pool/ceph
-    scheduleAlways: false
-    onlyApplyOSDPlacement: false
-  disruptionManagement:
-    managePodBudgets: true
-    osdMaintenanceTimeout: 30
-  csi:
-    readAffinity:
-      enabled: false
-    cephfs: {}
-  healthCheck:
-    daemonHealth:
-      mon:
-        disabled: false
-        interval: 45s
-      osd:
-        disabled: false
-        interval: 60s
-      status:
-        disabled: false
-        interval: 60s
-    livenessProbe:
-      mgr:
-        disabled: false
-      mon:
-        disabled: false
-      osd:
-        disabled: false
-    startupProbe:
-      mon:
-        disabled: false
-      mgr:
-        disabled: false
-      osd:
-        disabled: false
+          - name: /dev/pool/ceph01
+          - name: /dev/pool/ceph02

@@ -33,8 +33,6 @@ spec:
     loadBalancer:
       # enable DSR for TCP
       mode: hybrid
-      # enable XDP (not supported due to bond0)
-      # acceleration: native
 
     bgpControlPlane:
       enabled: true

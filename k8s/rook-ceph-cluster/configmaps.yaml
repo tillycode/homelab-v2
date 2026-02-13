@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: rook-ceph-osd-env-override
 data:
+  # see https://github.com/rook/rook/issues/16841
+  #
   # Default ceph image PATH:
   # /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.34/deploy/local-path-storage.yaml
+
+patches:
+  - patch: | #yaml
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: local-path-storage
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
