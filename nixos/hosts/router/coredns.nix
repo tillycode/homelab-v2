@@ -18,9 +18,17 @@
       }
       szp15.com {
         import snip
+        template ANY ANY invalid.szp15.com {
+          rcode NXDOMAIN
+        }
+        rewrite cname exact ingress.szp15.com. invalid.szp15.com.
         forward . 10.112.10.10 {
           next NXDOMAIN
         }
+        forward . /run/systemd/resolve/resolv.conf
+      }
+      szp.io {
+        import snip
         forward . /run/systemd/resolve/resolv.conf
       }
     '';

@@ -10,3 +10,13 @@ result-*
 # python
 *.py[cod]
 __pycache__/
+
+# dotenv
+.env
+.env*.local
+
+# terraform
+.terraform
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info

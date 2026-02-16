@@ -11,6 +11,8 @@
           deploy-rs
           sops
           ssh-to-age
+          opentofu
+          s5cmd
 
           # for IDEs and documentation
           (python3.withPackages (
@@ -21,6 +23,12 @@
               devPackages.scripts.editable
             ]
           ))
+        ];
+        env = [
+          {
+            name = "S3_ENDPOINT_URL";
+            value = "https://s3.szp15.com";
+          }
         ];
       };
     };

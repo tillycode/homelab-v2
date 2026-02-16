@@ -7,7 +7,10 @@
 
       # see https://treefmt.com/latest/getting-started/configure/#global-options
       settings.on-unmatched = "fatal";
-      settings.excludes = [ "secrets/*" ];
+      settings.excludes = [
+        "secrets/*"
+        "*.terraform.lock.hcl"
+      ];
 
       # json
       programs.prettier.enable = true;
@@ -28,6 +31,9 @@
 
       # toml
       programs.taplo.enable = true;
+
+      # tf
+      programs.terraform.enable = true;
     };
   };
 }
