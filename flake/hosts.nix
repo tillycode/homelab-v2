@@ -44,6 +44,14 @@ let
         services.chrony
         boot.systemd-boot
         hosts.router
+        services.sing-box
+      ];
+
+      nixos.hgh0 = [
+        suites.server
+        boot.systemd-boot
+        hosts.hgh0
+        services.sing-box
       ];
     }
   );
@@ -141,6 +149,13 @@ in
       system = "x86_64-linux";
       module = {
         sops.agePublicKey = "age1dtdquu63vrxag5pgs4yrqaarjywuksnw4nz2dq5t44v8tv24cy8qz7yfcn";
+      };
+    })
+    (mkHost {
+      name = "hgh0";
+      system = "x86_64-linux";
+      module = {
+        sops.agePublicKey = "age128juh5n7pxuw2ltmw434m4tw7s8vk6t44amfa4dw495rkyeqmfcq4vt0wh";
       };
     })
   ];

@@ -96,6 +96,7 @@
       ];
     };
   };
+  zramSwap.enable = true;
 
   fileSystems."/.persist".neededForBoot = true;
 

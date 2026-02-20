@@ -1,8 +1,4 @@
-{
-  pkgs,
-  config,
-  ...
-}:
+{ pkgs, config, ... }:
 let
   mkGeoipRuleSet = name: {
     tag = name;
@@ -37,7 +33,6 @@ let
           python ${./geoip_subtract.py} ${lib.escapeShellArgs excludeIPAddresses} |
           sing-box rule-set compile /dev/stdin -o $out
       '';
-
 in
 {
   ## ---------------------------------------------------------------------------
@@ -58,7 +53,7 @@ in
           default_mode = "Enhanced";
           external_controller = "0.0.0.0:9090";
           external_ui = pkgs.metacubexd;
-          # secret via sops
+          # the secret is added via sops
         };
         cache_file = {
           enabled = true;
@@ -102,15 +97,11 @@ in
             server = "local";
           }
           {
-            # rule_set = [
-            #   "geosite-openai"
-            #   "geosite-anthropic"
-            #   "geosite-google-gemini"
-            # ];
             query_type = [
               "AAAA"
             ];
             # reply empty NOERROR for AAAA queries
+            # since some proxy servers don't support IPv6
             action = "predefined";
           }
         ];
@@ -169,16 +160,19 @@ in
           tag = "direct";
           type = "direct";
         }
-        # more outbounds via sops
+        # more outbounds are added via sops
       ];
       route = {
         default_domain_resolver = "local";
-        # Note missing interface won't cause crash loop.
-        default_interface = "ppp0";
+        auto_detect_interface = true;
         final = "Proxy";
         rules = [
           {
             action = "sniff";
+            sniffer = [
+              "dns"
+              "stun"
+            ];
           }
           {
             action = "hijack-dns";
@@ -309,6 +303,7 @@ in
       };
     };
   };
+
   systemd.services.sing-box = {
     preStart = ''
       ln -sf "$CREDENTIALS_DIRECTORY/config.json" /run/sing-box/zconfig.json
@@ -358,6 +353,7 @@ in
     };
   };
   systemd.network.config.networkConfig = {
+    ManageForeignRoutes = false;
     ManageForeignRoutingPolicyRules = false;
   };
 
@@ -382,10 +378,10 @@ in
   ## FIREWALL
   ## ---------------------------------------------------------------------------
   networking.firewall.extraInputRules = ''
-    iifname { "svc", "lan" } ct status & dnat == dnat accept
+    ct status & dnat == dnat accept
   '';
   networking.firewall.extraForwardRules = ''
-    iifname { "svc", "lan" } oifname sing0 accept
+    oifname "sing0" accept
   '';
   networking.firewall.extraReversePathFilterRules = ''
     iifname "sing0" ct state { established, related } accept
