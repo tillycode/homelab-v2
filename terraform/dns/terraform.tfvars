@@ -2,7 +2,7 @@ zones = {
   "szp15.com" = {
     records = {
       hgh0_a    = { name = "hgh0", type = "A", content = "47.96.145.133" }
-      hgh0_aaaa = { name = "hgh0", type = "AAAA", content = "2408:4005:3cd:1440:87e:2da4:1f5d:d761" }
+      hgh0_aaaa = { name = "hgh0", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
       cache     = { name = "cache", type = "CNAME", content = "hgh0.szp15.com" }
       file      = { name = "file", type = "CNAME", content = "hgh0.szp15.com" }
       downloads = { name = "downloads", type = "CNAME", content = "szpio-cloudreve-storage.oss-cn-hangzhou.aliyuncs.com" }
@@ -13,6 +13,7 @@ zones = {
       "@"       = { name = "@", type = "CNAME", content = "hgh0.szp15.com" }
 
       ingress1 = { name = "ingress", type = "A", content = "47.96.145.133" }
+      ingress2 = { name = "ingress", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
       whoami   = { name = "whoami", type = "CNAME", content = "ingress.szp15.com" }
     }
   }

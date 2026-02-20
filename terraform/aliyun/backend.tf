@@ -5,7 +5,7 @@ terraform {
       s3 = "https://s3.szp15.com"
     }
     force_path_style            = true
-    key                         = "homelab/dns/terraform.tfstate"
+    key                         = "homelab/aliyun/terraform.tfstate"
     region                      = "us-east-1"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
