@@ -2,7 +2,7 @@
   services.bird.enable = true;
   services.bird.config = ''
     log syslog all;
-    router id from 10.112.8.1;
+    router id 10.112.8.1;
 
     protocol device {
     }

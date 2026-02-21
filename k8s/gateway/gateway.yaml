@@ -30,6 +30,22 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: whoami
+      protocol: HTTPS
+      port: 443
+      hostname: whoami.szp15.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: whoami-cert
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: whoami
     - name: rgw
       protocol: HTTPS
       port: 443

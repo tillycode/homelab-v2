@@ -11,7 +11,7 @@ let
       inherit (cfg.pkgs.stdenv.hostPlatform) system;
     in
     {
-      hostname = name;
+      hostname = "${name}.nodes.szp.io";
       sshUser = "root";
       profiles.system = {
         path = inputs.deploy-rs.lib.${system}.activate.nixos cfg;

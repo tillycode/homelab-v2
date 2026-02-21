@@ -9,7 +9,6 @@ set -x -eu -o pipefail
 MINOR_VERSION="${1:?Must provide a minor version number, like '26', as the only argument}"
 
 WORKDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
-mkdir --parents --verbose "${WORKDIR}/1_${MINOR_VERSION}"
 
 RELEASE_CHANNEL_DATA=$(curl -sS --fail https://update.rke2.io/v1-release/channels | yq ".data[]")
 LATEST_TAG_NAME=$(yq -p=json "select(.id == \"v1.$MINOR_VERSION\") | .latest" <<<"$RELEASE_CHANNEL_DATA")
@@ -58,9 +57,9 @@ while read -r name url; do
     --arg url "$url" \
     --arg sha256 "$sha256" \
     '{$name: {"url": $url, "sha256": $sha256}}'
-done <<<"${IMAGES_ARCHIVES}" | jq --slurp 'reduce .[] as $item ({}; . * $item)' >"${WORKDIR}/1_${MINOR_VERSION}/images-versions.json"
+done <<<"${IMAGES_ARCHIVES}" | jq --slurp 'reduce .[] as $item ({}; . * $item)' >"${WORKDIR}/images-versions.json"
 
-cat <<EOF >"${WORKDIR}/1_${MINOR_VERSION}/versions.nix"
+cat <<EOF >"${WORKDIR}/versions.nix"
 {
   rke2Version = "${RKE2_VERSION}";
   rke2Commit = "${RKE2_COMMIT}";
@@ -71,14 +70,15 @@ cat <<EOF >"${WORKDIR}/1_${MINOR_VERSION}/versions.nix"
   pauseVersion = "${PAUSE_VERSION}";
   ccmVersion = "${CCM_VERSION}";
   dockerizedVersion = "${DOCKERIZED_VERSION}";
+  helmJobVersion = "${KLIPPERHELM_VERSION}";
   imagesVersions = with builtins; fromJSON (readFile ./images-versions.json);
 }
 EOF
 
 PKGS_ROOT="$(git rev-parse --show-toplevel)/pkgs"
-RKE2_VENDOR_HASH=$(nurl -e "(import $PKGS_ROOT {}).rke2_1_${MINOR_VERSION}.goModules")
+RKE2_VENDOR_HASH=$(nurl -e "(import $PKGS_ROOT {}).rke2.goModules")
 if [ -n "${RKE2_VENDOR_HASH:-}" ]; then
-  sed -i "s#${FAKE_HASH}#${RKE2_VENDOR_HASH}#g" "${WORKDIR}/1_${MINOR_VERSION}/versions.nix"
+  sed -i "s#${FAKE_HASH}#${RKE2_VENDOR_HASH}#g" "${WORKDIR}/versions.nix"
 else
   echo "Update failed. 'RKE2_VENDOR_HASH' is empty."
   exit 1

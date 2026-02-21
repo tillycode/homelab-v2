@@ -55,6 +55,7 @@ let
         hosts.hgh0
         networking.wireguard
         services.coredns
+        services.haproxy
         services.sing-box
       ];
     }

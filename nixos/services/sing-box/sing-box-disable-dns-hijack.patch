@@ -1,24 +1,24 @@
 diff --git a/option/tun.go b/option/tun.go
-index 89affb23..339350f2 100644
+index 6ff28a17..1cc9464e 100644
 --- a/option/tun.go
 +++ b/option/tun.go
-@@ -38,6 +38,7 @@ type TunInboundOptions struct {
- 	UDPTimeout             UDPTimeoutCompat                 `json:"udp_timeout,omitempty"`
- 	Stack                  string                           `json:"stack,omitempty"`
- 	Platform               *TunPlatformOptions              `json:"platform,omitempty"`
-+	DisableDNSHijack       bool                             `json:"disable_dns_hijack,omitempty"`
+@@ -39,6 +39,7 @@ type TunInboundOptions struct {
+ 	UDPTimeout                            UDPTimeoutCompat                 `json:"udp_timeout,omitempty"`
+ 	Stack                                 string                           `json:"stack,omitempty"`
+ 	Platform                              *TunPlatformOptions              `json:"platform,omitempty"`
++	DisableDNSHijack                      bool                             `json:"disable_dns_hijack,omitempty"`
  	InboundOptions
  
  	// Deprecated: removed
 diff --git a/protocol/tun/inbound.go b/protocol/tun/inbound.go
-index fc69309c..a0332295 100644
+index bfa19eaf..a1e6f6d6 100644
 --- a/protocol/tun/inbound.go
 +++ b/protocol/tun/inbound.go
-@@ -218,6 +218,7 @@ func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLo
- 			ExcludePackage:           options.ExcludePackage,
- 			InterfaceMonitor:         networkManager.InterfaceMonitor(),
- 			EXP_MultiPendingPackets:  multiPendingPackets,
-+			EXP_DisableDNSHijack:     options.DisableDNSHijack,
+@@ -223,6 +223,7 @@ func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLo
+ 			ExcludePackage:                        options.ExcludePackage,
+ 			InterfaceMonitor:                      networkManager.InterfaceMonitor(),
+ 			EXP_MultiPendingPackets:               multiPendingPackets,
++			EXP_DisableDNSHijack:                  options.DisableDNSHijack,
  		},
  		udpTimeout:        udpTimeout,
  		stack:             options.Stack,
