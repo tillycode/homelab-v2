@@ -23,6 +23,13 @@ module "hgh0_security_group" {
         443, # HTTPS
       ]
     },
+    {
+      protocol = "udp"
+      cidrs    = ["0.0.0.0/0", "::/0"]
+      ports = [
+        51820, # Wireguard
+      ]
+    }
   ]
 }
 

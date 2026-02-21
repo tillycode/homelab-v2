@@ -28,7 +28,8 @@ If we need more IP addresses, we may change the mask to `/12` in the future.
 | 12-31  |           |                | Reserved                    |
 | 32     | _Anycast_ | 10.112.32.0/24 |                             |
 | 33     | HGH       | 10.112.33.0/24 |                             |
-| 34-255 | N/A       |                | Unallocated                 |
+| 34     | WG VPN    | 10.112.34.0/24 | Wireguard Overlay Network   |
+| 35-255 | N/A       |                | Unallocated                 |
 
 ### Well-known IPs
 

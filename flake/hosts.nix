@@ -44,6 +44,8 @@ let
         services.chrony
         boot.systemd-boot
         hosts.router
+        networking.wireguard
+        services.coredns
         services.sing-box
       ];
 
@@ -51,6 +53,8 @@ let
         suites.server
         boot.systemd-boot
         hosts.hgh0
+        networking.wireguard
+        services.coredns
         services.sing-box
       ];
     }
