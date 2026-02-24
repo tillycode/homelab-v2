@@ -15,7 +15,7 @@ let
       PresharedKeyFile = config.sops.secrets."wireguard/presharedKey".path;
       AllowedIPs = [
         "10.112.34.2/32"
-        "10.112.33.0/24"
+        "10.112.32.0/23"
       ];
       PersistentKeepalive = 25;
       Endpoint = "hgh0.szp15.com:51820";

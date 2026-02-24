@@ -45,7 +45,6 @@ let
         boot.systemd-boot
         hosts.router
         networking.wireguard
-        services.coredns
         services.sing-box
       ];
 
@@ -54,7 +53,6 @@ let
         boot.systemd-boot
         hosts.hgh0
         networking.wireguard
-        services.coredns
         services.haproxy
         services.sing-box
       ];

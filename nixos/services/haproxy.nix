@@ -18,11 +18,11 @@
         mode tcp
         tcp-request inspect-delay 5s
         tcp-request content accept if { req.ssl_hello_type 1 }
-        use_backend whoami if { req.ssl_sni -i whoami.szp15.com }
+        use_backend k8s_ingress if { req.ssl_sni -i whoami.szp15.com }
 
-      backend whoami
+      backend k8s_ingress
         mode tcp
-        server whoami whoami.szp15.com:443 check
+        server k8s_ingress 10.112.10.100:443 check
     '';
   };
 

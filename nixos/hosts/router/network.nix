@@ -165,9 +165,9 @@
   networking.firewall.extraInputRules = ''
     meta nfproto ipv4 iifname lan udp sport 68 udp dport 67 accept comment "DHCPv4 client"
   '';
-  # allow loadbalancer traffic from lan and wireguard
+  # allow traffic from lan and wireguard
   networking.firewall.extraForwardRules = ''
-    iifname {"lan", "wg0"} oifname "svc" ip daddr 10.112.10.0/24 accept
+    iifname {"lan", "wg0"} ip daddr 10.112.10.0/24 accept
   '';
 
   networking.nftables.tables.mss-clamping = {

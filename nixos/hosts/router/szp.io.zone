@@ -1,0 +1,27 @@
+$ORIGIN szp.io.
+$TTL 600
+@                                IN   SOA        ns1 me (
+                                                    2026022405   ; serial  Tue, 24 Feb 2026 01:10:00 UTC
+                                                    3H           ; refresh
+                                                    40M          ; retry
+                                                    1W           ; expire
+                                                    30M          ; minimum
+                                                    )
+                                 IN   NS         ns1
+                                 IN   MX         1 mx1.feishu.cn.
+                                 IN   MX         5 mx2.feishu.cn.
+                                 IN   MX         10 mx3.feishu.cn.
+
+ns1                              IN   A          10.112.35.1
+router.nodes                     IN   A          10.112.8.1
+hasee01.nodes                    IN   A          10.112.8.2
+hasee02.nodes                    IN   A          10.112.8.3
+hasee03.nodes                    IN   A          10.112.8.4
+desktop.nodes                    IN   A          10.112.8.5
+ingress.k8s                      IN   A          10.112.10.100
+
+hgh0.nodes                       IN   CNAME      hgh0.szp15.com.
+argocd.k8s                       IN   CNAME      ingress.k8s
+hubble.k8s                       IN   CNAME      ingress.k8s
+ceph.k8s                         IN   CNAME      ingress.k8s
+sealed-secrets.k8s               IN   CNAME      ingress.k8s
