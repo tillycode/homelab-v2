@@ -105,7 +105,10 @@
     };
     dhcpServerConfig = {
       ServerAddress = "192.168.23.1/24";
-      DNS = [ "10.112.8.1" ];
+      DNS = [
+        "10.112.35.1"
+        "10.112.35.2"
+      ];
       EmitRouter = true;
       PoolOffset = 100;
       PoolSize = 100;
@@ -123,8 +126,13 @@
       }
     ];
   };
+  networking.loopback.address = [
+    "10.112.35.1/32"
+    "10.112.35.2/32"
+  ];
   services.resolved.extraConfig = ''
-    DNSStubListenerExtra=10.112.8.1
+    DNSStubListenerExtra=10.112.35.1
+    DNSStubListenerExtra=10.112.35.2
   '';
   networking.firewall.interfaces.lan.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.lan.allowedTCPPorts = [ 53 ];

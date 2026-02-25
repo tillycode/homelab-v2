@@ -36,13 +36,13 @@ If we need more IP addresses, we may change the mask to `/12` in the future.
 
 ### Well-known IPs
 
-| IP            | Usage                                      |
-| ------------- | ------------------------------------------ |
-| 10.112.8.100  | Hasee Cluster kube-vip                     |
-| 10.112.10.100 | Hasee default gateway                      |
-| 10.112.10.200 | Home authoritative DNS server              |
-| 10.112.32.200 | HGH authoritative DNS server               |
-| 10.112.35.1-2 | Anycast DNS server (currently 2 is unused) |
+| IP            | Usage                         |
+| ------------- | ----------------------------- |
+| 10.112.8.100  | Hasee Cluster kube-vip        |
+| 10.112.10.100 | Hasee default gateway         |
+| 10.112.10.200 | Home authoritative DNS server |
+| 10.112.32.200 | HGH authoritative DNS server  |
+| 10.112.35.1-2 | Anycast DNS server            |
 
 ## ASNs
 

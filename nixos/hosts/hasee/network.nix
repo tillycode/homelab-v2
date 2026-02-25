@@ -29,7 +29,10 @@
       matchConfig.Name = "svc";
       linkConfig.MTUBytes = 9000;
       gateway = [ "10.112.8.1" ];
-      dns = [ "10.112.8.1" ];
+      dns = [
+        "10.112.35.1"
+        "10.112.35.2"
+      ];
       networkConfig = {
         DHCP = "no";
         IPv6AcceptRA = false;

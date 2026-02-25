@@ -39,6 +39,8 @@
 
     protocol static {
       route 10.112.10.200/32 unreachable;
+      route 10.112.35.1/32 unreachable;
+      route 10.112.35.2/32 unreachable;
       ipv4 {
         import all;
         export none;

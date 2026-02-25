@@ -1,18 +1,20 @@
 $ORIGIN szp.io.
 $TTL 600
 @                                IN   SOA        ns1 me (
-                                                    2026022405   ; serial  Tue, 24 Feb 2026 01:10:00 UTC
+                                                    2026022601   ; serial  Thu, 26 Feb 2026 00:14:00 UTC
                                                     3H           ; refresh
                                                     40M          ; retry
                                                     1W           ; expire
                                                     30M          ; minimum
                                                     )
                                  IN   NS         ns1
+                                 IN   NS         ns2
                                  IN   MX         1 mx1.feishu.cn.
                                  IN   MX         5 mx2.feishu.cn.
                                  IN   MX         10 mx3.feishu.cn.
 
 ns1                              IN   A          10.112.35.1
+ns2                              IN   A          10.112.35.2
 router.nodes                     IN   A          10.112.8.1
 hasee01.nodes                    IN   A          10.112.8.2
 hasee02.nodes                    IN   A          10.112.8.3
