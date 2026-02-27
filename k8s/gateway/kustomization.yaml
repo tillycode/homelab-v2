@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - gateway.yaml
+  - proxy-gateway.yaml
   - hubble-ui.yaml
   - argocd.yaml
   - sealed-secrets.yaml
