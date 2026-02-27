@@ -14,7 +14,7 @@
           "*.terraform.lock.hcl"
         ];
 
-        # json
+        # json, md
         programs.prettier.enable = true;
 
         # python

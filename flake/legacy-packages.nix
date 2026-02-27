@@ -1,7 +1,0 @@
-{
-  perSystem =
-    { pkgs, ... }:
-    {
-      legacyPackages = pkgs;
-    };
-}
