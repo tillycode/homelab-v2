@@ -6,6 +6,7 @@
       scripts = pkgs.devPackages.scripts.editable;
     in
     {
+      pre-commit.check.enable = true;
       pre-commit.settings.hooks = {
         check-json.enable = true;
         check-added-large-files.enable = true;

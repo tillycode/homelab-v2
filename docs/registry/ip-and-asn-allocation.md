@@ -1,6 +1,5 @@
-j---
+---
 title: IP and ASN Allocation
-
 ---
 
 ## IPs

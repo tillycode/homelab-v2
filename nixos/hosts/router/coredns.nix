@@ -10,7 +10,7 @@
         minimal
         root /etc/coredns/zones
         transfer {
-          to 10.112.32.200 *
+          to 10.112.32.200
         }
       }
       szp15.com {

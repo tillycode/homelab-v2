@@ -1,6 +1,7 @@
 site_name: Homelab Documentation
 nav:
-  - Home: index.md
+  - Designs And Guidelines:
+      - index.md
   - SOP:
       - sop/rke2-hasee.md
   - Registry:
@@ -11,6 +12,9 @@ theme:
     - navigation.tabs
     - content.footnote.tooltips
     - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - content.tooltips
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
@@ -31,6 +35,8 @@ theme:
         icon: material/toggle-switch-off
         name: Switch to system preference
 markdown_extensions:
+  - abbr
+  - attr_list
   - admonition
   - pymdownx.details
   - pymdownx.superfences
@@ -46,3 +52,5 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true

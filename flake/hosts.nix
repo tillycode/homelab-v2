@@ -9,9 +9,9 @@ let
   profiles = (self.lib.listModules ../nixos).extend (
     final: prev: with final; {
       suites.base = [
-        boot.nixos-init
-        home-manager.common
-        environment.preservation
+        config.bbr
+        config.home-manager
+        config.preservation
         networking.firewall
         networking.networkd
         programs.nix
@@ -19,42 +19,39 @@ let
         services.nix-gc
         services.nix-optimise
         services.sshd
+        system.nixos-init
+        system.zram
       ];
-      suites.server = [
-        suites.base
+      suites.server = suites.base ++ [
         programs.minimal
-        networking.bbr
       ];
-      suites.desktop = [
-        suites.base
-      ];
-      suites.hasee = [
-        suites.server
-        boot.systemd-boot
+      suites.hasee = suites.server ++ [
         hosts.hasee
         services.ntp-home
         services.rke2-hasee.server
+        system.disko
+        system.systemd-boot
       ];
 
       nixos.hasee01 = suites.hasee;
       nixos.hasee02 = suites.hasee;
       nixos.hasee03 = suites.hasee;
-      nixos.router = [
-        suites.server
-        services.chrony
-        boot.systemd-boot
+      nixos.router = suites.server ++ [
         hosts.router
         networking.wireguard
+        services.chrony
         services.sing-box
+        system.disko
+        system.systemd-boot
       ];
 
-      nixos.hgh0 = [
-        suites.server
-        boot.systemd-boot
+      nixos.hgh0 = suites.server ++ [
         hosts.hgh0
         networking.wireguard
         services.haproxy
         services.sing-box
+        system.disko
+        system.systemd-boot
       ];
     }
   );
