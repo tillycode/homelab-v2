@@ -12,6 +12,7 @@ let
         config.bbr
         config.home-manager
         config.preservation
+        config.sops
         networking.firewall
         networking.networkd
         programs.nix
@@ -40,6 +41,7 @@ let
         hosts.router
         networking.wireguard
         services.chrony
+        services.coredns
         services.sing-box
         system.disko
         system.systemd-boot
@@ -48,6 +50,7 @@ let
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
         networking.wireguard
+        services.coredns
         services.haproxy
         services.sing-box
         system.disko
@@ -90,7 +93,6 @@ let
         {
           lib,
           self,
-          config,
           ...
         }:
         {
@@ -101,11 +103,6 @@ let
 
           networking.hostName = lib.mkDefault name;
           nixpkgs.pkgs = lib.mkDefault pkgs;
-          sops.defaultSopsFile = lib.mkDefault ../secrets/hosts/${name}.yaml;
-          sops.age.sshKeyPaths = [
-            "${config.preservation.preserveAt.default.persistentStoragePath}/etc/ssh/ssh_host_ed25519_key"
-          ];
-          sops.gnupg.sshKeyPaths = [ ];
         };
     in
     {
@@ -125,7 +122,6 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-svc".address = [ "10.112.8.2/24" ];
-        sops.agePublicKey = "age1etar9rrla2d79jfvmsqdzkag0dtjvzh7xf3zdlc5z3k53k6ncf3qthf8gp";
       };
     })
     (mkHost {
@@ -133,7 +129,6 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-svc".address = [ "10.112.8.3/24" ];
-        sops.agePublicKey = "age1fgz58ufhqxwvush0k26kajeamd3meh7ufy92vqd4yj9cup0dduls7dv9uc";
       };
     })
     (mkHost {
@@ -141,22 +136,15 @@ in
       system = "x86_64-linux";
       module = {
         systemd.network.networks."40-svc".address = [ "10.112.8.4/24" ];
-        sops.agePublicKey = "age1mg0y7kd0zcggy9ukze4sg2drmaafdrwjs4zzqvzhznzhmhtw3a5serua3g";
       };
     })
     (mkHost {
       name = "router";
       system = "x86_64-linux";
-      module = {
-        sops.agePublicKey = "age1dtdquu63vrxag5pgs4yrqaarjywuksnw4nz2dq5t44v8tv24cy8qz7yfcn";
-      };
     })
     (mkHost {
       name = "hgh0";
       system = "x86_64-linux";
-      module = {
-        sops.agePublicKey = "age128juh5n7pxuw2ltmw434m4tw7s8vk6t44amfa4dw495rkyeqmfcq4vt0wh";
-      };
     })
   ];
 

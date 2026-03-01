@@ -165,6 +165,7 @@
     internalInterfaces = [
       "lan"
       "svc"
+      "coredns"
     ];
   };
 

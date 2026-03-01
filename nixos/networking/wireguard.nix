@@ -1,6 +1,6 @@
 { lib, config, ... }:
 let
-  inherit (config.networking) hostName;
+  inherit (config.system) name;
   peers = {
     router = {
       PublicKey = "YBPLxVf9PwAytocbmtOaAjoWRX42evJUs8NSdHNL6SA=";
@@ -30,21 +30,21 @@ in
     };
     wireguardConfig = {
       ListenPort = 51820;
-      PrivateKeyFile = config.sops.secrets."wireguard/privateKeys/${hostName}".path;
+      PrivateKeyFile = config.sops.secrets."wireguard/privateKeys/${name}".path;
       RouteTable = "main";
     };
-    wireguardPeers = lib.attrValues (lib.filterAttrs (name: peer: name != hostName) peers);
+    wireguardPeers = lib.attrValues (lib.filterAttrs (n: peer: n != name) peers);
   };
 
   systemd.network.networks."40-wg0" = {
     matchConfig.Name = "wg0";
     linkConfig.MTUBytes = 1412; # for PPPoE
     address = [
-      (lib.head peers.${hostName}.AllowedIPs)
+      (lib.head peers.${name}.AllowedIPs)
     ];
   };
 
-  sops.secrets."wireguard/privateKeys/${hostName}" = {
+  sops.secrets."wireguard/privateKeys/${name}" = {
     owner = "systemd-network";
   };
   sops.secrets."wireguard/presharedKey" = {
