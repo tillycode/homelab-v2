@@ -77,6 +77,9 @@ lib.mkMerge [
         "--disable-cloud-controller"
         "--disable-kube-proxy"
         "--ingress-controller=none"
+        "--etcd-arg=listen-metrics-urls=http://0.0.0.0:2381"
+        "--kube-controller-manager-arg=--bind-address=0.0.0.0"
+        "--kube-scheduler-arg=--bind-address=0.0.0.0"
       ];
     };
 

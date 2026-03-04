@@ -1,0 +1,84 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: victoria-metrics
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: victoria-metrics-k8s-stack
+      repoURL: https://victoriametrics.github.io/helm-charts
+      targetRevision: 0.72.2
+      helm:
+        valueFiles:
+          - $values/k8s/victoria-metrics/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: victoria-metrics
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+  ignoreDifferences:
+    - kind: Secret
+      name: victoria-metrics-victoria-metrics-operator-validation
+      namespace: victoria-metrics
+      jsonPointers:
+        - /data
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: victoria-metrics-victoria-metrics-operator-admission
+      jqPathExpressions:
+        - ".webhooks[]?.clientConfig.caBundle"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-operator
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: grafana-operator
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 5.22.0
+      helm:
+        valueFiles:
+          - $values/k8s/grafana-operator/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: grafana-operator
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/grafana
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: grafana
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

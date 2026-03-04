@@ -1,0 +1,17 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  labels:
+    dashboards: "grafana"
+spec:
+  httpRoute:
+    spec:
+      parentRefs:
+        - name: gateway
+          group: gateway.networking.k8s.io
+          kind: Gateway
+          namespace: gateway
+          sectionName: https
+      hostnames:
+        - grafana.k8s.szp.io

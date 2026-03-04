@@ -1,0 +1,113 @@
+global:
+  cluster:
+    dnsDomain: hasee.internal
+
+fullnameOverride: victoria-metrics
+
+victoria-metrics-operator:
+  env:
+    - name: VM_GATEWAY_API_ENABLED
+      value: "true"
+
+defaultDashboards:
+  defaultTimezone: Asia/Shanghai
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+  grafanaOperator:
+    enabled: true
+    spec:
+      folderUID: 31b7f75c-b3e2-40ed-a256-d3daaabac1ea
+      allowCrossNamespaceImport: true
+
+external:
+  grafana:
+    host: https://grafana.k8s.szp.io
+
+vmsingle:
+  enabled: false
+
+vmcluster:
+  enabled: true
+  spec:
+    vmselect:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: rook-ceph-block
+      resources:
+        limits:
+          cpu: "1"
+    vmstorage:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: rook-ceph-block
+
+alertmanager:
+  useManagedConfig: true
+
+vmauth:
+  enabled: true
+  spec:
+    replicaCount: 2
+    httpRoute:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: gateway
+          namespace: gateway
+          sectionName: https
+      hostnames:
+        - metrics.k8s.szp.io
+
+defaultDatasources:
+  grafanaOperator:
+    enabled: true
+    spec:
+      allowCrossNamespaceImport: true
+  victoriametrics:
+    # -- List of prometheus compatible datasource configurations.
+    # VM `url` will be added to each of them in templates.
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        access: proxy
+        isDefault: true
+      - name: VictoriaMetrics (DS)
+        isDefault: false
+        access: proxy
+        type: victoriametrics-metrics-datasource
+        version: latest
+
+grafana:
+  enabled: false
+  forceDeployDatasource: true
+
+kubeControllerManager:
+  vmScrape:
+    spec:
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            insecureSkipVerify: true
+
+kubeEtcd:
+  service:
+    targetPort: 2381
+  vmScrape:
+    spec:
+      endpoints:
+        - port: http-metrics
+          scheme: http
+
+kubeScheduler:
+  vmScrape:
+    spec:
+      endpoints:
+        - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+          port: http-metrics
+          scheme: https
+          tlsConfig:
+            insecureSkipVerify: true

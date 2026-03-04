@@ -33,3 +33,8 @@ spec:
     path: k8s/applications
   destination:
     server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: argoproj.io
+      kind: Application
+      jqPathExpressions:
+        - '.metadata.finalizers[]? | select(startswith("pre-delete-finalizer.argocd.argoproj.io"))'

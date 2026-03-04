@@ -1,0 +1,8 @@
+crds:
+  immutable: true
+
+clusterDomain: "hasee.internal"
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault

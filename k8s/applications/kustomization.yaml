@@ -8,3 +8,4 @@ resources:
   - security.yaml
   - storage.yaml
   - whoami.yaml
+  - monitoring.yaml

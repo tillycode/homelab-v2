@@ -1,0 +1,18 @@
+# TODO: we need to enable default deny NetworkPolicy and setup fine-grained policies
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: victoria-metrics
+  namespace: kube-system
+specs:
+  - description: "Allow traffic from victoria-metrics to kube-dns"
+    endpointSelector:
+      matchLabels:
+        k8s-app: kube-dns
+    ingress:
+      - fromEndpoints:
+          - matchLabels:
+              k8s:io.kubernetes.pod.namespace: victoria-metrics
+              k8s:app.kubernetes.io/instance: victoria-metrics
+              k8s:app.kubernetes.io/name: vmagent
