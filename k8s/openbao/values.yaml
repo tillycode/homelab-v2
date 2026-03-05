@@ -1,0 +1,47 @@
+injector:
+  securityContext:
+    pod:
+      fsGroup: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      runAsUser: 100
+      seccompProfile:
+        type: RuntimeDefault
+
+server:
+  ha:
+    enabled: true
+    raft:
+      enabled: true
+  dataStorage:
+    storageClass: rook-ceph-block
+  statefulSet:
+    securityContext:
+      pod:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 100
+        seccompProfile:
+          type: RuntimeDefault
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+
+extraObjects:
+  - apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: openbao-cert
+    spec:
+      dnsNames:
+        - vault.szp15.com
+      issuerRef:
+        group: cert-manager.io
+        kind: ClusterIssuer
+        name: letsencrypt
+      secretName: openbao-cert
+      usages:
+        - digital signature
+        - key encipherment
