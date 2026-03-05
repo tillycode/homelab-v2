@@ -46,6 +46,18 @@ spec:
           selector:
             matchLabels:
               kubernetes.io/metadata.name: whoami
+    - name: vault
+      protocol: TLS
+      port: 443
+      hostname: vault.szp15.com
+      tls:
+        mode: Passthrough
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: openbao
     - name: rgw
       protocol: HTTPS
       port: 443

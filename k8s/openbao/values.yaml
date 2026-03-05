@@ -1,3 +1,6 @@
+global:
+  tlsDisable: false
+
 injector:
   securityContext:
     pod:
@@ -9,12 +12,79 @@ injector:
         type: RuntimeDefault
 
 server:
+  volumes:
+    - name: openbao-cert
+      secret:
+        defaultMode: 420
+        secretName: openbao-cert
+
+  volumeMounts:
+    - name: openbao-cert
+      mountPath: /openbao/tls
+      readOnly: true
+
   ha:
     enabled: true
     raft:
       enabled: true
+      config: |
+        ui = true
+
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/openbao/tls/tls.crt"
+          tls_key_file  = "/openbao/tls/tls.key"
+
+          # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+          #telemetry {
+          #  unauthenticated_metrics_access = "true"
+          #}
+        }
+
+        storage "raft" {
+          path = "/openbao/data"
+
+          retry_join {
+            leader_api_addr = "https://openbao-0.openbao-internal.svc.hasee.internal:8200"
+            leader_tls_servername = "vault.szp15.com"
+            leader_client_cert_file = "/openbao/tls/tls.crt"
+            leader_client_key_file = "/openbao/tls/tls.key"
+          }
+
+          retry_join {
+            leader_api_addr = "https://openbao-1.openbao-internal.svc.hasee.internal:8200"
+            leader_tls_servername = "vault.szp15.com"
+            leader_client_cert_file = "/openbao/tls/tls.crt"
+            leader_client_key_file = "/openbao/tls/tls.key"
+          }
+
+          retry_join {
+            leader_api_addr = "https://openbao-2.openbao-internal.svc.hasee.internal:8200"
+            leader_tls_servername = "vault.szp15.com"
+            leader_client_cert_file = "/openbao/tls/tls.crt"
+            leader_client_key_file = "/openbao/tls/tls.key"
+          }
+        }
+
+        service_registration "kubernetes" {}
+
+  gateway:
+    tlsRoute:
+      enabled: true
+      apiVersion: gateway.networking.k8s.io/v1alpha2
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: gateway
+          namespace: gateway
+          sectionName: vault
+      hosts:
+        - vault.szp15.com
+
   dataStorage:
     storageClass: rook-ceph-block
+
   statefulSet:
     securityContext:
       pod:
