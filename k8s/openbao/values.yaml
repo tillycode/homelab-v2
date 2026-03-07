@@ -12,23 +12,73 @@ injector:
         type: RuntimeDefault
 
 server:
+  image:
+    # added tpm2-pkcs11 to the image
+    registry: ghcr.io
+    repository: tillycode/openbao
+    tag: 2.4.4-3
+
+  # with auto unseal enabled, it's much safer to use RollingUpdate
+  updateStrategyType: RollingUpdate
+
   volumes:
     - name: openbao-cert
       secret:
         defaultMode: 420
         secretName: openbao-cert
+    - name: tpm2-tss-keystore
+      hostPath:
+        path: /var/lib/tpm2-tss/keystore
+        type: Directory
+    - name: tpm2-pkcs11
+      hostPath:
+        path: /var/lib/tpm2_pkcs11
+        type: Directory
 
   volumeMounts:
     - name: openbao-cert
       mountPath: /openbao/tls
       readOnly: true
+    - name: tpm2-tss-keystore
+      mountPath: /var/lib/tpm2-tss/system/keystore
+      readOnly: true
+    - name: tpm2-pkcs11
+      mountPath: /var/lib/tpm2_pkcs11
+      # not readOnly since a lock file is created in the directory
 
   ha:
     enabled: true
     raft:
       enabled: true
+      # We use tpm2-pkcs11 to automatically unseal the vault.
+      # Before deploying vault, we need to distribute a certificate into all nodes.
+      #
+      # Generate the key and copy to all nodes:
+      # 1. openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out rsa2048.pem
+      #
+      # Then for each node:
+      # 1. nix shell nixpkgs#tpm2-tools --command 'tpm2_clear'
+      # 2. nix shell nixpkgs#tpm2-tools --command 'tss2_provision'
+      # 3. pkcs11-tool --slot-index=0 --init-token --label=OpenBao
+      # 4. pkcs11-tool --slot-index=0 --init-pin --login
+      # 6  read -r -s -p "PIN: " USER_PIN
+      # 7. tpm2_ptool import --label OpenBao --key-label bao-unseal \
+      #      --privkey rsa2048.pem --algorithm rsa --userpin "$USER_PIN"
+      # 8. rm rsa2048.pem
+      #
+      # At last remove the private key from all nodes, and init the first node.
+      #
+      #     kubectl exec -it openbao-0 -n openbao -- bao operator init \
+      #       -recovery-shares=1 -recovery-threshold=1 --tls-skip-verify
       config: |
         ui = true
+
+        seal "pkcs11" {
+          lib = "/lib/libtpm2_pkcs11.so.0.0.0"
+          mechanism = "CKM_RSA_PKCS_OAEP"
+          token_label = "OpenBao"
+          key_label = "bao-unseal"
+        }
 
         listener "tcp" {
           address = "[::]:8200"
@@ -46,21 +96,21 @@ server:
           path = "/openbao/data"
 
           retry_join {
-            leader_api_addr = "https://openbao-0.openbao-internal.svc.hasee.internal:8200"
+            leader_api_addr = "https://openbao-0.openbao-internal.openbao.svc.hasee.internal:8200"
             leader_tls_servername = "vault.szp15.com"
             leader_client_cert_file = "/openbao/tls/tls.crt"
             leader_client_key_file = "/openbao/tls/tls.key"
           }
 
           retry_join {
-            leader_api_addr = "https://openbao-1.openbao-internal.svc.hasee.internal:8200"
+            leader_api_addr = "https://openbao-1.openbao-internal.openbao.svc.hasee.internal:8200"
             leader_tls_servername = "vault.szp15.com"
             leader_client_cert_file = "/openbao/tls/tls.crt"
             leader_client_key_file = "/openbao/tls/tls.key"
           }
 
           retry_join {
-            leader_api_addr = "https://openbao-2.openbao-internal.svc.hasee.internal:8200"
+            leader_api_addr = "https://openbao-2.openbao-internal.openbao.svc.hasee.internal:8200"
             leader_tls_servername = "vault.szp15.com"
             leader_client_cert_file = "/openbao/tls/tls.crt"
             leader_client_key_file = "/openbao/tls/tls.key"
@@ -82,14 +132,29 @@ server:
       hosts:
         - vault.szp15.com
 
+  resources:
+    requests:
+      squat.ai/tpmrm: 1
+    limits:
+      squat.ai/tpmrm: 1
+
+  extraEnvironmentVars:
+    TPM2_PKCS11_STORE: /var/lib/tpm2_pkcs11
+    TPM2_PKCS11_TCTI: device:/dev/tpmrm0
+
+  extraSecretEnvironmentVars:
+    - envName: BAO_HSM_PIN
+      secretName: openbao-pkcs11-seal-env
+      secretKey: BAO_HSM_PIN
+
   dataStorage:
     storageClass: rook-ceph-block
 
   statefulSet:
     securityContext:
       pod:
-        fsGroup: 1000
-        runAsGroup: 1000
+        fsGroup: 399
+        runAsGroup: 399 # same as host tss group
         runAsNonRoot: true
         runAsUser: 100
         seccompProfile:
@@ -115,3 +180,10 @@ extraObjects:
       usages:
         - digital signature
         - key encipherment
+  - apiVersion: bitnami.com/v1alpha1
+    kind: SealedSecret
+    metadata:
+      name: openbao-pkcs11-seal-env
+    spec:
+      encryptedData:
+        BAO_HSM_PIN: AgB3qc7BCLQ20t8aSLGjCiAxNgY8aKTgfJJPDf21xe8YK4dKDxylj7l9FOzPVN9dcaKPpmeFL0OXOEQv11C6cNRNEioEbTb7vJ9uVV3ktosF+9XpEZGCHthPNcScXHwDPyXZLj9l+mZK5ijRd5OoIeSkLejP6P8W6g4LtqEYDuS9A4Q7wCH9A5goBVgfJiL0s5pI0yl0v733riZNyaOKeSxULhlO3IRPV2oCThun8skvSigaBjJhTy50HFKeTa1q+3S6aXkNtMfHVBYhQkaDr1XWLqBQ0CQvD65/QGAkBNInGPrI6o5+MKPumFViLKkYCG9I5CFuX1LO9BfNwO6duutkFFcfHAVeKxnWQ07W3to6e+hHWh+wxu9pMPBmKsVOQaI7NlWhbcr3zvWPqQlbBo5KhwdaZD4NGj8nCpnbVwKU4nuPojQ5RG4+Rt15uwJMZfrQvnR6/IfVm4BVNo4N1NgiogizoWKjDwbedmUsyWmultQdpi1WTQqXC8KCL0wA/QaaY24R7uiHcmhkgiY75DsXaN0IwtSpSLN6AqscmPPCygNUFQk+4mWN/WFeP6RHODH4Mi2qY4roJI2j7k+Bloh2bGXvIBu5+Lk6TzndooXbtO0pjV+sfe5jq8I+pWejDmTNCl9XZoyGHZR6hn+okpRA1uHNKqwv4/QB+rnkXWJ7lUIF+ylRdgehbbzUcv8InV52pTF8DR0SYg==

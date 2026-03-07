@@ -14,4 +14,5 @@ in
   zteonu = callPackage ./zteonu.nix { };
   dnsfmt = callPackage ./dnsfmt.nix { };
   devPackages = lib.recurseIntoAttrs (callPackage ./dev-packages { });
+  images = lib.recurseIntoAttrs (callPackage ./images { });
 }

@@ -30,6 +30,7 @@ let
         hosts.hasee
         services.ntp-home
         services.rke2-hasee.server
+        services.tpm2-pkcs11
         system.disko
         system.systemd-boot
       ];

@@ -13,6 +13,8 @@
           ssh-to-age
           opentofu
           s5cmd
+          openbao
+          kubeseal
 
           # for IDEs and documentation
           (python3.withPackages (
@@ -28,6 +30,10 @@
           {
             name = "S3_ENDPOINT_URL";
             value = "https://s3.szp15.com";
+          }
+          {
+            name = "SEALED_SECRETS_CERT";
+            value = "https://sealed-secrets.k8s.szp.io/v1/cert.pem";
           }
         ];
       };

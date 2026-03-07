@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - https://raw.githubusercontent.com/squat/generic-device-plugin/main/manifests/generic-device-plugin.yaml
+
+patches:
+  - patch: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: generic-device-plugin
+        namespace: kube-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: generic-device-plugin
+                args:
+                  - --device
+                  - |
+                    name: tpmrm
+                    groups:
+                      - paths:
+                          - path: /dev/tpmrm0
