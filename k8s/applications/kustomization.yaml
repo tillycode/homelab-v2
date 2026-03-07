@@ -7,6 +7,6 @@ resources:
   - networking.yaml
   - security.yaml
   - storage.yaml
-  - whoami.yaml
+  - apps.yaml
   - monitoring.yaml
   - runtime.yaml

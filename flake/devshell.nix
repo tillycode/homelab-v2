@@ -15,6 +15,7 @@
           s5cmd
           openbao
           kubeseal
+          kubevirt
 
           # for IDEs and documentation
           (python3.withPackages (

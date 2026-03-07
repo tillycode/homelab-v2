@@ -13,3 +13,39 @@ spec:
     path: k8s/generic-device-plugin
   destination:
     server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubevirt
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/kubevirt
+  destination:
+    server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: containerized-data-importer
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tillycode/homelab-v2.git
+    targetRevision: main
+    path: k8s/containerized-data-importer
+  destination:
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: cdis.cdi.kubevirt.io
+      jqPathExpressions:
+        - '.spec.versions[]? | select(.name == "v1alpha1")'
