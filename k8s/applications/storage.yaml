@@ -29,6 +29,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -42,6 +43,7 @@ spec:
     path: k8s/rook-ceph-cluster
   destination:
     server: https://kubernetes.default.svc
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

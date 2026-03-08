@@ -10,3 +10,4 @@ resources:
   - block.yaml
   - filesystem.yaml
   - object.yaml
+  - routes.yaml

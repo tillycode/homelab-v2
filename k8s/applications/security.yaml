@@ -23,6 +23,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -38,6 +39,7 @@ spec:
     path: k8s/issuers
   destination:
     server: https://kubernetes.default.svc
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -63,6 +65,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

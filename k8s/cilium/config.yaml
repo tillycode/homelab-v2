@@ -43,11 +43,6 @@ spec:
         # here we use a subset of the pod CIDR
         ipPool: 10.112.0.0/24
 
-    gatewayAPI:
-      enabled: true
-      # enable ALPN for h2 and gRPC
-      enableAlpn: true
-
     bpf:
       # allow all vlan traffic
       vlanBypass:

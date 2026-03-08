@@ -4,4 +4,14 @@ kind: Kustomization
 resources:
   - https://github.com/kubevirt/containerized-data-importer/releases/download/v1.64.0/cdi-operator.yaml
   - https://github.com/kubevirt/containerized-data-importer/releases/download/v1.64.0/cdi-cr.yaml
-  - http-route.yaml
+  - routes.yaml
+
+patches:
+  - patch: |
+      apiVersion: cdi.kubevirt.io/v1beta1
+      kind: CDI
+      metadata:
+        name: cdi
+      spec:
+        config:
+          uploadProxyURLOverride: https://cdi-uploadproxy.k8s.szp.io

@@ -8,19 +8,30 @@ spec:
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      name: gateway
+      name: default
       namespace: gateway
       sectionName: https
   hostnames:
     - cdi-uploadproxy.k8s.szp.io
   rules:
     - backendRefs:
-        - group: ""
-          kind: Service
-          name: cdi-uploadproxy
-          port: 443
-          weight: 1
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: cdi-uploadproxy-tls
       matches:
         - path:
             type: PathPrefix
             value: /
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: cdi-uploadproxy-tls
+  namespace: cdi
+spec:
+  endpoints:
+    - fqdn:
+        hostname: cdi-uploadproxy.cdi.svc.hasee.internal
+        port: 443
+  tls:
+    insecureSkipVerify: true

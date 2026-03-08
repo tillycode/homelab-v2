@@ -8,7 +8,7 @@ spec:
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      name: gateway
+      name: default
       namespace: gateway
       sectionName: https
   hostnames:
@@ -28,7 +28,7 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: gateway-gateway
+  name: hubble-ui
   namespace: kube-system
 specs:
   - description: "Allow traffic from gateway to hubble-ui"
@@ -36,5 +36,10 @@ specs:
       matchLabels:
         k8s-app: hubble-ui
     ingress:
-      - fromEntities:
-          - ingress
+      - fromEndpoints:
+          - matchLabels:
+              k8s:io.kubernetes.pod.namespace: envoy-gateway-system
+              k8s:app.kubernetes.io/name: envoy
+              k8s:app.kubernetes.io/component: proxy
+              k8s:gateway.envoyproxy.io/owning-gateway-name: default
+              k8s:gateway.envoyproxy.io/owning-gateway-namespace: gateway

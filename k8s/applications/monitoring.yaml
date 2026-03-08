@@ -38,6 +38,7 @@ spec:
       name: victoria-metrics-victoria-metrics-operator-admission
       jqPathExpressions:
         - ".webhooks[]?.clientConfig.caBundle"
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -63,6 +64,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

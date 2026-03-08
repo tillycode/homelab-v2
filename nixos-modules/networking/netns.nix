@@ -54,7 +54,7 @@ in
         ip netns exec "$NETNS_NAME" ip address add "$NETNS_ADDRESS/32" dev eth0
         ip netns exec "$NETNS_NAME" ip link set eth0 up
         ip netns exec "$NETNS_NAME" ip route add 169.254.1.1 dev eth0 scope link
-        ip netns exec "$NETNS_NAME" ip route add default via 169.254.1.1 dev eth0
+        ip netns exec "$NETNS_NAME" ip route add default via 169.254.1.1 dev eth0 src "$NETNS_ADDRESS"
         ip link set "$NETNS_NAME" up
         ip route add "$NETNS_ADDRESS/32" dev "$NETNS_NAME"
         ${cfg.extraStartScript}

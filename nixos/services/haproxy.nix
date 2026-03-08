@@ -22,7 +22,7 @@
 
       backend k8s_ingress
         mode tcp
-        server k8s_ingress 10.112.10.100:443 check
+        server k8s_ingress 10.112.10.100:442 check send-proxy-v2
     '';
   };
 

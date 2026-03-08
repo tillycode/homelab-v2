@@ -54,7 +54,7 @@ vmauth:
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
-          name: gateway
+          name: default
           namespace: gateway
           sectionName: https
       hostnames:

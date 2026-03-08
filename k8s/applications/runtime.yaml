@@ -13,6 +13,7 @@ spec:
     path: k8s/generic-device-plugin
   destination:
     server: https://kubernetes.default.svc
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -28,6 +29,7 @@ spec:
     path: k8s/kubevirt
   destination:
     server: https://kubernetes.default.svc
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

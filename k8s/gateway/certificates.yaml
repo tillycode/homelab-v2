@@ -1,0 +1,45 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: k8s-cert
+  namespace: gateway
+spec:
+  secretName: k8s-cert
+  dnsNames:
+    - "*.k8s.szp.io"
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: whoami-cert
+  namespace: gateway
+spec:
+  secretName: whoami-cert
+  dnsNames:
+    - whoami.szp15.com
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: objectstore-cert
+  namespace: gateway
+spec:
+  secretName: objectstore-cert
+  dnsNames:
+    - s3.szp15.com
+    - "*.s3.szp15.com"
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt

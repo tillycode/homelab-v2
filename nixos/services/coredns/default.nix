@@ -1,13 +1,23 @@
 { lib, config, ... }:
 let
+  # Primary is where the zone files are stored
   primary = "router";
+  # Unicast addresses are primarily for DNS zone transfer.
+  # Both sides of the zone transfer will reject if the IP address doesn't match the configuration.
+  # Currently, zones are transferred from the primary to all rest servers.
   addresses = {
     hgh0 = "10.112.32.200";
     router = "10.112.10.200";
   };
+  # Anycast addresses are for NS records
+  anycastAddresses = {
+    hgh0 = "10.112.35.3";
+    router = "10.112.35.3";
+  };
 
   inherit (config.system) name;
   address = addresses.${name};
+  anycastAddress = anycastAddresses.${name};
   primaryAddress = addresses.${primary};
   secondaryAddresses = lib.attrValues (lib.filterAttrs (n: a: n != primary) addresses);
 in
@@ -18,7 +28,6 @@ in
         enable = true;
         config = ''
           (snip) {
-            bind ${address}
             errors
             loadbalance
             log
@@ -56,7 +65,6 @@ in
         enable = true;
         config = ''
           (snip) {
-            bind ${address}
             errors
             loadbalance
             log
@@ -78,6 +86,8 @@ in
       networking.netns.coredns = {
         inherit address;
         extraStartScript = ''
+          ip netns exec coredns ip address add ${anycastAddress}/32 dev eth0
+          ip route add ${anycastAddress}/32 dev coredns
           resolvectl dns coredns ${address}
           resolvectl domain coredns ~szp.io ~szp15.com
           resolvectl llmnr coredns off

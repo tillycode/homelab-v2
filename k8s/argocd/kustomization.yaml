@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: argocd
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
+  - route.yaml
 
 patches:
   - path: configmaps.yaml
