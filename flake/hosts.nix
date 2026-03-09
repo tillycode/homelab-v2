@@ -57,6 +57,11 @@ let
         system.disko
         system.systemd-boot
       ];
+
+      nixos.claude-code-vm = suites.server ++ [
+        hosts.claude-code-vm
+        system.disko
+      ];
     }
   );
 
@@ -146,6 +151,13 @@ in
     (mkHost {
       name = "hgh0";
       system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "claude-code-vm";
+      system = "x86_64-linux";
+      module = {
+        system.stateVersion = lib.trivial.release;
+      };
     })
   ];
 

@@ -18,3 +18,14 @@ patches:
     target:
       kind: ClusterRole
       name: argocd-server
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: argocd-redis-ha-haproxy
+      spec:
+       strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 0
+          maxUnavailable: 25%

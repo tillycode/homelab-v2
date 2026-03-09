@@ -18,7 +18,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: claude-code
+  name: virtual-machines
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -26,6 +26,6 @@ spec:
   source:
     repoURL: https://github.com/tillycode/homelab-v2.git
     targetRevision: main
-    path: k8s/claude-code
+    path: k8s/virtual-machines
   destination:
     server: https://kubernetes.default.svc

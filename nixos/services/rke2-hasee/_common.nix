@@ -13,6 +13,30 @@ let
       "aarch64-linux" = "arm64";
     }
     .${system};
+
+  # How to generate the patch:
+  #
+  #     curl -fsSL https://raw.githubusercontent.com/k3s-io/k3s/refs/heads/main/pkg/agent/templates/templates.go | \
+  #       sed -n '/^const ContainerdConfigTemplateV3 = `$/,/^`$/p' | head -n -1 | tail -n +2 >config-v3.toml.tmpl
+  #     git add config-v3.toml.tmpl
+  #
+  # Edit the file. Then
+  #
+  #     git diff config-v3.toml.tmpl > containerd-config.toml.patch
+  #     rm config-v3.toml.tmpl && git add config-v3.toml.tmpl containerd-config.toml.patch
+  #
+  # Well, we found rke2 provides a flag `--nonroot-devices`, so let's use the flag for now.
+  #
+  # containerdConfigTemplate = pkgs.runCommandLocal "config-v3.toml.tmpl" { } ''
+  #   sed -n '/^const ContainerdConfigTemplateV3 = `$/,/^`$/p' \
+  #     "${cfg.package.goModules}/github.com/k3s-io/k3s/pkg/agent/templates/templates.go" | \
+  #     head -n -1 | tail -n +2 >"$out"
+  #   if [[ ! -s "$out" ]]; then
+  #     echo "Failed to extract containerd config template" >&2
+  #     exit 1
+  #   fi
+  #   patch "$out" < "${./containerd-config.toml.patch}"
+  # '';
 in
 lib.mkMerge [
   {
@@ -28,8 +52,14 @@ lib.mkMerge [
       gracefulNodeShutdown.enable = true;
       extraFlags = [
         "--protect-kernel-defaults"
+        # for containerized-data-importer to operator on block devices
+        "--nonroot-devices"
       ];
     };
+
+    systemd.services."rke2-${cfg.role}".path = [
+      pkgs.nftables
+    ];
 
     preservation.preserveAt.default.directories = [
       # rke2

@@ -50,5 +50,13 @@ in
         swapSize = "8G";
       };
     })
+
+    (lib.mkIf (name == "claude-code-vm") {
+      profiles.system.disko = {
+        devices = [ "/dev/vda" ];
+        efiSupport = false;
+        swapSize = null;
+      };
+    })
   ];
 }

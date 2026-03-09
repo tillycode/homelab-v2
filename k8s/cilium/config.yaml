@@ -54,3 +54,7 @@ spec:
         enabled: true
       ui:
         enabled: true
+
+    socketLB:
+      # for kubevirt to work
+      hostNamespaceOnly: true

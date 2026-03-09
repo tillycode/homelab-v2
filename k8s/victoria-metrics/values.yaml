@@ -60,6 +60,12 @@ vmauth:
       hostnames:
         - metrics.k8s.szp.io
 
+vmagent:
+  spec:
+    resources:
+      limits:
+        cpu: "1"
+
 defaultDatasources:
   grafanaOperator:
     enabled: true

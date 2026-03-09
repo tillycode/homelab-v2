@@ -26,7 +26,8 @@ If we need more IP addresses, we may change the mask to `/12` in the future.
 | 9      |           | 10.112.9.0/24  | Hasee ClusterIP Services |
 | 10     |           | 10.112.10.0/24 | Services                 |
 | 11     |           | 10.112.11.0/24 | Incus containers or VMs  |
-| 12-31  |           |                | Reserved                 |
+| 12     |           | 10.112.12.0/24 | VM                       |
+| 13-31  |           |                | Reserved                 |
 | 32     | HGH       | 10.112.32.0/24 | Services                 |
 | 33     |           | 10.112.33.0/24 |                          |
 | 34     | _WG VPN_  | 10.112.34.0/24 | Overlay Network          |

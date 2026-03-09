@@ -1,0 +1,70 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: claude-code
+spec:
+  runStrategy: RerunOnFailure
+  template:
+    spec:
+      evictionStrategy: LiveMigrate
+      domain:
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4G
+        devices:
+          disks:
+            - name: main
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+            - name: vm-bridge
+              bridge: {}
+          filesystems:
+            - name: serviceaccount
+              virtiofs: {}
+      volumes:
+        - name: main
+          dataVolume:
+            name: claude-code-main-disk
+        - name: serviceaccount
+          serviceAccount:
+            serviceAccountName: claude-code
+      networks:
+        - name: default
+          pod: {}
+        - name: vm-bridge
+          multus:
+            networkName: vm-bridge
+  # To build the image:
+  #
+  #    hash=$(nix derivation show .#nixosConfigurations.claude-code-vm.config.system.build.diskoImagesScript |
+  #      jq -r '.[].outputs.out.path | sub(".*/(?<h>[^-]+)-.*"; "\(.n)")')
+  #    nix run .#generate-claude-code-vm-image
+  #    virtctl image-upload pvc -n virtual-machines "claude-code-main-image-$hash" --image-path main.qcow2 --volume-mode=block --access-mode ReadWriteMany --size 2Gi
+  #    rm *.qcow2
+  #
+  # We copy the image again to
+  # 1. expand the image size
+  # 2. avoid contaminating the original image
+  #
+  # The hash is actually extracted from the nix store path.
+  dataVolumeTemplates:
+    - metadata:
+        name: claude-code-main-disk
+      spec:
+        source:
+          pvc:
+            name: claude-code-main-image-l026fxw95q7s7ha4yyfankryv366ipjr
+        storage:
+          resources:
+            requests:
+              storage: 10Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: claude-code
