@@ -56,6 +56,7 @@ in
         devices = [ "/dev/vda" ];
         efiSupport = false;
         swapSize = null;
+        growFileSystem = true;
       };
     })
   ];

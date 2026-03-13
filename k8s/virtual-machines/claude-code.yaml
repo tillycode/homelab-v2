@@ -58,7 +58,7 @@ spec:
       spec:
         source:
           pvc:
-            name: claude-code-main-image-l026fxw95q7s7ha4yyfankryv366ipjr
+            name: claude-code-main-image-1740szd3n4wxvmkdcclidlfks04pdy6h
         storage:
           resources:
             requests:

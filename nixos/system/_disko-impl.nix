@@ -18,7 +18,7 @@ let
     };
     subvolumes."@persist" = {
       mountpoint = "/.persist";
-      mountOptions = [ "compress-force=zstd" ];
+      mountOptions = [ "compress-force=zstd,x-systemd.growfs" ];
     };
   };
   swapSubvolume = {
@@ -54,6 +54,7 @@ in
     efiSupport = lib.mkEnableOption "EFI support" // {
       default = true;
     };
+    growFileSystem = lib.mkEnableOption "Grow file system";
   };
 
   config = lib.mkMerge [
@@ -66,6 +67,10 @@ in
         {
           assertion = !cfg.enableLVM -> lib.length cfg.devices == 1;
           message = "devices must be single when LVM is not used";
+        }
+        {
+          assertion = !cfg.growFileSystem -> !cfg.enableLVM;
+          message = "growFileSystem cannot be used with LVM";
         }
       ];
 
@@ -121,6 +126,19 @@ in
 
     (lib.mkIf (!cfg.enableLVM && cfg.swapSize != null) {
       disko.devices.disk.main.content.partitions.primary.content.subvolumes."@swap" = swapSubvolume;
+    })
+
+    (lib.mkIf (!cfg.enableLVM && cfg.growFileSystem) {
+      boot.initrd.systemd.repart = {
+        enable = true;
+        device = lib.head cfg.devices;
+      };
+      systemd.repart.partitions = {
+        "10-root" = {
+          Type = "linux-generic";
+          GrowFileSystem = true;
+        };
+      };
     })
 
     (lib.mkIf cfg.enableLVM {
