@@ -14,6 +14,16 @@
     };
   };
 
+  networking.vlans = {
+    vm = {
+      id = 5;
+      interface = "svc";
+    };
+  };
+  networking.bridges = {
+    vmbr0.interfaces = [ "vm" ];
+  };
+
   systemd.network.networks = {
     "40-eth0" = {
       matchConfig.Name = "eth0";
@@ -33,8 +43,16 @@
         "10.112.35.1"
         "10.112.35.2"
       ];
+      DHCP = "no";
       networkConfig = {
-        DHCP = "no";
+        IPv6AcceptRA = false;
+      };
+    };
+    "40-vm" = {
+      matchConfig.Name = "vm";
+      linkConfig.MTUBytes = 9000;
+      DHCP = "no";
+      networkConfig = {
         IPv6AcceptRA = false;
       };
     };

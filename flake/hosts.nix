@@ -57,6 +57,11 @@ let
         system.disko
         system.systemd-boot
       ];
+
+      nixos.kubevm = suites.server ++ [
+        hosts.kubevm
+        system.disko
+      ];
     }
   );
 
@@ -146,6 +151,13 @@ in
     (mkHost {
       name = "hgh0";
       system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "kubevm";
+      system = "x86_64-linux";
+      module = {
+        system.stateVersion = lib.trivial.release;
+      };
     })
   ];
 

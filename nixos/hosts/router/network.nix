@@ -43,6 +43,10 @@
       id = 4;
       interface = "bond0";
     };
+    vm = {
+      id = 5;
+      interface = "bond0";
+    };
   };
 
   systemd.network.networks."40-eth0" = {
@@ -152,6 +156,38 @@
   };
 
   ## ---------------------------------------------------------------------------
+  ## VM
+  ## ---------------------------------------------------------------------------
+  systemd.network.networks."40-vm" = {
+    matchConfig.Name = "vm";
+    address = [
+      "10.112.12.1/24"
+    ];
+    linkConfig.MTUBytes = 9000;
+    networkConfig = {
+      DHCPServer = true;
+      IPv6AcceptRA = false;
+    };
+    dhcpServerConfig = {
+      ServerAddress = "10.112.12.1/24";
+      DNS = [
+        "10.112.35.1"
+        "10.112.35.2"
+      ];
+      EmitRouter = true;
+      PoolOffset = 100;
+      PoolSize = 100;
+    };
+    dhcpServerStaticLeases = [
+      {
+        # AI
+        MACAddress = "ba:be:ee:ee:00:01";
+        Address = "10.112.12.2";
+      }
+    ];
+  };
+
+  ## ---------------------------------------------------------------------------
   ## NAT AND FIREWALL
   ## ---------------------------------------------------------------------------
 
@@ -166,17 +202,18 @@
       "lan"
       "svc"
       "coredns"
+      "vm"
     ];
   };
 
   networking.firewall.filterForward = true;
   # allow DHCP traffic from lan
   networking.firewall.extraInputRules = ''
-    meta nfproto ipv4 iifname lan udp sport 68 udp dport 67 accept comment "DHCPv4 client"
+    meta nfproto ipv4 iifname {"lan", "vm"} udp sport 68 udp dport 67 accept comment "DHCPv4 client"
   '';
   # allow traffic from lan and wireguard
   networking.firewall.extraForwardRules = ''
-    iifname {"lan", "wg0"} ip daddr 10.112.10.0/24 accept
+    iifname {"lan", "wg0"} ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
   '';
 
   networking.nftables.tables.mss-clamping = {

@@ -17,7 +17,7 @@ in
       "${config.preservation.preserveAt.default.persistentStoragePath}/etc/ssh/ssh_host_ed25519_key"
     ];
     sops.gnupg.sshKeyPaths = [ ];
-    sops.agePublicKey = agePublicKeys.${name};
+    sops.agePublicKey = agePublicKeys.${name} or null;
   };
 
   options.sops.agePublicKey = lib.mkOption {

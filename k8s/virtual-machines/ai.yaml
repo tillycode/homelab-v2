@@ -1,0 +1,69 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: ai
+spec:
+  runStrategy: RerunOnFailure
+  template:
+    spec:
+      evictionStrategy: LiveMigrate
+      domain:
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4G
+        devices:
+          disks:
+            - name: main
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+            - name: vm-bridge
+              bridge: {}
+              macAddress: ba:be:ee:ee:00:01
+          filesystems:
+            - name: serviceaccount
+              virtiofs: {}
+      volumes:
+        - name: main
+          dataVolume:
+            name: ai-disk
+        - name: serviceaccount
+          serviceAccount:
+            serviceAccountName: ai
+      networks:
+        - name: default
+          pod: {}
+        - name: vm-bridge
+          multus:
+            networkName: vm-bridge
+  # To build the image:
+  #
+  #    nix run .#generate-kubevm-image
+  #    virtctl image-upload pvc -n virtual-machines "nixos-kubevm-image-1" --image-path main.qcow2 --volume-mode=block --access-mode ReadWriteMany --size 2Gi
+  #    rm *.qcow2
+  #
+  # We copy the image again to
+  # 1. expand the image size
+  # 2. avoid contaminating the original image
+  #
+  # The hash is actually extracted from the nix store path.
+  dataVolumeTemplates:
+    - metadata:
+        name: ai-disk
+      spec:
+        source:
+          pvc:
+            name: nixos-kubevm-image-1
+        storage:
+          resources:
+            requests:
+              storage: 10Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai

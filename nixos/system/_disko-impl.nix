@@ -9,19 +9,22 @@ let
   rootContent = {
     type = "btrfs";
     extraArgs = [ "-f" ];
-    subvolumes = {
-      "@nix" = {
-        mountpoint = "/nix";
-        mountOptions = [
-          "compress-force=zstd"
-          "noatime"
-        ];
-      };
-      "@persist" = {
-        mountpoint = "/.persist";
-        mountOptions = [ "compress-force=zstd" ];
-      };
+    subvolumes."@nix" = {
+      mountpoint = "/nix";
+      mountOptions = [
+        "compress-force=zstd"
+        "noatime"
+      ];
     };
+    subvolumes."@persist" = {
+      mountpoint = "/.persist";
+      mountOptions = [ "compress-force=zstd,x-systemd.growfs" ];
+    };
+  };
+  swapSubvolume = {
+    mountpoint = "/.swap";
+    mountOptions = [ "noatime" ];
+    swap.swapfile.size = cfg.swapSize;
   };
 in
 {
@@ -48,6 +51,10 @@ in
       type = lib.types.nullOr lib.types.str;
       description = "Type of the root logical volume";
     };
+    efiSupport = lib.mkEnableOption "EFI support" // {
+      default = true;
+    };
+    growFileSystem = lib.mkEnableOption "Grow file system";
   };
 
   config = lib.mkMerge [
@@ -61,54 +68,75 @@ in
           assertion = !cfg.enableLVM -> lib.length cfg.devices == 1;
           message = "devices must be single when LVM is not used";
         }
+        {
+          assertion = cfg.growFileSystem -> !cfg.enableLVM;
+          message = "growFileSystem cannot be used with LVM";
+        }
       ];
 
-      disko.devices = {
-        disk.main = {
-          type = "disk";
-          device = lib.head cfg.devices;
-          content = {
-            type = "gpt";
-            partitions = {
-              ESP = {
-                size = "512M";
-                type = "EF00";
-                content = {
-                  type = "filesystem";
-                  format = "vfat";
-                  mountpoint = "/boot";
-                  mountOptions = [ "umask=0077" ];
-                };
+      disko.imageBuilder.imageFormat = "qcow2";
+
+      disko.devices.disk.main = {
+        type = "disk";
+        imageSize = "2G";
+        device = lib.head cfg.devices;
+        content = {
+          type = "gpt";
+          partitions = {
+            ESP = {
+              size = "512M";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
               };
-              primary = {
-                size = "100%";
-              };
+            };
+            primary = {
+              size = "100%";
             };
           };
         };
-        nodev."/" = {
-          fsType = "tmpfs";
-          mountOptions = [
-            "defaults"
-            "size=${cfg.tmpfsSize}"
-            "mode=755"
-          ];
-        };
+      };
+
+      disko.devices.nodev."/" = {
+        fsType = "tmpfs";
+        mountOptions = [
+          "defaults"
+          "size=${cfg.tmpfsSize}"
+          "mode=755"
+        ];
       };
 
       fileSystems."/.persist".neededForBoot = true;
       preservation.preserveAt.default.persistentStoragePath = "/.persist";
     }
 
+    (lib.mkIf (!cfg.efiSupport) {
+      disko.devices.disk.main.content.partitions.boot = {
+        size = "1M";
+        type = "EF02";
+      };
+    })
+
     (lib.mkIf (!cfg.enableLVM) {
       disko.devices.disk.main.content.partitions.primary.content = rootContent;
     })
 
     (lib.mkIf (!cfg.enableLVM && cfg.swapSize != null) {
-      disko.devices.disk.main.content.partitions.primary.content.subvolumes = {
-        "@swap" = {
-          mountpoint = "/.swap";
-          swap.swapfile.size = cfg.swapSize;
+      disko.devices.disk.main.content.partitions.primary.content.subvolumes."@swap" = swapSubvolume;
+    })
+
+    (lib.mkIf (!cfg.enableLVM && cfg.growFileSystem) {
+      boot.initrd.systemd.repart = {
+        enable = true;
+        device = lib.head cfg.devices;
+      };
+      systemd.repart.partitions = {
+        "10-root" = {
+          Type = "linux-generic";
+          GrowFileSystem = true;
         };
       };
     })
@@ -189,6 +217,5 @@ in
         };
       };
     })
-
   ];
 }
