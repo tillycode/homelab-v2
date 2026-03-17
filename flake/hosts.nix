@@ -62,6 +62,12 @@ let
         hosts.kubevm
         system.disko
       ];
+      nixos.ai-vm = nixos.kubevm ++ [
+        hosts.ai-vm
+        config.sudo
+        services.openbao-proxy
+        users.ai
+      ];
     }
   );
 
@@ -158,6 +164,10 @@ in
       module = {
         system.stateVersion = lib.trivial.release;
       };
+    })
+    (mkHost {
+      name = "ai-vm";
+      system = "x86_64-linux";
     })
   ];
 

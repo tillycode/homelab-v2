@@ -13,4 +13,9 @@
       options = [ "ro,nofail" ];
     };
   };
+
+  users.groups.virtiofs = {
+    # in consistent with upstream kubevirt gid
+    gid = 107;
+  };
 }

@@ -16,7 +16,7 @@ server:
     # added tpm2-pkcs11 to the image
     registry: ghcr.io
     repository: tillycode/openbao
-    tag: 2.4.4-3
+    tag: 2.5.1-4
 
   # with auto unseal enabled, it's much safer to use RollingUpdate
   updateStrategyType: RollingUpdate
@@ -72,6 +72,7 @@ server:
       #       -recovery-shares=1 -recovery-threshold=1 --tls-skip-verify
       config: |
         ui = true
+        plugin_directory = "/libexec/vault-plugins"
 
         seal "pkcs11" {
           lib = "/lib/libtpm2_pkcs11.so.0.0.0"

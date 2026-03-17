@@ -1,7 +1,7 @@
 $ORIGIN szp.io.
 $TTL 600
 @                                 IN   SOA        ns1 me (
-                                                     2026030804   ; serial  Sun, 08 Mar 2026 00:56:00 UTC
+                                                     2026031401   ; serial  Sat, 14 Mar 2026 00:14:00 UTC
                                                      3H           ; refresh
                                                      40M          ; retry
                                                      1W           ; expire
@@ -19,6 +19,7 @@ hasee02.nodes                     IN   A          10.112.8.3
 hasee03.nodes                     IN   A          10.112.8.4
 desktop.nodes                     IN   A          10.112.8.5
 ingress.k8s                       IN   A          10.112.10.100
+ai.vm                             IN   A          10.112.12.2
 
 hubble.k8s                        IN   CNAME      ingress.k8s
 ceph.k8s                          IN   CNAME      ingress.k8s

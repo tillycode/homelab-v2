@@ -142,6 +142,8 @@
   networking.firewall.interfaces.lan.allowedTCPPorts = [ 53 ];
   networking.firewall.interfaces.svc.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 53 ];
+  networking.firewall.interfaces.vm.allowedUDPPorts = [ 53 ];
+  networking.firewall.interfaces.vm.allowedTCPPorts = [ 53 ];
 
   ## ---------------------------------------------------------------------------
   ## SVC
@@ -211,9 +213,11 @@
   networking.firewall.extraInputRules = ''
     meta nfproto ipv4 iifname {"lan", "vm"} udp sport 68 udp dport 67 accept comment "DHCPv4 client"
   '';
-  # allow traffic from lan and wireguard
+  # allow traffic from lan to service and VM
+  # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''
-    iifname {"lan", "wg0"} ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
+    iifname "lan" ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
+    iifname {"vm", "wg0"} ip daddr 10.112.10.0/24 accept
   '';
 
   networking.nftables.tables.mss-clamping = {

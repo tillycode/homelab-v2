@@ -7,6 +7,8 @@
   tpm2-tss,
   tpm2-pkcs11,
   gnused,
+  vault-plugin-secrets-github,
+  opensc,
 }:
 let
   fapiConfig = writeTextDir "etc/tpm2-tss/fapi-config.json" (
@@ -26,7 +28,7 @@ let
 in
 dockerTools.buildLayeredImage {
   name = "ghcr.io/tillycode/openbao";
-  tag = openbao.version + "-3";
+  tag = openbao.version + "-4";
   contents = [
     bash
     coreutils
@@ -36,6 +38,7 @@ dockerTools.buildLayeredImage {
     fapiConfig
     tpm2-pkcs11
     gnused
+    opensc
   ];
   extraCommands = ''
     mkdir -p openbao/{logs,file,config}
@@ -44,6 +47,8 @@ dockerTools.buildLayeredImage {
     mkdir -m 777 -p tmp
     echo -e "#!/bin/sh\nexec \"\''${@}\"" > usr/local/bin/docker-entrypoint.sh
     chmod +x usr/local/bin/docker-entrypoint.sh
+    mkdir -p libexec/vault-plugins
+    cp ${vault-plugin-secrets-github}/libexec/vault-plugins/* libexec/vault-plugins/
   '';
   fakeRootCommands = ''
     chown :399 var/log/tpm2-tss/eventlog
