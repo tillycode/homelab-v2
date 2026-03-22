@@ -3,7 +3,9 @@ name: Update Flake Inputs
 on:
   schedule:
     - cron: '0 0 * * 1'
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/ci
 
 permissions:
   contents: write

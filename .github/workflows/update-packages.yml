@@ -3,7 +3,9 @@ name: Update Packages
 on:
   schedule:
     - cron: '0 2 * * 1'
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/ci
 
 permissions:
   contents: write
