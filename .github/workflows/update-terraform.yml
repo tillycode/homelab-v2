@@ -3,9 +3,7 @@ name: Update Terraform Providers
 on:
   schedule:
     - cron: '0 4 * * 1'
-  push:
-    branches:
-      - feat/ci
+  workflow_dispatch:
 
 permissions:
   contents: write
