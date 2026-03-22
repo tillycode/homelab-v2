@@ -2,7 +2,8 @@ name: Update Terraform Providers
 
 on:
   schedule:
-    - cron: '0 4 * * 1'
+    # Every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -13,42 +14,28 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/nix-installer-action@v21
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Update terraform provider lock files
         run: |
-          for dir in terraform/aliyun terraform/dns terraform/openbao; do
+          for dir in terraform/*/; do
+            [ "$(basename "$dir")" = "modules" ] && continue
             nix develop --command tofu -chdir="$dir" init -upgrade -backend=false
           done
 
-      - name: Create pull request
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if git diff --quiet; then
-            echo "No terraform provider changes"
-            exit 0
-          fi
-          BRANCH="automated/update-terraform"
-          git checkout -b "$BRANCH"
-          git add terraform/
-          git commit -m "chore(terraform): update provider lock files"
-          git push origin "$BRANCH" --force
-          if gh pr list --head "$BRANCH" --json number --jq '.[0].number' | grep -q '[0-9]'; then
-            echo "PR already exists, branch updated"
-          else
-            gh pr create \
-              --title "chore(terraform): update provider lock files" \
-              --body "Automated weekly update of OpenTofu provider lock files." \
-              --base main \
-              --head "$BRANCH"
-          fi
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automated/update-terraform
+          commit-message: "chore(terraform): update provider lock files"
+          title: "chore(terraform): update provider lock files"
+          body: "Automated weekly update of OpenTofu provider lock files."
+          base: main

@@ -2,7 +2,8 @@ name: Update Flake Inputs
 
 on:
   schedule:
-    - cron: '0 0 * * 1'
+    # Every Monday at 00:00 UTC
+    - cron: "0 0 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -13,39 +14,40 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/nix-installer-action@v21
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Update flake inputs
-        run: nix flake update
-
-      - name: Create pull request
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: update
         run: |
-          if git diff --quiet; then
-            echo "No changes to flake.lock"
-            exit 0
-          fi
-          BRANCH="automated/update-flake"
-          git checkout -b "$BRANCH"
-          git add flake.lock
-          git commit -m "chore(flake): update flake inputs"
-          git push origin "$BRANCH" --force
-          if gh pr list --head "$BRANCH" --json number --jq '.[0].number' | grep -q '[0-9]'; then
-            echo "PR already exists, branch updated"
+          PREV=$(git rev-parse HEAD)
+          nix flake update --commit-lock-file
+          if [ "$(git rev-parse HEAD)" = "$PREV" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            gh pr create \
-              --title "chore(flake): update flake inputs" \
-              --body "Automated weekly update of all flake inputs." \
-              --base main \
-              --head "$BRANCH"
+            PR_BODY=$(git log -1 --format=%B)
+            git reset HEAD~1
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'pr-body<<EOF'
+              echo "$PR_BODY"
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
           fi
+
+      - uses: peter-evans/create-pull-request@v8
+        if: steps.update.outputs.changed == 'true'
+        with:
+          branch: automated/update-flake
+          commit-message: "chore(flake): update flake inputs"
+          title: "chore(flake): update flake inputs"
+          body: ${{ steps.update.outputs.pr-body }}
+          base: main

@@ -2,7 +2,8 @@ name: Update Packages
 
 on:
   schedule:
-    - cron: '0 2 * * 1'
+    # Every Monday at 02:00 UTC
+    - cron: "0 2 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -13,39 +14,40 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/nix-installer-action@v21
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Update packages
-        run: nix develop --command pkgmgr update --keep-going
-
-      - name: Create pull request
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: update
         run: |
-          if git diff --quiet; then
-            echo "No package changes"
-            exit 0
-          fi
-          BRANCH="automated/update-packages"
-          git checkout -b "$BRANCH"
-          git add pkgs/
-          git commit -m "chore(pkgs): update packages"
-          git push origin "$BRANCH" --force
-          if gh pr list --head "$BRANCH" --json number --jq '.[0].number' | grep -q '[0-9]'; then
-            echo "PR already exists, branch updated"
+          PREV=$(git rev-parse HEAD)
+          nix shell ".#devPackages/scripts" --command pkgmgr update --commit
+          MESSAGES=$(git log --format="- %s" "${PREV}..HEAD")
+          if [ -z "$MESSAGES" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            gh pr create \
-              --title "chore(pkgs): update packages" \
-              --body "Automated weekly package updates via pkgmgr." \
-              --base main \
-              --head "$BRANCH"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'pr-body<<EOF'
+              echo "$MESSAGES"
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+            git reset --soft "$PREV"
           fi
+
+      - uses: peter-evans/create-pull-request@v8
+        if: steps.update.outputs.changed == 'true'
+        with:
+          branch: automated/update-packages
+          commit-message: "chore(pkgs): update packages"
+          title: "chore(pkgs): update packages"
+          body: ${{ steps.update.outputs.pr-body }}
+          base: main
