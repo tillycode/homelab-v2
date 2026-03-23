@@ -1,0 +1,44 @@
+name: Update Terraform Providers
+
+on:
+  schedule:
+    # Every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          determinate: false
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update terraform provider lock files
+        run: |
+          for dir in terraform/*/; do
+            [ "$(basename "$dir")" = "modules" ] && continue
+            nix shell "nixpkgs#opentofu" --command tofu -chdir="$dir" init -upgrade -backend=false
+          done
+
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automated/update-terraform
+          commit-message: "chore(terraform): update provider lock files"
+          title: "chore(terraform): update provider lock files"
+          body: "Automated weekly update of OpenTofu provider lock files."

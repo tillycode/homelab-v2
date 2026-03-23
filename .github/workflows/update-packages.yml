@@ -1,0 +1,52 @@
+name: Update Packages
+
+on:
+  schedule:
+    # Every Monday at 02:00 UTC
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          determinate: false
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update packages
+        id: update
+        run: |
+          PREV=$(git rev-parse HEAD)
+          nix shell ".#devPackages/scripts" --command pkgmgr update --commit
+          if [ "$(git rev-parse HEAD)" != "$PREV" ]; then
+            {
+              echo "pr-body<<EOF"
+              git log --format="- %s" "${PREV}..HEAD"
+              echo EOF
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automated/update-packages
+          title: "chore(pkgs): update packages"
+          body: |
+            ## :arrow_up: Updates
+
+            ${{ steps.update.outputs.pr-body }}
