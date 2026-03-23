@@ -17,6 +17,7 @@ in
           (name: {
             name = "generate-${name}-image";
             value.program = "${nixosConfigurations.${name}.config.system.build.diskoImagesScript}";
+            value.meta.description = "Generate ${name} image";
           })
       );
     };
