@@ -4,7 +4,9 @@ on:
   schedule:
     # Every Monday at 02:00 UTC
     - cron: "0 2 * * 1"
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/ci
 
 permissions:
   contents: write
@@ -34,20 +36,17 @@ jobs:
           if [ -z "$MESSAGES" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
             {
               echo 'pr-body<<EOF'
               echo "$MESSAGES"
               echo 'EOF'
             } >> "$GITHUB_OUTPUT"
-            git reset --soft "$PREV"
           fi
 
       - uses: peter-evans/create-pull-request@v8
-        if: steps.update.outputs.changed == 'true'
+        if: steps.update.outputs.changed != 'false'
         with:
           branch: automated/update-packages
-          commit-message: "chore(pkgs): update packages"
           title: "chore(pkgs): update packages"
           body: ${{ steps.update.outputs.pr-body }}
           base: main

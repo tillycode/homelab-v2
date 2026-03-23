@@ -4,7 +4,9 @@ on:
   schedule:
     # Every Monday at 00:00 UTC
     - cron: "0 0 * * 1"
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/ci
 
 permissions:
   contents: write
@@ -33,21 +35,17 @@ jobs:
           if [ "$(git rev-parse HEAD)" = "$PREV" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            PR_BODY=$(git log -1 --format=%B)
-            git reset HEAD~1
-            echo "changed=true" >> "$GITHUB_OUTPUT"
             {
               echo 'pr-body<<EOF'
-              echo "$PR_BODY"
+              git log -1 --format=%B
               echo 'EOF'
             } >> "$GITHUB_OUTPUT"
           fi
 
       - uses: peter-evans/create-pull-request@v8
-        if: steps.update.outputs.changed == 'true'
+        if: steps.update.outputs.changed != 'false'
         with:
           branch: automated/update-flake
-          commit-message: "chore(flake): update flake inputs"
           title: "chore(flake): update flake inputs"
           body: ${{ steps.update.outputs.pr-body }}
           base: main
