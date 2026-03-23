@@ -4,7 +4,9 @@ on:
   schedule:
     # Every Monday at 04:00 UTC
     - cron: "0 4 * * 1"
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/ci
 
 permissions:
   contents: write
@@ -13,6 +15,8 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v6
 
@@ -29,7 +33,7 @@ jobs:
         run: |
           for dir in terraform/*/; do
             [ "$(basename "$dir")" = "modules" ] && continue
-            nix develop --command tofu -chdir="$dir" init -upgrade -backend=false
+            nix shell "nixpkgs#opentofu" --command tofu -chdir="$dir" init -upgrade -backend=false
           done
 
       - uses: peter-evans/create-pull-request@v8
