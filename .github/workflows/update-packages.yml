@@ -10,9 +10,6 @@ permissions:
   contents: write
   pull-requests: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -20,8 +17,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          determinate: false
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
 
       - name: Configure git
         run: |
@@ -33,21 +34,19 @@ jobs:
         run: |
           PREV=$(git rev-parse HEAD)
           nix shell ".#devPackages/scripts" --command pkgmgr update --commit
-          MESSAGES=$(git log --format="- %s" "${PREV}..HEAD")
-          if [ -z "$MESSAGES" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ "$(git rev-parse HEAD)" != "$PREV" ]; then
             {
-              echo 'pr-body<<EOF'
-              echo "$MESSAGES"
-              echo 'EOF'
+              echo "pr-body<<EOF"
+              git log --format="- %s" "${PREV}..HEAD"
+              echo EOF
             } >> "$GITHUB_OUTPUT"
           fi
 
       - uses: peter-evans/create-pull-request@v8
-        if: steps.update.outputs.changed != 'false'
         with:
           branch: automated/update-packages
           title: "chore(pkgs): update packages"
-          body: ${{ steps.update.outputs.pr-body }}
-          base: main
+          body: |
+            ## :arrow_up: Updates
+
+            ${{ steps.update.outputs.pr-body }}

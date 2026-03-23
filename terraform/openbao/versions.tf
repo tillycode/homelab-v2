@@ -3,7 +3,7 @@
 terraform {
   required_providers {
     vault = {
-      source  = "opentofu/vault"
+      source  = "hashicorp/vault"
       version = "~> 5"
     }
   }
