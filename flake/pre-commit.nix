@@ -48,9 +48,13 @@
       # However, during `nix flake check`, PRJ_ROOT is not set.
       # And, there is no hook point for us to inject it, except for the package field.
       # See https://github.com/cachix/git-hooks.nix/blob/a1ef738813b15cf8ec759bdff5761b027e3e1d23/modules/pre-commit.nix#L86-L117
-      pre-commit.settings.package = pkgs.writeShellScriptBin "pre-commit" ''
-        export PRJ_ROOT=''${PRJ_ROOT:-"$PWD"}
-        exec ${lib.getExe pkgs.pre-commit} "$@"
-      '';
+      pre-commit.settings.package =
+        (pkgs.writeShellScriptBin "prek" ''
+          export PRJ_ROOT=''${PRJ_ROOT:-"$PWD"}
+          exec ${lib.getExe pkgs.prek} "$@"
+        '').overrideAttrs
+          {
+            inherit (pkgs.prek) pname version;
+          };
     };
 }
