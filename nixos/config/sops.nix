@@ -8,6 +8,7 @@ let
     hasee03 = "age1mg0y7kd0zcggy9ukze4sg2drmaafdrwjs4zzqvzhznzhmhtw3a5serua3g";
     hgh0 = "age128juh5n7pxuw2ltmw434m4tw7s8vk6t44amfa4dw495rkyeqmfcq4vt0wh";
     router = "age1dtdquu63vrxag5pgs4yrqaarjywuksnw4nz2dq5t44v8tv24cy8qz7yfcn";
+    desktop = "age1v6lnkm7prm0dpmcdpvn44v50rpfkzsed5uv3znxt4grsd5y6sv5qjru9qq";
   };
 in
 {
