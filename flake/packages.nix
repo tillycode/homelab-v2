@@ -35,5 +35,10 @@ in
     # claude-code v2.1.51 supports remote control.
     claude-code = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/cl/claude-code/package.nix" { };
     openbao = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/op/openbao/package.nix" { };
+    code-cursor = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/co/code-cursor/package.nix" {
+      buildVscode =
+        final.callPackage "${nixpkgs-unstable}/pkgs/applications/editors/vscode/generic.nix"
+          { };
+    };
   };
 }

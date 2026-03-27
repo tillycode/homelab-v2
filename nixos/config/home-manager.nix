@@ -13,4 +13,9 @@
     inherit inputs self;
     profiles = homeProfiles;
   };
+
+  environment.pathsToLink = [
+    "/share/applications"
+    "/share/xdg-desktop-portal"
+  ];
 }

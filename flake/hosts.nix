@@ -13,6 +13,7 @@ let
         config.home-manager
         config.preservation
         config.sops
+        config.sudo
         networking.firewall
         networking.networkd
         programs.nix
@@ -34,6 +35,18 @@ let
         system.disko
         system.systemd-boot
       ];
+      suites.desktop = suites.base ++ [
+        config.fonts
+        programs."1password"
+        programs.nix-ld
+        services.bluetooth
+        services.gnome-keyring
+        services.iwd
+        services.pcscd
+        services.pipewire
+        services.printing
+        services.xfce
+      ];
 
       nixos.hasee01 = suites.hasee;
       nixos.hasee02 = suites.hasee;
@@ -46,6 +59,11 @@ let
         services.sing-box
         system.disko
         system.systemd-boot
+      ];
+      nixos.desktop = suites.desktop ++ [
+        hosts.desktop
+        system.systemd-boot
+        users.sun
       ];
 
       nixos.hgh0 = suites.server ++ [
@@ -64,14 +82,13 @@ let
       ];
       nixos.ai-vm = nixos.kubevm ++ [
         hosts.ai-vm
-        config.sudo
         services.openbao-proxy
         users.ai
       ];
     }
   );
 
-  homeProfiles = (self.lib.listModules ../home-manager);
+  homeProfiles = (self.lib.listModules ../home);
 
   nixosModules = lib.attrValues self.nixosModules ++ [
     inputs.preservation.nixosModules.default
@@ -167,6 +184,10 @@ in
     })
     (mkHost {
       name = "ai-vm";
+      system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "desktop";
       system = "x86_64-linux";
     })
   ];

@@ -12,7 +12,21 @@
         config.allowUnfreePredicate =
           pkg:
           lib.elem (lib.getName pkg) [
+            "1password"
+            "1password-cli"
             "claude-code"
+            "cursor"
+            "vscode"
+            "wpsoffice"
+
+            "corefonts"
+            "vista-fonts"
+            "vista-fonts-chs"
+            "vista-fonts-cht"
+
+            "pantum-driver"
+            "nvidia-settings"
+            "nvidia-x11"
           ];
       };
       legacyPackages = pkgs;
