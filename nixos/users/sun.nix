@@ -8,14 +8,12 @@
     isNormalUser = true;
     extraGroups = [
       "wheel"
-      # "incus-admin"
-      # "libvirtd"
     ];
     hashedPasswordFile = config.sops.secrets."user-password/sun".path;
-    shell = pkgs.fish;
+    shell = pkgs.zsh;
   };
 
-  programs.fish.enable = true;
+  programs.zsh.enable = true;
   home-manager.users.sun = import ./_sunHome.nix;
 
   preservation.preserveAt.default.users.sun.directories = [

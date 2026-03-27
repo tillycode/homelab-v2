@@ -5,6 +5,8 @@
     programs.desktop-apps
     programs.nix-dev
     programs.attic
+    programs.zsh
+    programs.starship
     services.xdg-portal
   ];
 
@@ -15,44 +17,6 @@
       user.email = "me@szp.io";
       commit.gpgSign = true;
       init.defaultBranch = "master";
-    };
-  };
-
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      set fish_greeting # Disable greeting
-      if [ $TERM = "xterm-kitty" ]
-        alias ssh="kitty +kitten ssh"
-      end
-      starship init fish | source
-    '';
-    # plugins = with pkgs.fishPlugins; [
-    #   {
-    #     name = "tide";
-    #     src = tide.src;
-    #   }
-    # ];
-  };
-
-  programs.starship = {
-    enable = true;
-    settings = {
-      add_newline = false;
-      format = "$directory$git_branch$git_status$git_state$character";
-      right_format = "$all";
-      git_status = {
-        stashed = "\\$$count";
-        ahead = "⇡$count";
-        behind = "⇣$count";
-        diverged = "⇡$ahead_count⇣$behind_count";
-        conflicted = "=$count";
-        deleted = "✘$count";
-        renamed = "»$count";
-        modified = "!$count";
-        staged = "+$count";
-        untracked = "?$count";
-      };
     };
   };
   programs.direnv = {

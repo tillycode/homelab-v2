@@ -61,6 +61,7 @@ let
         system.systemd-boot
       ];
       nixos.desktop = suites.desktop ++ [
+        config.timezone
         hosts.desktop
         system.systemd-boot
         users.sun
