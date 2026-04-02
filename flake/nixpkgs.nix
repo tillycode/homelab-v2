@@ -8,6 +8,7 @@
         overlays = [
           inputs.self.overlays.default
           inputs.self.overlays.unstable
+          inputs.self.overlays.fixups
         ];
         config.allowUnfreePredicate =
           pkg:

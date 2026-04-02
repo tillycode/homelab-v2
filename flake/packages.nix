@@ -41,4 +41,18 @@ in
           { };
     };
   };
+  flake.overlays.fixups = final: prev: {
+    # Downgrade bird to 3.1.5, because we're hitting this issue:
+    # https://bird.network.cz/pipermail/bird-users/2026-January/018552.html
+    bird3 = prev.bird3.overrideAttrs (oldAttrs: rec {
+      version = "3.1.5";
+      src = prev.fetchFromGitLab {
+        domain = "gitlab.nic.cz";
+        owner = "labs";
+        repo = "bird";
+        rev = "v${version}";
+        hash = "sha256-UxaZhieUpHmPJwgLw+i6vbFsweOCQIZv2BEQfYtlPQQ=";
+      };
+    });
+  };
 }
