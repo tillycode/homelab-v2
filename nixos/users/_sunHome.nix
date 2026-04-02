@@ -1,4 +1,8 @@
-{ pkgs, profiles, ... }:
+{
+  pkgs,
+  profiles,
+  ...
+}:
 {
   imports = with profiles; [
     programs.fcitx
@@ -17,6 +21,7 @@
       user.email = "me@szp.io";
       commit.gpgSign = true;
       init.defaultBranch = "master";
+      push.autoSetupRemote = true;
     };
   };
   programs.direnv = {
@@ -51,10 +56,9 @@
   programs.neovim.viAlias = true;
 
   programs.vscode.enable = true;
-  programs.ghostty = {
-    enable = true;
-    enableFishIntegration = true;
-  };
+  programs.ghostty.enable = true;
+
+  xsession.enable = true;
 
   xdg = {
     enable = true;
@@ -62,8 +66,11 @@
   };
 
   home.sessionVariables = {
-    KUBECONFIG = "$HOME/.kube/config";
+    EDITOR = "vi";
   };
+  home.sessionPath = [
+    "$HOME/.local/share/mise/shims"
+  ];
 
   home.packages = with pkgs; [
     k9s
@@ -80,7 +87,7 @@
   ];
 
   programs.mise.enable = true;
-  programs.mise.enableFishIntegration = true;
+  programs.mise.enableZshIntegration = false;
 
   home.stateVersion = "23.11";
 }
