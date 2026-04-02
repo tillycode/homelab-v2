@@ -3,8 +3,8 @@
     enable = true;
     settings = {
       add_newline = false;
-      format = "$directory$git_branch$git_status$git_state$status$character";
-      right_format = "$all";
+      format = "$directory$git_branch$git_status$git_state$character";
+      right_format = "$status$all";
       directory = {
         truncation_length = 1;
         truncate_to_repo = false;

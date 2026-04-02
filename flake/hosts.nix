@@ -37,6 +37,7 @@ let
       ];
       suites.desktop = suites.base ++ [
         config.fonts
+        config.timezone
         programs."1password"
         programs.nix-ld
         services.bluetooth
@@ -46,6 +47,9 @@ let
         services.pipewire
         services.printing
         services.xfce
+        system.userborn-subs
+        users.sun
+        virtualization.podman
       ];
 
       nixos.hasee01 = suites.hasee;
@@ -61,10 +65,8 @@ let
         system.systemd-boot
       ];
       nixos.desktop = suites.desktop ++ [
-        config.timezone
         hosts.desktop
         system.systemd-boot
-        users.sun
       ];
 
       nixos.hgh0 = suites.server ++ [
