@@ -39,6 +39,7 @@ let
         config.fonts
         config.timezone
         programs."1password"
+        programs.less
         programs.nix-ld
         services.bluetooth
         services.gnome-keyring

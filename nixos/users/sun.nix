@@ -21,9 +21,6 @@
   programs.zsh.enable = true;
   home-manager.users.sun = import ./_sunHome.nix;
 
-  preservation.preserveAt.default.users.sun.files = [
-    ".zsh_history"
-  ];
   preservation.preserveAt.default.users.sun.directories = [
     ".aliyun"
     ".aws"
