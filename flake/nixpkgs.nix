@@ -17,6 +17,8 @@
             "1password-cli"
             "claude-code"
             "cursor"
+            "steam"
+            "steam-unwrapped"
             "vscode"
             "wpsoffice"
 

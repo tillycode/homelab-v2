@@ -3,7 +3,7 @@
     enable = true;
     settings = {
       add_newline = false;
-      format = "$directory$git_branch$git_status$git_state$character";
+      format = "$directory$git_branch$git_status$git_commit$git_state$character";
       right_format = "$status$all";
       directory = {
         truncation_length = 1;
@@ -13,6 +13,12 @@
       git_branch = {
         format = "[$branch(:$remote_branch)]($style) ";
         style = "bright-green";
+        only_attached = true;
+      };
+      git_commit = {
+        tag_disabled = false;
+        format = "[[@](white)$hash([#](white)$tag)]($style) ";
+        tag_symbol = "";
       };
       git_status = {
         format = "[($ahead_behind )](bright-green)[($conflicted$stashed$deleted$renamed$modified$typechanged$staged )](yellow)[($untracked )](bright-blue)";

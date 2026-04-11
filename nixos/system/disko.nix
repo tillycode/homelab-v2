@@ -50,5 +50,13 @@ in
         swapSize = "8G";
       };
     })
+
+    (lib.mkIf (name == "sjc1") {
+      profiles.system.disko = {
+        devices = [ "/dev/sda" ];
+        swapSize = "1G";
+        legacyBoot = true;
+      };
+    })
   ];
 }

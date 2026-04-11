@@ -41,6 +41,7 @@ let
         programs."1password"
         programs.less
         programs.nix-ld
+        programs.steam
         services.bluetooth
         services.gnome-keyring
         services.iwd
@@ -88,6 +89,11 @@ let
         hosts.ai-vm
         services.openbao-proxy
         users.ai
+      ];
+
+      nixos.sjc1 = suites.server ++ [
+        hosts.sjc1
+        system.disko
       ];
     }
   );
@@ -192,6 +198,10 @@ in
     })
     (mkHost {
       name = "desktop";
+      system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "sjc1";
       system = "x86_64-linux";
     })
   ];

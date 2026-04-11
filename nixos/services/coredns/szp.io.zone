@@ -1,7 +1,7 @@
 $ORIGIN szp.io.
 $TTL 600
 @                                 IN   SOA        ns1 me (
-                                                     2026031401   ; serial  Sat, 14 Mar 2026 00:14:00 UTC
+                                                     2026041102   ; serial  Sat, 11 Apr 2026 00:28:00 UTC
                                                      3H           ; refresh
                                                      40M          ; retry
                                                      1W           ; expire
@@ -21,10 +21,13 @@ desktop.nodes                     IN   A          10.112.8.5
 ingress.k8s                       IN   A          10.112.10.100
 ai.vm                             IN   A          10.112.12.2
 
+cache                             IN   CNAME      cache.o
 hubble.k8s                        IN   CNAME      ingress.k8s
 ceph.k8s                          IN   CNAME      ingress.k8s
 sealed-secrets.k8s                IN   CNAME      ingress.k8s
 grafana.k8s                       IN   CNAME      ingress.k8s
 metrics.k8s                       IN   CNAME      ingress.k8s
 cdi-uploadproxy.k8s               IN   CNAME      ingress.k8s
+
+o.szp.io                          IN   NS         ns1
 $INCLUDE /run/credentials/coredns.service/szp.io
