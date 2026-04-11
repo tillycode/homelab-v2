@@ -23,6 +23,7 @@ zones = {
       hkg0 = { name = "hkg0", type = "A", content = "87.83.107.23" }
       hkg1 = { name = "hkg1", type = "A", content = "194.104.147.179" }
       sjc0 = { name = "sjc0", type = "A", content = "185.218.6.162" }
+      sjc1 = { name = "sjc1", type = "A", content = "185.218.5.211" }
     }
   }
 

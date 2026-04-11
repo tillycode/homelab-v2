@@ -9,6 +9,7 @@ let
     hgh0 = "age128juh5n7pxuw2ltmw434m4tw7s8vk6t44amfa4dw495rkyeqmfcq4vt0wh";
     router = "age1dtdquu63vrxag5pgs4yrqaarjywuksnw4nz2dq5t44v8tv24cy8qz7yfcn";
     desktop = "age1v6lnkm7prm0dpmcdpvn44v50rpfkzsed5uv3znxt4grsd5y6sv5qjru9qq";
+    sjc1 = "age1lcvusytmzf9h776njea7qnyfs3pn37rj0ngxvr7er6pgk3tm3a5qm2j9nd";
   };
 in
 {

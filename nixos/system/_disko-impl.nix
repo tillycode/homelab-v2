@@ -51,9 +51,7 @@ in
       type = lib.types.nullOr lib.types.str;
       description = "Type of the root logical volume";
     };
-    efiSupport = lib.mkEnableOption "EFI support" // {
-      default = true;
-    };
+    legacyBoot = lib.mkEnableOption "legacy boot";
     growFileSystem = lib.mkEnableOption "Grow file system";
   };
 
@@ -113,7 +111,7 @@ in
       preservation.preserveAt.default.persistentStoragePath = "/.persist";
     }
 
-    (lib.mkIf (!cfg.efiSupport) {
+    (lib.mkIf (cfg.legacyBoot) {
       disko.devices.disk.main.content.partitions.boot = {
         size = "1M";
         type = "EF02";

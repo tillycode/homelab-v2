@@ -49,6 +49,11 @@ in
               reload 30s
             }
           }
+          o.szp.io {
+            import snip
+            rewrite name suffix .o.szp.io .szp.io answer auto
+            forward . /run/systemd/resolve/resolv.conf
+          }
         '';
       };
 
