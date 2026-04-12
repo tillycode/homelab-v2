@@ -93,6 +93,9 @@ let
 
       nixos.sjc1 = suites.server ++ [
         hosts.sjc1
+        services.postgresql
+        services.niks3
+        services.nginx
         system.disko
       ];
     }
@@ -105,6 +108,7 @@ let
     inputs.disko.nixosModules.default
     inputs.home-manager.nixosModules.default
     inputs.sops-nix.nixosModules.default
+    inputs.niks3.nixosModules.default
   ];
   nixosSpecialArgs = {
     inherit

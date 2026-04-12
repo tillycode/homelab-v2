@@ -40,6 +40,7 @@ in
         final.callPackage "${nixpkgs-unstable}/pkgs/applications/editors/vscode/generic.nix"
           { };
     };
+    niks3 = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/ni/niks3/package.nix" { };
   };
   flake.overlays.fixups = final: prev: {
     # Downgrade bird to 3.1.5, because we're hitting this issue:

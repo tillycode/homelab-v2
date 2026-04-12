@@ -43,6 +43,7 @@ zones = {
         type    = "TXT",
         content = "\"v=DMARC1; p=quarantine; pct=100; ruf=mailto:me@szp.io; rua=mailto:me@szp.io\""
       }
+      "niks3" = { name = "niks3", type = "CNAME", content = "sjc1.eh578599.xyz" }
     }
   }
 }
