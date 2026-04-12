@@ -27,18 +27,22 @@ jobs:
         with:
           use-flakehub: false
 
-      - name: Get OIDC token
-        id: oidc
+      - name: Build
         run: |
-          token=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          nix run "github:Mic92/nix-fast-build" -- \
+            --skip-cached --no-nom --no-link
+
+      - name: Get OIDC token
+        run: |
+          token=$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://niks3.szp.io" | jq -r '.value')
           echo "::add-mask::$token"
           echo "$token" > /tmp/niks3-token
 
-      - name: Build and push
+      - name: Push to cache
         env:
           NIKS3_AUTH_TOKEN_FILE: /tmp/niks3-token
         run: |
           nix run "github:Mic92/nix-fast-build" -- \
-            --skip-cached --no-nom \
+            --skip-cached --no-nom --no-link \
             --niks3-server https://niks3.szp.io
