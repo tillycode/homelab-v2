@@ -39,6 +39,6 @@ jobs:
         env:
           NIKS3_AUTH_TOKEN_FILE: /tmp/niks3-token
         run: |
-          nix shell "nixpkgs#nix-fast-build" --command \
-            nix-fast-build --skip-cached --no-nom \
-              --niks3-server https://niks3.szp.io
+          nix run "github:Mic92/nix-fast-build" -- \
+            --skip-cached --no-nom \
+            --niks3-server https://niks3.szp.io
