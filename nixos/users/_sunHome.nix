@@ -8,7 +8,7 @@
     programs.fcitx
     programs.desktop-apps
     programs.nix-dev
-    programs.attic
+    programs.niks3
     programs.zsh
     programs.starship
     services.xdg-portal

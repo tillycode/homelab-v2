@@ -96,7 +96,7 @@ rec {
       (lib.mapAttrsToListRecursive (
         p: v: {
           name = lib.concatStringsSep "." p;
-          value = import v;
+          value = v;
         }
       ))
       lib.listToAttrs

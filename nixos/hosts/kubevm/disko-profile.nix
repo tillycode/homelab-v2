@@ -1,7 +1,7 @@
 {
   profiles.system.disko = {
     devices = [ "/dev/vda" ];
-    efiSupport = false;
+    legacyBoot = true;
     swapSize = null;
     growFileSystem = true;
   };
