@@ -44,6 +44,7 @@ let
         programs.steam
         services.bluetooth
         services.gnome-keyring
+        services.incus
         services.iwd
         services.pcscd
         services.pipewire

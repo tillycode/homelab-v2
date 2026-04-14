@@ -1,0 +1,58 @@
+name: Setup Nix Store Cache
+description: Use actions/cache and local overlay store to setup a nix store cache
+
+inputs:
+  key:
+    description: "The key to use for the cache"
+    required: true
+  installable:
+    description: "The installable to copy to the cache if cache misses"
+    required: true
+  restore-keys:
+    description: "The restore keys to use for the cache"
+    required: false
+  base-dir:
+    description: "The base directory to use for the cache"
+    default: "/tmp/nix-store"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v5
+      with:
+        path: ${{ inputs.base-dir }}/lower
+        key: ${{ inputs.key }}
+        restore-keys: ${{ inputs.restore-keys }}
+    - uses: ./.github/actions/with-post-step
+      with:
+        main: |
+          set -euo pipefail
+          mkdir -p "$BASE_DIR/lower/nix/store"
+          sudo systemctl stop nix-daemon.socket nix-daemon.service
+          sudo mv /nix/store "$BASE_DIR/upper"
+          sudo mkdir -p "$BASE_DIR/work" /nix/store /etc/systemd/system/nix-daemon.service.d
+          sudo mount -t overlay overlay \
+            -o "lowerdir=$BASE_DIR/lower/nix/store" \
+            -o "upperdir=$BASE_DIR/upper" \
+            -o "workdir=$BASE_DIR/work" \
+            /nix/store
+          sudo tee /etc/systemd/system/nix-daemon.service.d/override.conf <<EOF
+          [Service]
+          Environment="NIX_REMOTE=local-overlay://?lower-store=$BASE_DIR/lower&upper-layer=$BASE_DIR/upper"
+          EOF
+          sudo systemctl daemon-reload
+          sudo systemctl start nix-daemon.socket
+        post: |
+          set -euo pipefail
+          if [[ "$CACHE_HIT" == "true" ]]; then
+            return 0
+          fi
+          nix copy "$INSTALLABLE" --to "$BASE_DIR/lower.new"
+          sudo systemctl stop nix-daemon.socket nix-daemon.service
+          sudo umount /nix/store
+          mv "$BASE_DIR/lower" "$BASE_DIR/lower.old"
+          mv "$BASE_DIR/lower.new" "$BASE_DIR/lower"
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          INSTALLABLE: ${{ inputs.installable }}
+          BASE_DIR: ${{ inputs.base-dir }}

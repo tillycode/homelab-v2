@@ -15,34 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
-      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: cachix/install-nix-action@v31
         with:
-          determinate: false
-          extra-conf: |
+          extra_nix_config: |
             extra-substituters = https://cache.szp.io
             extra-trusted-public-keys = cache.szp.io-1:5ka/6qZ6Gg8/zeUWwglEvQIP1d1a1yzMgGmwBkqNb7Y=
-
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
+            experimental-features = nix-command flakes local-overlay-store
+      - uses: actions/cache@v5
         with:
-          use-flakehub: false
-
-      - name: Build
-        run: |
-          nix run "github:Mic92/nix-fast-build" -- \
-            --skip-cached --no-nom --no-link
-
-      - name: Get OIDC token
-        run: |
-          token=$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://niks3.szp.io" | jq -r '.value')
-          echo "::add-mask::$token"
-          echo "$token" > /tmp/niks3-token
-
-      - name: Push to cache
-        env:
-          NIKS3_AUTH_TOKEN_FILE: /tmp/niks3-token
-        run: |
-          nix run "github:Mic92/nix-fast-build" -- \
-            --skip-cached --no-nom --no-link \
-            --niks3-server https://niks3.szp.io
+          path: /tmp/nix-store/lower
+          key: nix-store-${{ hashFiles('flake.lock') }}
+          restore-keys: nix-store-
+      - run: |
+          sudo /nix/var/nix/profiles/default/bin/nix copy --all --from /tmp/nix-store/lower
