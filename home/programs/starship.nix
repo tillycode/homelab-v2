@@ -21,7 +21,7 @@
         tag_symbol = "";
       };
       git_status = {
-        format = "[($ahead_behind )](bright-green)[($conflicted$stashed$deleted$renamed$modified$typechanged$staged )](yellow)[($untracked )](bright-blue)";
+        format = "[($ahead_behind$stashed )](bright-green)[($conflicted$deleted$renamed$modified$typechanged$staged )](yellow)[($untracked )](bright-blue)";
         stashed = "*$count";
         ahead = "⇡$count";
         behind = "⇣$count";

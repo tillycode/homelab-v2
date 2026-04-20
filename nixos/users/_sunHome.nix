@@ -89,5 +89,8 @@
   programs.mise.enable = true;
   programs.mise.enableZshIntegration = false;
 
+  programs.opencode.enable = true;
+  programs.claude-code.enable = true;
+
   home.stateVersion = "23.11";
 }

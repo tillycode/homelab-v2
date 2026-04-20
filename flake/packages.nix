@@ -41,6 +41,27 @@ in
           { };
     };
     niks3 = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/ni/niks3/package.nix" { };
+    opencode = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/op/opencode/package.nix" {
+      # otherwise, got this error
+      # > error: ModuleNotFound resolving "opencode-web-ui.gen.ts" (entry point)
+      bun = final.callPackage "${nixpkgs-unstable}/pkgs/by-name/bu/bun/package.nix" { };
+    };
+    nix-fast-build =
+      # wait for the PR https://nixpk.gs/pr-tracker.html?pr=501027 to be merged
+      (
+        prev.nix-fast-build.overrideAttrs (oldAttrs: rec {
+          version = "1.4.0";
+          src =
+            assert lib.assertMsg (lib.versionOlder oldAttrs.version version)
+              "nix-fast-build is updated in the upstream";
+            final.fetchFromGitHub {
+              owner = "Mic92";
+              repo = "nix-fast-build";
+              tag = version;
+              hash = "sha256-sH/KWX8NO8iurnnkI7w8eWMkbnRBbvEIK9IW4LnR0qQ=";
+            };
+        })
+      );
   };
   flake.overlays.fixups = final: prev: {
     # Downgrade bird to 3.1.5, because we're hitting this issue:
