@@ -10,6 +10,7 @@
     group = "sun";
     extraGroups = [
       "wheel"
+      "incus-admin"
     ];
     hashedPasswordFile = config.sops.secrets."user-password/sun".path;
     shell = pkgs.zsh;

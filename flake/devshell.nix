@@ -16,6 +16,7 @@
           openbao
           kubeseal
           kubevirt
+          nix-fast-build
 
           # for IDEs and documentation
           (python3.withPackages (

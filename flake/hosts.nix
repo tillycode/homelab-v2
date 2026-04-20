@@ -38,12 +38,14 @@ let
       suites.desktop = suites.base ++ [
         config.fonts
         config.timezone
+        config.nix-cache
         programs."1password"
         programs.less
         programs.nix-ld
         programs.steam
         services.bluetooth
         services.gnome-keyring
+        services.incus
         services.iwd
         services.pcscd
         services.pipewire
