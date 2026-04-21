@@ -11,6 +11,7 @@ let
       suites.base = [
         config.bbr
         config.home-manager
+        config.nix-cache
         config.preservation
         config.sops
         config.sudo
@@ -38,9 +39,7 @@ let
       suites.desktop = suites.base ++ [
         config.fonts
         config.timezone
-        config.nix-cache
         programs."1password"
-        programs.less
         programs.nix-ld
         programs.steam
         services.bluetooth

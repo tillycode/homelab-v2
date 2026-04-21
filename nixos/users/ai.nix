@@ -79,6 +79,7 @@ in
     home.sessionVariables = {
       BAO_ADDR = "unix:///run/openbao-proxy/openbao-proxy.sock";
       GHVAULT_TOKEN_PATH = "/github/token/ai";
+      CLAUDE_ENV_FILE = "$HOME/.claude/shell-init.sh";
     };
     home.shellAliases = {
       gh = "git-credential-vault exec gh";
@@ -88,14 +89,20 @@ in
     programs.git = {
       enable = true;
       settings = {
-        user.name = "claude[bot]";
-        user.email = "claude@szp.io";
+        user.name = "Ziping Sun";
+        user.email = "me@szp.io";
         credential."https://github.com".helper = "vault";
       };
     };
-    programs.claude-code.enable = true;
-    programs.zellij.enable = true;
 
+    programs.claude-code.enable = true;
+    home.file.".claude/shell-init.sh".source = pkgs.writeShellScript "claude-shell-init.sh" ''
+      alias gh='git-credential-vault exec gh'
+    '';
+
+    programs.opencode.enable = true;
+    programs.zellij.enable = true;
+    programs.zoxide.enable = true;
   };
 
   preservation.preserveAt.default.directories = [

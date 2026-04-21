@@ -76,5 +76,12 @@ in
         hash = "sha256-UxaZhieUpHmPJwgLw+i6vbFsweOCQIZv2BEQfYtlPQQ=";
       };
     });
+
+    deploy-rs = prev.deploy-rs.overrideAttrs (oldAttrs: {
+      passthru = oldAttrs.passthru or { } // {
+        inherit (final) deploy-rs;
+        inherit ((inputs.deploy-rs.overlays.default final prev).deploy-rs) lib;
+      };
+    });
   };
 }

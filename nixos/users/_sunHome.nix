@@ -1,6 +1,7 @@
 {
   pkgs,
   profiles,
+  config,
   ...
 }:
 {
@@ -20,7 +21,6 @@
       user.name = "Ziping Sun";
       user.email = "me@szp.io";
       commit.gpgSign = true;
-      init.defaultBranch = "master";
       push.autoSetupRemote = true;
     };
   };
@@ -67,6 +67,9 @@
 
   home.sessionVariables = {
     EDITOR = "vi";
+    # oh-my-zsh set it defaults to "-R"
+    LESS = "-FR";
+    CLAUDE_CONFIG_DIR = "${config.xdg.configHome}/claude";
   };
   home.sessionPath = [
     "$HOME/.local/share/mise/shims"
@@ -85,6 +88,8 @@
     netease-cloud-music-gtk
     minikube
   ];
+  # for opencode
+  home.file.".claude".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/claude";
 
   programs.mise.enable = true;
   programs.mise.enableZshIntegration = false;
