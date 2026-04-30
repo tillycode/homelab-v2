@@ -89,6 +89,20 @@ grafana:
   enabled: false
   forceDeployDatasource: true
 
+kubelet:
+  vmScrape:
+    spec:
+      relabelConfigs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - sourceLabels: [__metrics_path__]
+          targetLabel: metrics_path
+        - targetLabel: job
+          replacement: kubelet
+        # drop kubevirt labels since they are too many
+        - action: labeldrop
+          regex: .*kubevirt_io.*
+
 kubeControllerManager:
   vmScrape:
     spec:
