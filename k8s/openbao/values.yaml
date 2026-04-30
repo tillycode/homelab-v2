@@ -135,9 +135,9 @@ server:
 
   resources:
     requests:
-      squat.ai/tpmrm: 1
+      devic.es/tpmrm: 1
     limits:
-      squat.ai/tpmrm: 1
+      devic.es/tpmrm: 1
 
   extraEnvironmentVars:
     TPM2_PKCS11_STORE: /var/lib/tpm2_pkcs11
