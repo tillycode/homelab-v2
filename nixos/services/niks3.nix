@@ -25,6 +25,11 @@
       audience = "https://niks3.szp.io";
       boundClaims.repository_owner = [ "tillycode" ];
     };
+
+    oidc.providers.vault = {
+      issuer = "https://vault.szp15.com/v1/identity/oidc";
+      audience = "https://niks3.szp.io";
+    };
   };
 
   sops.secrets."niks3/s3-access-key" = {

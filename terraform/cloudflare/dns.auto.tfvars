@@ -15,6 +15,7 @@ zones = {
       ingress1 = { name = "ingress", type = "A", content = "47.96.145.133" }
       ingress2 = { name = "ingress", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
       whoami   = { name = "whoami", type = "CNAME", content = "ingress.szp15.com" }
+      vault    = { name = "vault", type = "CNAME", content = "ingress.szp15.com" }
     }
   }
 
