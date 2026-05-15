@@ -2,7 +2,7 @@
   description = "A very basic flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.11-small";
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
@@ -53,9 +53,7 @@
 
     niks3.url = "github:Mic92/niks3";
     niks3.inputs.nixpkgs.follows = "nixpkgs";
-    niks3.inputs.flake-parts.follows = "flake-parts";
     niks3.inputs.treefmt-nix.follows = "blank";
-    niks3.inputs.process-compose.follows = "blank";
   };
 
   outputs =

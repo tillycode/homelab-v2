@@ -1,0 +1,47 @@
+role: Agent
+
+customConfig:
+  data_dir: /vector-data-dir
+  api:
+    enabled: false
+  sources:
+    kubernetes_logs:
+      type: kubernetes_logs
+    internal_metrics:
+      type: internal_metrics
+  transforms:
+    parser:
+      type: remap
+      inputs: [kubernetes_logs]
+      source: |
+        labels, err = object(.kubernetes.node_labels)
+        if err == null {
+          .kubernetes.node_labels = filter(labels) -> |key, _| {
+            !match(key, r'kubevirt\.io')
+          }
+        }
+
+        .log = parse_json(.message) ?? .message
+        del(.message)
+  sinks:
+    exporter:
+      type: prometheus_exporter
+      inputs: [internal_metrics]
+      address: 0.0.0.0:9090
+    vlogs:
+      type: elasticsearch
+      inputs: [parser]
+      api_version: v8
+      compression: gzip
+      endpoints:
+        - http://victoria-logs-vlinsert.victoria-logs.svc.hasee.internal:9481/insert/elasticsearch
+      healthcheck:
+        enabled: false
+      mode: bulk
+      request:
+        headers:
+          AccountID: "0"
+          ProjectID: "0"
+          VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+          VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+          VL-Time-Field: timestamp

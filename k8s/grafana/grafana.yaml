@@ -5,6 +5,31 @@ metadata:
   labels:
     dashboards: "grafana"
 spec:
+  # TODO: we should use a pgsql operator to store the grafana data
+  persistentVolumeClaim:
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: rook-ceph-block
+  deployment:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: grafana
+              readinessProbe:
+                failureThreshold: 3
+          securityContext:
+            fsGroup: 10001
+          volumes:
+            - name: grafana-data
+              persistentVolumeClaim:
+                claimName: grafana-pvc
+      strategy:
+        type: Recreate
   httpRoute:
     spec:
       parentRefs:

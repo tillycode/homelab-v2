@@ -11,7 +11,7 @@ buildGoModule (final: {
     owner = "miekg";
     repo = "dnsfmt";
     rev = "v${final.version}";
-    sha256 = "sha256-9bAifsK6LO/ouV1ChyzhVmiN5MLQ18m9nViPD37QwGc=";
+    hash = "sha256-9bAifsK6LO/ouV1ChyzhVmiN5MLQ18m9nViPD37QwGc=";
   };
   vendorHash = "sha256-DWrHwr+hc9JEKBlUMuGJFKzSzJ57zzjsX+1P3XZk92I=";
   # serial_test.go has a test that depends on the current time

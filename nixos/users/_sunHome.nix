@@ -6,12 +6,17 @@
 }:
 {
   imports = with profiles; [
+    programs.c-cpp-dev
     programs.fcitx
     programs.desktop-apps
+    programs.go-dev
+    programs.k8s-dev
     programs.nix-dev
     programs.niks3
-    programs.zsh
+    programs.podman
     programs.starship
+    programs.uv
+    programs.zsh
     services.xdg-portal
   ];
 
@@ -22,6 +27,7 @@
       user.email = "me@szp.io";
       commit.gpgSign = true;
       push.autoSetupRemote = true;
+      init.defaultBranch = "main";
     };
   };
   programs.direnv = {
@@ -76,15 +82,10 @@
   ];
 
   home.packages = with pkgs; [
-    k9s
-    kubectl
-    kubernetes-helm
     cilium-cli
     awscli2
     minio-client
     code-cursor
-    # zed-editor
-    nil
     netease-cloud-music-gtk
     minikube
   ];

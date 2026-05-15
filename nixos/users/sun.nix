@@ -23,16 +23,10 @@
   home-manager.users.sun = import ./_sunHome.nix;
 
   preservation.preserveAt.default.users.sun.directories = [
-    ".aliyun"
-    ".aws"
     ".cache"
     ".config"
     ".cursor"
-    ".kube"
     ".local"
-    ".npm"
-    ".minikube"
-    ".mc"
     ".vscode-server"
     ".vscode"
     ".factorio"
