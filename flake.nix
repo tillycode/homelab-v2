@@ -53,9 +53,7 @@
 
     niks3.url = "github:Mic92/niks3";
     niks3.inputs.nixpkgs.follows = "nixpkgs";
-    niks3.inputs.flake-parts.follows = "flake-parts";
     niks3.inputs.treefmt-nix.follows = "blank";
-    niks3.inputs.process-compose.follows = "blank";
   };
 
   outputs =
