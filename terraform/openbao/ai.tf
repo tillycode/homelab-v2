@@ -25,7 +25,7 @@ resource "vault_identity_entity_alias" "ai" {
 # APP ID: 3106928
 # Installation ID: 116832039
 #
-#     bao plugin register -sha256=24b0e060bb13f500ad17a1081fa78cff7aec3ae36562ce2c4e52c38e858a806a secret vault-plugin-secrets-github
+#     bao plugin register -sha256=eedc47ee0f318fc990e41af4da5390480c70b20a6fb0bfe62eca4e192bd813c9 -command=vault-plugin-secrets-github secret github
 #     bao secrets enable -path=github -plugin-name=github plugin
 #     bao write /github/config app_id=3106928 prv_key=@tillycode-vault.2026-03-16.private-key.pem
 #     bao write /github/permissionset/ai installation_id=116832039 permissions=pull_requests=write permissions=actions=write permissions=workflows=write permissions=contents=write

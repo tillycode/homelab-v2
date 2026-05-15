@@ -63,6 +63,7 @@ let
         networking.wireguard
         services.chrony
         services.coredns
+        services.fail2ban
         services.sing-box
         system.disko
         system.systemd-boot

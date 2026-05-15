@@ -1,0 +1,83 @@
+global:
+  cluster:
+    dnsDomain: hasee.internal
+
+fullnameOverride: victoria-logs
+
+vlselect:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  vmServiceScrape:
+    enabled: true
+
+vlinsert:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  vmServiceScrape:
+    enabled: true
+
+vlstorage:
+  persistentVolume:
+    storageClassName: rook-ceph-block
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  vmServiceScrape:
+    enabled: true
+
+vmauth:
+  enabled: true
+  replicaCount: 2
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  route:
+    enabled: true
+    parentRefs:
+      - group: gateway.networking.k8s.io
+        kind: Gateway
+        name: default
+        namespace: gateway
+        sectionName: https
+    hostnames:
+      - logs.k8s.szp.io
+  vmServiceScrape:
+    enabled: true
+
+extraObjects:
+  - apiVersion: grafana.integreatly.org/v1beta1
+    kind: GrafanaDatasource
+    metadata:
+      name: victoria-logs
+      namespace: victoria-logs
+    spec:
+      allowCrossNamespaceImport: true
+      datasource:
+        name: VictoriaLogs
+        type: victoriametrics-logs-datasource
+        access: proxy
+        url: http://victoria-logs-vlselect.victoria-logs.svc.hasee.internal:9471
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      plugins:
+        - name: victoriametrics-logs-datasource
+          version: latest

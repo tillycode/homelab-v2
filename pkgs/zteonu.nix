@@ -11,7 +11,7 @@ buildGoModule (final: {
     owner = "Septrum101";
     repo = "zteOnu";
     rev = "v${final.version}";
-    sha256 = "sha256-irw7q64MO9xdL0RXWnWN3ULkHqCGBWuYlsMl7avgfQI=";
+    hash = "sha256-irw7q64MO9xdL0RXWnWN3ULkHqCGBWuYlsMl7avgfQI=";
   };
   vendorHash = "sha256-tecWPrGGCFmWGjeMA7ct3Vvm85A41dskjx2ntv5cIl8=";
   meta = {

@@ -107,6 +107,7 @@ in
         after = [ "netns-coredns.service" ];
         serviceConfig = {
           NetworkNamespacePath = "/var/run/netns/coredns";
+          RestartSec = 5;
         };
       };
 

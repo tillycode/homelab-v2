@@ -3,8 +3,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: victoria-metrics
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:
@@ -44,8 +42,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: grafana-operator
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:
@@ -70,8 +66,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: grafana
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
@@ -84,3 +78,54 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: victoria-logs
+spec:
+  project: default
+  sources:
+    - chart: victoria-logs-cluster
+      repoURL: https://victoriametrics.github.io/helm-charts
+      targetRevision: 0.0.29
+      helm:
+        valueFiles:
+          - $values/k8s/victoria-logs/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: victoria-logs
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vector
+spec:
+  project: default
+  sources:
+    - chart: vector
+      repoURL: https://helm.vector.dev
+      targetRevision: 0.52.0
+      helm:
+        valueFiles:
+          - $values/k8s/vector/values.yaml
+    - repoURL: https://github.com/tillycode/homelab-v2.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vector
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged

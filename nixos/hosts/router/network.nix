@@ -145,6 +145,10 @@
   networking.firewall.interfaces.vm.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.vm.allowedTCPPorts = [ 53 ];
 
+  services.fail2ban.ignoreIP = [
+    "10.112.8.5" # desktop
+  ];
+
   ## ---------------------------------------------------------------------------
   ## SVC
   ## ---------------------------------------------------------------------------

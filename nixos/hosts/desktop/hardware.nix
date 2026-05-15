@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   boot.initrd.availableKernelModules = [
     "vmd"
@@ -21,4 +21,9 @@
   };
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia.open = true;
+
+  programs.nix-ld.libraries = [
+    # for pytorch
+    config.hardware.nvidia.package
+  ];
 }

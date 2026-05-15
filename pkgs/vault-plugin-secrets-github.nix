@@ -11,7 +11,7 @@ buildGoModule (final: {
     owner = "martinbaillie";
     repo = "vault-plugin-secrets-github";
     rev = "v${final.version}";
-    sha256 = "sha256-RAV4TevqfWvqrhc1/t9k+Sk5AJkbjceYcVXMj1qcKvo=";
+    hash = "sha256-RAV4TevqfWvqrhc1/t9k+Sk5AJkbjceYcVXMj1qcKvo=";
   };
   vendorHash = "sha256-YELxGfVh2XVt7DXeISZg7/uf9B+/zEa43TTCTVHON4g=";
   ldflags = [
