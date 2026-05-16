@@ -15,6 +15,11 @@ module "hgh0_security_group" {
       ports    = [-1]
     },
     {
+      protocol = "icmpv6"
+      cidrs    = ["::/0"]
+      ports    = [-1]
+    },
+    {
       protocol = "tcp"
       cidrs    = ["0.0.0.0/0", "::/0"]
       ports = [

@@ -77,7 +77,8 @@ let
         hosts.hgh0
         networking.wireguard
         services.coredns
-        services.haproxy
+        services.nginx
+        services.rke2-hasee.gateway
         services.sing-box
         system.disko
         system.systemd-boot
