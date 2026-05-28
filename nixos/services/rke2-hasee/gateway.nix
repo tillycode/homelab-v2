@@ -19,9 +19,8 @@
       frontend http
         bind *:80,:::80
         mode http
-        acl host_vault hdr(host) -i vault.szp15.com vault.szp15.com:80
         acl acme_path path_beg /.well-known/acme-challenge/
-        redirect scheme https code 301 if !host_vault || !acme_path
+        redirect scheme https code 301 if !acme_path
         use_backend nginx_http
 
       frontend https
@@ -30,7 +29,7 @@
         tcp-request inspect-delay 5s
         tcp-request content accept if { req.ssl_hello_type 1 }
         use_backend k8s_ingress if { req.ssl_sni -i whoami.szp15.com }
-        use_backend nginx_https if { req.ssl_sni -i vault.szp15.com }
+        use_backend nginx_https
 
       backend k8s_ingress
         mode tcp

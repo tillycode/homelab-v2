@@ -76,6 +76,7 @@ let
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
         networking.wireguard
+        services.blog
         services.coredns
         services.nginx
         services.rke2-hasee.gateway
