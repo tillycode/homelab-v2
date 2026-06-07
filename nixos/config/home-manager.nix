@@ -13,6 +13,7 @@
     inherit inputs self;
     profiles = homeProfiles;
   };
+  home-manager.backupFileExtension = "bak";
 
   environment.pathsToLink = [
     "/share/applications"
