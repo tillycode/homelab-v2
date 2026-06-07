@@ -114,6 +114,8 @@
         "10.112.35.2"
       ];
       EmitRouter = true;
+      EmitDomain = true;
+      Domain = "nodes.szp.io";
       PoolOffset = 100;
       PoolSize = 100;
     };

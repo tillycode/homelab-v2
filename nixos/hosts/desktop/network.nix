@@ -28,6 +28,7 @@
     DHCP = "yes";
     dhcpV4Config.RoutesToDNS = false;
     linkConfig.MTUBytes = 9000;
+    networkConfig.UseDomains = true;
   };
   systemd.network.networks."40-svc" = {
     matchConfig.Name = "svc";
@@ -39,6 +40,7 @@
       "10.112.35.1"
       "10.112.35.2"
     ];
+    domains = [ "nodes.szp.io" ];
     networkConfig.IPv6AcceptRA = false;
   };
   systemd.network.networks."40-wlan0" = {
@@ -49,5 +51,10 @@
       RouteMetric = 1025;
     };
     ipv6AcceptRAConfig.RouteMetric = 1025;
+    networkConfig.UseDomains = true;
   };
+  networking.hosts."10.112.8.1" = [
+    "router.nodes.szp.io"
+    "router"
+  ];
 }
