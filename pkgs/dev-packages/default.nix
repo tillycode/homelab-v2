@@ -9,5 +9,6 @@ lib.makeScope newScope (
   in
   {
     scripts = callPackage ./scripts.nix { };
+    cache = callPackage ./cache.nix { };
   }
 )

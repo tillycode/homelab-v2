@@ -1,0 +1,25 @@
+name: Setup Nix Store cache
+description: Use actions/cache to cache .#devPackages/cache to a local binary cache
+
+runs:
+  using: "composite"
+  steps:
+    - id: cache
+      uses: actions/cache@v5
+      with:
+        path: /tmp/store-cache
+        key: nix-store-${{ hashFiles('flake.lock', 'pkgs/dev-packages/cache.nix') }}
+        restore-keys: nix-store-
+    - if: steps.cache.outputs.cache-hit != ''
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "extra-substituters = file:///tmp/store-cache" >> /tmp/store-cache.conf
+        echo "NIX_USER_CONF_FILES=/tmp/store-cache.conf:${NIX_USER_CONF_FILES:-}" >> $GITHUB_ENV
+    - if: steps.cache.outputs.cache-hit != 'true'
+      uses: ./.github/actions/with-post-step
+      with:
+        post: |
+          set -euo pipefail
+          rm -rf /tmp/store-cache
+          nix copy .#devPackages/cache --to file:///tmp/store-cache

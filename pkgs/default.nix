@@ -1,5 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
+  inputs ? { },
 }:
 let
   inherit (pkgs) newScope lib nix-update-script;
@@ -7,6 +8,7 @@ let
     # doesn't override pkgs's nix-update-script
     nix-update-script =
       args: nix-update-script (args // { extraArgs = [ "-F" ] ++ args.extraArgs or [ ]; });
+    inherit inputs;
   };
 in
 lib.makeScope (self: newScope (extra // self)) (self: {
