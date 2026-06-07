@@ -31,18 +31,18 @@
     gnome-disk-utility
     wireshark
     xcolor
-    xorg.xkill
-    xfce.xfce4-appfinder
+    xkill
+    xfce4-appfinder
     seahorse
     d-spy
     bustle
     iwgtk
 
     # xfce plugins
-    xfce.xfce4-pulseaudio-plugin
-    xfce.xfce4-systemload-plugin
-    xfce.xfce4-weather-plugin
-    xfce.xfce4-whiskermenu-plugin
+    xfce4-pulseaudio-plugin
+    xfce4-systemload-plugin
+    xfce4-weather-plugin
+    xfce4-whiskermenu-plugin
 
     # cli tools
     libqalculate

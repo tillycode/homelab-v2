@@ -6,6 +6,7 @@
     syntaxHighlighting.enable = true;
     oh-my-zsh.enable = true;
     history.path = "${config.xdg.dataHome}/zsh/zsh_history";
+    dotDir = "${config.xdg.configHome}/zsh";
   };
   programs.zoxide.enable = true;
 }

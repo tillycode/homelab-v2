@@ -60,6 +60,9 @@
 
   programs.neovim.enable = true;
   programs.neovim.viAlias = true;
+  # default value changed to false in 26.05
+  programs.neovim.withRuby = false;
+  programs.neovim.withPython3 = false;
 
   programs.vscode.enable = true;
   programs.ghostty.enable = true;
@@ -69,6 +72,7 @@
   xdg = {
     enable = true;
     userDirs.enable = true;
+    userDirs.setSessionVariables = false;
   };
 
   home.sessionVariables = {

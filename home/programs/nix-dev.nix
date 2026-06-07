@@ -2,7 +2,7 @@
 {
   home.packages = with pkgs; [
     nixd
-    nixfmt-rfc-style
+    nixfmt
     nvd
     vulnix
     nix-tree

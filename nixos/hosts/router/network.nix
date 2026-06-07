@@ -134,10 +134,12 @@
     "10.112.35.1/32"
     "10.112.35.2/32"
   ];
-  services.resolved.extraConfig = ''
-    DNSStubListenerExtra=10.112.35.1
-    DNSStubListenerExtra=10.112.35.2
-  '';
+  services.resolved.settings.Resolve = {
+    DNSStubListenerExtra = [
+      "10.112.35.1"
+      "10.112.35.2"
+    ];
+  };
   networking.firewall.interfaces.lan.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.lan.allowedTCPPorts = [ 53 ];
   networking.firewall.interfaces.svc.allowedUDPPorts = [ 53 ];
