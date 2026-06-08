@@ -10,16 +10,19 @@ runs:
         path: /tmp/store-cache
         key: nix-store-${{ hashFiles('flake.lock', 'pkgs/dev-packages/cache.nix') }}
         restore-keys: nix-store-
-    - if: steps.cache.outputs.cache-hit != ''
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "extra-substituters = file:///tmp/store-cache" >> /tmp/store-cache.conf
-        echo "NIX_USER_CONF_FILES=/tmp/store-cache.conf:${NIX_USER_CONF_FILES:-}" >> $GITHUB_ENV
-    - if: steps.cache.outputs.cache-hit != 'true'
-      uses: ./.github/actions/with-post-step
+    - uses: ./.github/actions/with-post-step
       with:
+        main: |
+          set -euo pipefail
+          [[ -z "$CACHE_HIT" ]] && exit 0
+          echo "::notice::use cache"
+          echo "extra-substituters = file:///tmp/store-cache" >> /tmp/store-cache.conf
+          echo "NIX_USER_CONF_FILES=/tmp/store-cache.conf:${NIX_USER_CONF_FILES:-}" >> $GITHUB_ENV
         post: |
           set -euo pipefail
+          [[ "$CACHE_HIT" == "true" || "$INPUT_JOB_STATUS" != "success" ]] && exit 0
+          echo "::notice::rebuild cache"
           rm -rf /tmp/store-cache
           nix copy .#devPackages/cache --to file:///tmp/store-cache
+      env:
+        CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}

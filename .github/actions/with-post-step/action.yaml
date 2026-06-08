@@ -5,10 +5,13 @@ description: An action that executes a post step after the main step
 inputs:
   main:
     description: "The main step to run"
-    default: ""
+    default: "true"
   post:
     description: "The post step to run"
-    default: ""
+    default: "true"
+  job_status:
+    description: Job Status
+    default: ${{ job.status }}
 
 runs:
   using: "node24"
