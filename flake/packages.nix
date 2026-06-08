@@ -1,6 +1,6 @@
 { inputs, lib, ... }:
 let
-  getPackages = pkgs: (import ../pkgs { inherit pkgs; });
+  getPackages = pkgs: (import ../pkgs { inherit pkgs inputs; });
   filterPackage =
     system: package: !package.meta.broken or false && lib.meta.availableOn { inherit system; } package;
   flattenAndFilterPackages =

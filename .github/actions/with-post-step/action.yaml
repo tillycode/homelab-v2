@@ -1,0 +1,16 @@
+name: With post step
+
+description: An action that executes a post step after the main step
+
+inputs:
+  main:
+    description: "The main step to run"
+    default: ""
+  post:
+    description: "The post step to run"
+    default: ""
+
+runs:
+  using: "node24"
+  main: "main.js"
+  post: "post.js"
