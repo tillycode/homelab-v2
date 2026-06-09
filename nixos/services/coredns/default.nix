@@ -54,6 +54,11 @@ in
             rewrite name suffix .o.szp.io .szp.io answer auto
             forward . /run/systemd/resolve/resolv.conf
           }
+          o.szp15.com {
+            import snip
+            rewrite name suffix .o.szp15.com .szp15.com answer auto
+            forward . /run/systemd/resolve/resolv.conf
+          }
         '';
       };
 
