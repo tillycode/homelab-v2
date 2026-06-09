@@ -1,7 +1,7 @@
 $ORIGIN szp15.com.
 $TTL 600
 @                    IN   SOA        ns1.szp.io. me.szp.io. (
-                                        2026052801   ; serial  Thu, 28 May 2026 00:14:00 UTC
+                                        2026060902   ; serial  Tue, 09 Jun 2026 00:28:00 UTC
                                         3H           ; refresh
                                         40M          ; retry
                                         1W           ; expire
