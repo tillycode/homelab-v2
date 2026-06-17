@@ -58,5 +58,12 @@ in
         legacyBoot = true;
       };
     })
+
+    (lib.mkIf (name == "laptop") {
+      profiles.system.disko = {
+        devices = [ "/dev/disk/by-path/pci-0000:55:00.0-nvme-1" ];
+        swapSize = "32G";
+      };
+    })
   ];
 }

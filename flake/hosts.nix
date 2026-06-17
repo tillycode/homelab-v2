@@ -72,6 +72,12 @@ let
         hosts.desktop
         system.systemd-boot
       ];
+      nixos.laptop = suites.desktop ++ [
+        hosts.laptop
+        system.disko
+        services.sing-box
+        system.systemd-boot
+      ];
 
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
@@ -210,6 +216,10 @@ in
     })
     (mkHost {
       name = "sjc1";
+      system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "laptop";
       system = "x86_64-linux";
     })
   ];
