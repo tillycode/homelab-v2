@@ -11,6 +11,7 @@
       readarray -d "" -t emails < <(yq -0e '.users[] | .email' <<<"$settings")
       for email in "''${emails[@]}"; do
         uuid=$(python -m uuid -u uuid5 -n "$namespace" -N "$email")
+        echo "email=$email uuid=$uuid"
         uuid="$uuid" yq -r '.servers[] |
           "vless://\(strenv(uuid))@\(.add):443?security=reality&encryption=none&" +
           "pbk=\(.pbk)&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision" +
@@ -65,5 +66,7 @@
   #
   # We used to use uuid5 to generate the user id.
   # Though it's not a good idea, we need to keep backward compatibility.
-  sops.secrets."proxy/settings.yaml" = { };
+  sops.secrets."proxy/settings.yaml" = {
+    reloadUnits = [ "proxy-subscriptions.service" ];
+  };
 }

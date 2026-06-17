@@ -20,3 +20,6 @@ __pycache__/
 *.tfstate
 *.tfstate.*
 .terraform.tfstate.lock.info
+
+# decrypted secrets
+.decrypted~*

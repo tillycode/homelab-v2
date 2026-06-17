@@ -12,6 +12,7 @@
         settings.excludes = [
           "secrets/*"
           "*.terraform.lock.hcl"
+          ".cursorignore"
         ];
 
         # json, md
