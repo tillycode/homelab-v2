@@ -11,7 +11,7 @@
 }:
 dockerTools.buildLayeredImage {
   name = "ghcr.io/tillycode/openbao";
-  tag = openbao.version + "-4";
+  tag = openbao.version + "-1";
   contents = [
     busybox
     openbao
@@ -20,7 +20,6 @@ dockerTools.buildLayeredImage {
     tpm2-pkcs11-esapi
     supercronic
     logrotate
-    vault-plugin-secrets-github
     (writeTextDir "etc/crontab" ''
       * * * * * /sbin/logrotate -s /tmp/logrotate.status /etc/logrotate.conf
     '')
@@ -51,6 +50,8 @@ dockerTools.buildLayeredImage {
   extraCommands = ''
     mkdir -p openbao/{logs,file,config}
     mkdir -m 777 -p tmp
+    mkdir -p libexec/vault-plugins
+    cp ${vault-plugin-secrets-github}/libexec/vault-plugins/* libexec/vault-plugins/
   '';
   config = {
     Entrypoint = [ "/bin/bao" ];

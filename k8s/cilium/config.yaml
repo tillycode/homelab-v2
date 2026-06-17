@@ -54,6 +54,8 @@ spec:
         enabled: true
       ui:
         enabled: true
+      peerService:
+       clusterDomain: hasee.internal
 
     socketLB:
       # for kubevirt to work

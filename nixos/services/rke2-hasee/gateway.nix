@@ -92,6 +92,7 @@
   environment.etc."haproxy/vault.szp15.com/paths.txt".text = ''
     ^/v1/auth/github/login$
     ^/v1/identity/oidc/\.well-known(/.*)?$
+    ^/v1/github/token/[\w-]+$
   '';
 
   systemd.services.haproxy.reloadTriggers = [
