@@ -1,19 +1,20 @@
 $ORIGIN szp15.com.
 $TTL 600
-@                    IN   SOA        ns1.szp.io. me.szp.io. (
-                                        2026060902   ; serial  Tue, 09 Jun 2026 00:28:00 UTC
-                                        3H           ; refresh
-                                        40M          ; retry
-                                        1W           ; expire
-                                        30M          ; minimum
-                                        )
-                     IN   NS         ns1.szp.io.
-                     IN   A          47.96.145.133
-                     IN   AAAA       2408:4005:3c4:a40:d5b6:55ed:95b4:4eed
+@                     IN   SOA        ns1.szp.io. me.szp.io. (
+                                         2026062001   ; serial  Sat, 20 Jun 2026 00:14:00 UTC
+                                         3H           ; refresh
+                                         40M          ; retry
+                                         1W           ; expire
+                                         30M          ; minimum
+                                         )
+                      IN   NS         ns1.szp.io.
+                      IN   A          47.96.145.133
+                      IN   AAAA       2408:4005:3c4:a40:d5b6:55ed:95b4:4eed
 
-hgh0                 IN   CNAME      @
-s3                   IN   CNAME      ingress.k8s.szp.io.
-*.s3                 IN   CNAME      ingress.k8s.szp.io.
-whoami               IN   CNAME      ingress.k8s.szp.io.
-vault                IN   CNAME      ingress.k8s.szp.io.
-argocd               IN   CNAME      ingress.k8s.szp.io.
+hgh0                  IN   CNAME      hgh0.o
+tailnet               IN   CNAME      tailnet.o
+s3                    IN   CNAME      ingress.k8s.szp.io.
+*.s3                  IN   CNAME      ingress.k8s.szp.io.
+whoami                IN   CNAME      ingress.k8s.szp.io.
+vault                 IN   CNAME      ingress.k8s.szp.io.
+argocd                IN   CNAME      ingress.k8s.szp.io.

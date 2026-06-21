@@ -65,6 +65,7 @@ let
         services.coredns
         services.fail2ban
         services.sing-box
+        services.tailscale
         system.disko
         system.systemd-boot
       ];
@@ -76,6 +77,7 @@ let
         hosts.laptop
         system.disko
         services.sing-box
+        services.tailscale
         system.systemd-boot
       ];
 
@@ -84,9 +86,11 @@ let
         networking.wireguard
         services.blog
         services.coredns
+        services.headscale
         services.nginx
         services.rke2-hasee.gateway
         services.sing-box
+        services.tailscale
         system.disko
         system.systemd-boot
       ];

@@ -1,1 +1,3 @@
 .decrypted~*
+.env
+.env.*
