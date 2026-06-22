@@ -112,6 +112,10 @@ let
         services.nginx
         system.disko
       ];
+      nixos.lax0 = suites.server ++ [
+        hosts.lax0
+        system.disko
+      ];
     }
   );
 

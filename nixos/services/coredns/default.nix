@@ -67,11 +67,6 @@ in
       '';
       environment.etc."coredns/zones/szp15.com.zone".source = ./szp15.com.zone;
       environment.etc."coredns/zones/szp.io.zone".source = ./szp.io.zone;
-
-      sops.secrets."coredns/secretRecords/szp.io" = { };
-      systemd.services.coredns.serviceConfig.LoadCredential = [
-        "szp.io:${config.sops.secrets."coredns/secretRecords/szp.io".path}"
-      ];
     })
     (lib.mkIf (name != primary) {
       services.coredns.config = ''
