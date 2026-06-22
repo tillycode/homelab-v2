@@ -114,8 +114,6 @@
         "10.112.35.2"
       ];
       EmitRouter = true;
-      EmitDomain = true;
-      Domain = "nodes.szp.io";
       PoolOffset = 100;
       PoolSize = 100;
     };
@@ -148,6 +146,8 @@
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 53 ];
   networking.firewall.interfaces.vm.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.vm.allowedTCPPorts = [ 53 ];
+  networking.firewall.interfaces.tailscale0.allowedUDPPorts = [ 53 ];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 53 ];
 
   services.fail2ban.ignoreIP = [
     "10.112.8.5" # desktop
@@ -225,7 +225,8 @@
   # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''
     iifname "lan" ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
-    iifname {"vm", "wg0"} ip daddr 10.112.10.0/24 accept
+    iifname {"vm", "wg0", "tailscale0"} ip daddr 10.112.10.0/24 accept
+    iifname "tailscale0" ip saddr 100.112.36.128/25 ip daddr 10.112.0.0/19 accept
   '';
 
   networking.nftables.tables.mss-clamping = {

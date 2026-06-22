@@ -23,45 +23,48 @@ let
 in
 {
   config = lib.mkMerge [
+    {
+      services.coredns.enable = true;
+      services.coredns.config = ''
+        (snip) {
+          errors
+          loadbalance
+          log
+          minimal
+        }
+        o.szp.io {
+          import snip
+          rewrite name suffix .o.szp.io .szp.io answer auto
+          forward . /run/systemd/resolve/resolv.conf
+        }
+        o.szp15.com {
+          import snip
+          rewrite name suffix .o.szp15.com .szp15.com answer auto
+          forward . /run/systemd/resolve/resolv.conf
+        }
+      '';
+    }
     (lib.mkIf (name == primary) {
-      services.coredns = {
-        enable = true;
-        config = ''
-          (snip) {
-            errors
-            loadbalance
-            log
-            minimal
-            root /etc/coredns/zones
-            transfer {
-              to ${lib.concatStringsSep " " secondaryAddresses}
-            }
+      services.coredns.config = ''
+        (authoritative) {
+          root /etc/coredns/zones
+          transfer {
+            to ${lib.concatStringsSep " " secondaryAddresses}
           }
-          szp15.com {
-            import snip
-            file szp15.com.zone {
-              reload 30s
-            }
+        }
+        szp15.com {
+          import authoritative
+          file szp15.com.zone {
+            reload 30s
           }
-          szp.io {
-            import snip
-            file szp.io.zone {
-              reload 30s
-            }
+        }
+        szp.io {
+          import authoritative
+          file szp.io.zone {
+            reload 30s
           }
-          o.szp.io {
-            import snip
-            rewrite name suffix .o.szp.io .szp.io answer auto
-            forward . /run/systemd/resolve/resolv.conf
-          }
-          o.szp15.com {
-            import snip
-            rewrite name suffix .o.szp15.com .szp15.com answer auto
-            forward . /run/systemd/resolve/resolv.conf
-          }
-        '';
-      };
-
+        }
+      '';
       environment.etc."coredns/zones/szp15.com.zone".source = ./szp15.com.zone;
       environment.etc."coredns/zones/szp.io.zone".source = ./szp.io.zone;
 
@@ -71,26 +74,20 @@ in
       ];
     })
     (lib.mkIf (name != primary) {
-      services.coredns = {
-        enable = true;
-        config = ''
-          (snip) {
-            errors
-            loadbalance
-            log
-            minimal
-            secondary {
-              transfer from ${primaryAddress}
-            }
+      services.coredns.config = ''
+        (authoritative) {
+          import snip
+          secondary {
+            transfer from ${primaryAddress}
           }
-          szp15.com {
-            import snip
-          }
-          szp.io {
-            import snip
-          }
-        '';
-      };
+        }
+        szp15.com {
+          import authoritative
+        }
+        szp.io {
+          import authoritative
+        }
+      '';
     })
     {
       networking.netns.coredns = {
