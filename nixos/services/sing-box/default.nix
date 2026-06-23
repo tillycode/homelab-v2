@@ -10,29 +10,29 @@ let
     type = "local";
     path = "${pkgs.sing-geosite}/share/sing-box/rule-set/${name}.srs";
   };
-  geoip-modified =
-    {
-      sing-geoip,
-      runCommandLocal,
-      sing-box,
-      python3,
-      name ? "geoip-cn",
-      excludeIPAddresses ? [ ],
-      lib,
-    }:
-    runCommandLocal "${name}-modified.srs"
-      {
-        src = "${sing-geoip}/share/sing-box/rule-set/${name}.srs";
-        nativeBuildInputs = [
-          sing-box
-          python3
-        ];
-      }
-      ''
-        sing-box rule-set decompile $src -o /dev/stdout |
-          python ${./geoip_subtract.py} ${lib.escapeShellArgs excludeIPAddresses} |
-          sing-box rule-set compile /dev/stdin -o $out
-      '';
+  # geoip-modified =
+  #   {
+  #     sing-geoip,
+  #     runCommandLocal,
+  #     sing-box,
+  #     python3,
+  #     name ? "geoip-cn",
+  #     excludeIPAddresses ? [ ],
+  #     lib,
+  #   }:
+  #   runCommandLocal "${name}-modified.srs"
+  #     {
+  #       src = "${sing-geoip}/share/sing-box/rule-set/${name}.srs";
+  #       nativeBuildInputs = [
+  #         sing-box
+  #         python3
+  #       ];
+  #     }
+  #     ''
+  #       sing-box rule-set decompile $src -o /dev/stdout |
+  #         python ${./geoip_subtract.py} ${lib.escapeShellArgs excludeIPAddresses} |
+  #         sing-box rule-set compile /dev/stdin -o $out
+  #     '';
 in
 {
   ## ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ in
   services.sing-box = {
     enable = true;
     package = pkgs.sing-box.overrideAttrs (oldAttrs: {
-      patches = [
+      patches = (oldAttrs.patches or [ ]) ++ [
         # add disable_dns_hijack option
         ./sing-box-disable-dns-hijack.patch
       ];
@@ -114,8 +114,8 @@ in
             "172.19.0.1/30"
             "fdfe:dcba:9876::1/126"
           ];
+          # Note that pre-match stage doesn't respect the exclude set
           route_exclude_address_set = [
-            "geoip-cn-modified"
             "geoip-private"
             "geoip-special"
           ];
@@ -167,40 +167,26 @@ in
         auto_detect_interface = true;
         final = "Proxy";
         rules = [
+          # Note that sniff will always match during the pre-match stage.
+          # Therefore, we avoid use sniff action.
+          # https://github.com/SagerNet/sing-box/blob/v1.13.12/route/route.go#L520C21-L536
           {
-            action = "sniff";
-            sniffer = [
-              "dns"
-              "stun"
-            ];
-          }
-          {
-            action = "hijack-dns";
-            protocol = "dns";
+            network = "udp";
+            port = 53;
             ip_cidr = [
               "172.19.0.2/32"
               "fdfe:dcba:9876::2/128"
             ];
+            action = "hijack-dns";
           }
           {
             ip_is_private = true;
+            action = "bypass";
             outbound = "direct";
           }
           {
-            type = "logical";
-            mode = "or";
-            rules = [
-              {
-                port = 853;
-              }
-              {
-                network = "udp";
-                port = 443;
-              }
-              {
-                protocol = "stun";
-              }
-            ];
+            network = "udp";
+            port = 443;
             action = "reject";
           }
           {
@@ -211,6 +197,7 @@ in
           }
           {
             rule_set = "geosite-geolocation-cn";
+            action = "bypass";
             outbound = "direct";
           }
           {
@@ -225,6 +212,7 @@ in
                 invert = true;
               }
             ];
+            action = "bypass";
             outbound = "direct";
           }
           {
@@ -289,16 +277,6 @@ in
                 ];
               }
             ];
-          }
-          {
-            tag = "geoip-cn-modified";
-            type = "local";
-            path = (pkgs.callPackage geoip-modified { }).override {
-              excludeIPAddresses = [
-                # byr.pt
-                "2001:da8:215:4078:250:56ff:fe97:654d"
-              ];
-            };
           }
         ];
       };

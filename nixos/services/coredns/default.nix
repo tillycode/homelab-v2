@@ -47,6 +47,7 @@ in
     (lib.mkIf (name == primary) {
       services.coredns.config = ''
         (authoritative) {
+          import snip
           root /etc/coredns/zones
           transfer {
             to ${lib.concatStringsSep " " secondaryAddresses}
