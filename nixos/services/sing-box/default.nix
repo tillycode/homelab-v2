@@ -76,8 +76,20 @@ in
             server = "8.8.8.8";
             detour = "Proxy";
           }
+          {
+            tag = "coredns";
+            type = "udp";
+            server = "10.112.35.3";
+          }
         ];
         rules = [
+          {
+            domain_suffix = [
+              "szp.io"
+              "szp15.com"
+            ];
+            server = "coredns";
+          }
           {
             rule_set = "geosite-geolocation-cn";
             server = "local";
@@ -149,6 +161,9 @@ in
           # iproute2_table_index = 2022;
           # auto_redirect_input_mark = "0x2023";
           # auto_redirect_output_mark = "0x2024";
+
+          # Note that sing-box 1.14.0 add `dns_mode = "native"` option,
+          # which should function the same.
           disable_dns_hijack = true;
 
           auto_route = true;
@@ -164,7 +179,7 @@ in
       ];
       route = {
         default_domain_resolver = "local";
-        auto_detect_interface = true;
+        # auto_detect_interface = true;
         final = "Proxy";
         rules = [
           # Note that sniff will always match during the pre-match stage.
@@ -178,6 +193,12 @@ in
               "fdfe:dcba:9876::2/128"
             ];
             action = "hijack-dns";
+          }
+          {
+            network = "udp";
+            port = 53;
+            action = "route";
+            outbound = "direct";
           }
           {
             ip_is_private = true;
@@ -223,6 +244,11 @@ in
               "geosite-google-gemini"
             ];
             outbound = "US";
+          }
+          {
+            network = "icmp";
+            action = "reject";
+            method = "reply";
           }
         ];
         rule_set = [

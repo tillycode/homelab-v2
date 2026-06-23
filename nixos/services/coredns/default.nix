@@ -42,6 +42,10 @@ in
           rewrite name suffix .o.szp15.com .szp15.com answer auto
           forward . /run/systemd/resolve/resolv.conf
         }
+        . {
+          import snip
+          forward . /run/systemd/resolve/resolv.conf
+        }
       '';
     }
     (lib.mkIf (name == primary) {
@@ -91,11 +95,7 @@ in
         extraStartScript = ''
           ip netns exec coredns ip address add ${anycastAddress}/32 dev eth0
           ip route add ${anycastAddress}/32 dev coredns
-          resolvectl dns coredns ${address}
-          resolvectl domain coredns ~szp.io ~szp15.com
-          resolvectl llmnr coredns off
-          resolvectl mdns coredns off
-          # systemd doesn't set DNS when the interface doesn't has an IP address.
+          # sing-box requires an IP address for coredns
           ip address add 169.254.23.1/32 dev coredns
         '';
       };
