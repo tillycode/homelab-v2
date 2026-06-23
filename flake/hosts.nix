@@ -230,6 +230,13 @@ in
       name = "laptop";
       system = "x86_64-linux";
     })
+    # To make nixos-anywhere work, please turn on swapfile before kexec,
+    # and manually turn on zramswap and increase
+    # writable nix store size before the disko phase.
+    (mkHost {
+      name = "lax0";
+      system = "x86_64-linux";
+    })
   ];
 
   flake.passthru = {
