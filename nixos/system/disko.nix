@@ -65,5 +65,13 @@ in
         swapSize = "32G";
       };
     })
+
+    (lib.mkIf (name == "lax0") {
+      profiles.system.disko = {
+        devices = [ "/dev/vda" ];
+        swapSize = "1G";
+        legacyBoot = true;
+      };
+    })
   ];
 }
