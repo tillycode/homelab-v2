@@ -233,6 +233,13 @@ in
     # To make nixos-anywhere work, please turn on swapfile before kexec,
     # and manually turn on zramswap and increase
     # writable nix store size before the disko phase.
+    #
+    #     mount -o remount,size=70% -t tmpfs tmpfs /nix/.rw-store
+    #     modprobe zram
+    #     zramctl /dev/zram0 --algorithm zstd --size 800000KiB
+    #     mkswap -U clear /dev/zram0
+    #     swapon --discard --priority 100 /dev/zram0
+    #
     (mkHost {
       name = "lax0";
       system = "x86_64-linux";
