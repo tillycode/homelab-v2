@@ -10,29 +10,6 @@ let
     type = "local";
     path = "${pkgs.sing-geosite}/share/sing-box/rule-set/${name}.srs";
   };
-  # geoip-modified =
-  #   {
-  #     sing-geoip,
-  #     runCommandLocal,
-  #     sing-box,
-  #     python3,
-  #     name ? "geoip-cn",
-  #     excludeIPAddresses ? [ ],
-  #     lib,
-  #   }:
-  #   runCommandLocal "${name}-modified.srs"
-  #     {
-  #       src = "${sing-geoip}/share/sing-box/rule-set/${name}.srs";
-  #       nativeBuildInputs = [
-  #         sing-box
-  #         python3
-  #       ];
-  #     }
-  #     ''
-  #       sing-box rule-set decompile $src -o /dev/stdout |
-  #         python ${./geoip_subtract.py} ${lib.escapeShellArgs excludeIPAddresses} |
-  #         sing-box rule-set compile /dev/stdin -o $out
-  #     '';
 in
 {
   ## ---------------------------------------------------------------------------
@@ -107,14 +84,6 @@ in
               }
             ];
             server = "local";
-          }
-          {
-            query_type = [
-              "AAAA"
-            ];
-            # reply empty NOERROR for AAAA queries
-            # since some proxy servers don't support IPv6
-            action = "predefined";
           }
         ];
       };
@@ -311,7 +280,7 @@ in
 
   systemd.services.sing-box = {
     preStart = ''
-      ln -sf "$CREDENTIALS_DIRECTORY/config.json" /run/sing-box/zconfig.json
+      ln -sf "$CREDENTIALS_DIRECTORY/outbounds.json" /run/sing-box/zoutbounds.json
     '';
     serviceConfig = {
       LockPersonality = true;
@@ -335,7 +304,7 @@ in
         "~CAP_SYS_PTRACE"
         "~CAP_DAC_READ_SEARCH"
       ];
-      LoadCredential = "config.json:${config.sops.secrets."sing-box/config.json".path}";
+      LoadCredential = "outbounds.json:${config.sops.secrets."sing-box/outbounds.json".path}";
       RestrictAddressFamilies = [
         "AF_NETLINK"
         "AF_INET"
@@ -375,7 +344,39 @@ in
   ## ---------------------------------------------------------------------------
   ## SECRETS
   ## ---------------------------------------------------------------------------
-  sops.secrets."sing-box/config.json" = {
+  sops.genSecrets."sing-box/outbounds.json" = {
+    script = [
+      "${pkgs.devPackages.scripts.editable}/bin/proxy-keydrv"
+      "--config"
+      (toString (
+        pkgs.writeText "config.json" (
+          builtins.toJSON {
+            extra_groups = [
+              {
+                tag = "Proxy";
+                type = "selector";
+                outbounds = [ "All - UrlTest" ];
+              }
+              {
+                tag = "All - UrlTest";
+                type = "urltest";
+              }
+              {
+                tag = "US";
+                type = "selector";
+                filter = "^美国";
+              }
+            ];
+          }
+        )
+      ))
+      "--name"
+      "me@szp.io"
+      "gen-client"
+    ];
+    input = "proxy/settings.yaml";
+  };
+  sops.secrets."sing-box/outbounds.json" = {
     restartUnits = [ "sing-box.service" ];
   };
 

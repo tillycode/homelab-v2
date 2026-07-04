@@ -176,7 +176,17 @@
     linkConfig.MTUBytes = 9000;
     networkConfig = {
       DHCPServer = true;
+      # IPv6
       IPv6AcceptRA = false;
+      DHCPPrefixDelegation = true;
+      IPv6SendRA = true;
+    };
+    dhcpPrefixDelegationConfig = {
+      UplinkInterface = ":auto";
+      Announce = true;
+      Assign = true;
+      Token = "static:::1";
+      SubnetId = "auto";
     };
     dhcpServerConfig = {
       ServerAddress = "10.112.12.1/24";

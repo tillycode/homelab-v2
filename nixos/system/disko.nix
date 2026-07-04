@@ -66,10 +66,17 @@ in
       };
     })
 
-    (lib.mkIf (name == "lax0") {
+    (lib.mkIf (name == "lax0" || name == "hkg1") {
       profiles.system.disko = {
         devices = [ "/dev/vda" ];
         swapSize = "1G";
+        legacyBoot = true;
+      };
+    })
+    (lib.mkIf (name == "hkg0") {
+      profiles.system.disko = {
+        devices = [ "/dev/sda" ];
+        swapSize = "2G";
         legacyBoot = true;
       };
     })

@@ -11,6 +11,9 @@ let
     desktop = "age1v6lnkm7prm0dpmcdpvn44v50rpfkzsed5uv3znxt4grsd5y6sv5qjru9qq";
     sjc1 = "age1lcvusytmzf9h776njea7qnyfs3pn37rj0ngxvr7er6pgk3tm3a5qm2j9nd";
     laptop = "age1kgcxdnuy9fxtcf6fp7camk6tqm0fset0jvvh9760rqmrkmx99v0q2c7w8e";
+    lax0 = "age13d4sy7r99z8sp9djvzrtvq374nfqavl5p3w508mt7jyur78ne9kqey22hc";
+    hkg0 = "age1cru74y44p9ehwwpw7gvrjqdmgea755wxnu8r8hm3pu0de60pmegqtu2alp";
+    hkg1 = "age1luzh4jd30clz0f0av5wkaf45wr30zu8x45p8ak0meu9e83wkgqssecrdwq";
   };
 in
 {

@@ -99,8 +99,8 @@ let
         hosts.kubevm
         system.disko
       ];
-      nixos.ai-vm = nixos.kubevm ++ [
-        hosts.ai-vm
+      nixos.aivm = nixos.kubevm ++ [
+        hosts.aivm
         services.openbao-proxy
         users.ai
       ];
@@ -114,6 +114,20 @@ let
       ];
       nixos.lax0 = suites.server ++ [
         hosts.lax0
+        services.nginx
+        services.xray-server
+        system.disko
+      ];
+      nixos.hkg0 = suites.server ++ [
+        hosts.hkg0
+        services.nginx
+        services.xray-server
+        system.disko
+      ];
+      nixos.hkg1 = suites.server ++ [
+        hosts.hkg1
+        services.nginx
+        services.xray-server
         system.disko
       ];
     }
@@ -215,7 +229,7 @@ in
       };
     })
     (mkHost {
-      name = "ai-vm";
+      name = "aivm";
       system = "x86_64-linux";
     })
     (mkHost {
@@ -242,6 +256,14 @@ in
     #
     (mkHost {
       name = "lax0";
+      system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "hkg0";
+      system = "x86_64-linux";
+    })
+    (mkHost {
+      name = "hkg1";
       system = "x86_64-linux";
     })
   ];
