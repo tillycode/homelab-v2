@@ -9,10 +9,6 @@ from itertools import zip_longest
 from pathlib import Path
 from typing import Any
 
-type JSONValue = (
-    dict[str, JSONValue] | list[JSONValue] | str | int | float | bool | None
-)
-
 
 def search_upwards_for_file(directory: Path, filename: str) -> Path | None:
     root = Path(directory.root)

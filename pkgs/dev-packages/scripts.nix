@@ -9,6 +9,8 @@ let
   inherit (pyproject.project) version;
   build-system = [ python3Packages.uv-build ];
   dependencies = with python3Packages; [
+    cryptography
+    pydantic
     pyyaml
   ];
   scripts = python3Packages.buildPythonApplication {
@@ -31,20 +33,25 @@ let
       inherit checkGeneratedHostSecrets;
     };
   };
-  hostSecretRequests = flake: import ./scripts/secretmgr-eval.nix { inherit flake; };
+  evaluation =
+    flake:
+    import ./scripts/secretmgr-eval.nix {
+      inherit flake;
+      eval = true;
+    };
   checkGeneratedHostSecrets =
     { flake }:
     runCommandLocal "generated-host-secrets"
       {
         src = flake;
-        hostSecretRequests = builtins.toJSON (hostSecretRequests flake);
-        passAsFile = [ "hostSecretRequests" ];
+        evaluationResult = builtins.toJSON (evaluation flake);
+        passAsFile = [ "evaluationResult" ];
       }
       ''
         env
         cd "$src"
         ${lib.getExe' scripts "secretmgr"} status \
-          --host-secret-requests-path "$hostSecretRequestsPath" \
+          --evaluation-result-path "$evaluationResultPath" \
           --check
         touch "$out"
       '';

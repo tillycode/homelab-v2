@@ -1,5 +1,5 @@
 import argparse
-import json
+import contextlib
 import os
 import sys
 from abc import ABC, abstractmethod
@@ -7,12 +7,14 @@ from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
+from functools import cached_property
 from pathlib import Path
-from typing import Any, Final, Protocol
+from typing import Final, Protocol
 
 import yaml
+from pydantic import BaseModel, computed_field
 
-from .utils import JSONValue, asyncio_run, get_root_directory, print_table, run
+from .utils import asyncio_run, get_root_directory, lock_file, print_table, run
 
 SECRETMGR_EVAL_SCRIPT_PATH = os.path.join(
     os.path.dirname(__file__), "secretmgr-eval.nix"
@@ -21,28 +23,37 @@ SECRETMGR_EVAL_SCRIPT_PATH = os.path.join(
 SOURCE_SECRET_PATH = "secrets/sources"
 HOST_SECRET_PATH = "secrets/hosts"
 
+type YAMLValue = (
+    dict[str, "YAMLValue"] | list["YAMLValue"] | str | int | float | bool | None | bytes
+)
 
-@dataclass(frozen=True)
-class HostSecretRequest:
+
+class GenerateSecretRequest(BaseModel):
+    script: list[str]
+    input: str
+
+
+class HostSecretRequest(BaseModel):
     publicKey: str | None
-    secrets: dict[str, set[str]]
+    secrets: list[str]
+    genSecrets: dict[str, GenerateSecretRequest]
     """filename -> set of keys"""
 
-    @staticmethod
-    def load_from_json(data: Any) -> dict[str, "HostSecretRequest"]:
-        host_secret_requests: dict[str, HostSecretRequest] = {}
-        for name, host in data.items():
-            secrets: dict[str, set[str]] = {}
-            secret: str
-            for secret in host["secrets"]:
-                filename, *rest = secret.split("/", maxsplit=1)
-                key = rest[0] if rest else ""
-                secrets.setdefault(filename, set()).add(key)
-            host_secret_requests[name] = HostSecretRequest(
-                publicKey=host["publicKey"],
-                secrets=secrets,
-            )
-        return host_secret_requests
+    @computed_field
+    @cached_property
+    def requiredSourceSecrets(self) -> dict[str, set[str]]:
+        result: dict[str, set[str]] = {}
+        for key in self.secrets:
+            if gen := self.genSecrets.get(key):
+                key = gen.input
+            filename, *rest = key.split("/", maxsplit=1)
+            key = rest[0] if rest else ""
+            result.setdefault(filename, set()).add(key)
+        return result
+
+
+class FlakeEvaluationResult(BaseModel):
+    hosts: dict[str, HostSecretRequest]
 
 
 @dataclass(frozen=True)
@@ -61,30 +72,41 @@ class HostSecrets:
     secrets: set[str]
 
 
-async def get_host_secret_requests(
+async def evaluate_flake(
     root: Path,
-    host_secret_requests_path: Path | None = None,
-) -> dict[str, HostSecretRequest]:
-    if host_secret_requests_path is not None:
-        with open(host_secret_requests_path, "r") as f:
-            return HostSecretRequest.load_from_json(json.load(f))
-    output = await run(
-        "nix-instantiate",
-        "--json",
-        "--eval",
-        "--strict",
-        SECRETMGR_EVAL_SCRIPT_PATH,
-        "--quiet",
-        "--argstr",
-        "importPath",
-        str(root),
-    )
-    return HostSecretRequest.load_from_json(json.loads(output))
+    out_link: str | None = None,
+) -> FlakeEvaluationResult:
+    args: list[str] = ["--argstr", "importPath", str(root)]
+    if out_link is not None:
+        await run(
+            "nix-build",
+            SECRETMGR_EVAL_SCRIPT_PATH,
+            "--quiet",
+            "--out-link",
+            out_link,
+            *args,
+        )
+        with open(out_link) as f:
+            return FlakeEvaluationResult.model_validate_json(f.read())
+    else:
+        output = await run(
+            "nix-instantiate",
+            "--json",
+            "--eval",
+            "--strict",
+            SECRETMGR_EVAL_SCRIPT_PATH,
+            "--quiet",
+            "--arg",
+            "eval",
+            "true",
+            *args,
+        )
+        return FlakeEvaluationResult.model_validate_json(output)
 
 
 def traverse_secret_tree(
     dest: set[str],
-    data: dict[str, JSONValue],
+    data: dict[str, YAMLValue],
     prefix: str = "",
 ) -> None:
     for key, value in data.items():
@@ -94,7 +116,7 @@ def traverse_secret_tree(
             dest.add(f"{prefix}{key}")
 
 
-def get_age_public_key(sops: JSONValue) -> str | None:
+def get_age_public_key(sops: YAMLValue) -> str | None:
     assert isinstance(sops, dict)
     age = sops.get("age", [])
     assert isinstance(age, list)
@@ -107,7 +129,7 @@ def get_age_public_key(sops: JSONValue) -> str | None:
     return recipient
 
 
-def get_last_modified(sops: JSONValue) -> datetime:
+def get_last_modified(sops: YAMLValue) -> datetime:
     assert isinstance(sops, dict)
     lastmodified = sops.get("lastmodified")
     assert isinstance(lastmodified, str)
@@ -125,7 +147,7 @@ def get_source_secrets(
         if ext not in (".yaml", ".yml"):
             continue
         with open(entry.path, "r") as f:
-            data: dict[str, JSONValue] = yaml.load(f, Loader=yaml.CLoader)
+            data: dict[str, YAMLValue] = yaml.load(f, Loader=yaml.CLoader)
         sops = data.pop("sops")
         secrets = set[str]()
         traverse_secret_tree(secrets, data)
@@ -148,7 +170,7 @@ def get_host_secrets(
         if ext not in (".yaml", ".yml"):
             continue
         with open(entry.path, "r") as f:
-            data: dict[str, JSONValue] = yaml.load(f, Loader=yaml.CLoader)
+            data: dict[str, YAMLValue] = yaml.load(f, Loader=yaml.CLoader)
         sops = data.pop("sops")
         secrets = set[str]()
         traverse_secret_tree(secrets, data)
@@ -167,7 +189,7 @@ def is_feasible(
 ) -> tuple[str, bool]:
     if host_secret_request.secrets and not host_secret_request.publicKey:
         return "missing public key", False
-    for filename, keys in host_secret_request.secrets.items():
+    for filename, keys in host_secret_request.requiredSourceSecrets.items():
         source_secret = source_secrets.get(filename)
         if source_secret is None:
             return f"missing source secret {filename}.yaml", False
@@ -193,11 +215,7 @@ def is_outdated(
         return "no secrets", True
     if host_secret.publicKey != host_secret_request.publicKey:
         return "public key changed", True
-    host_requested_secrets = {
-        f"{filename}/{key}"
-        for filename, keys in host_secret_request.secrets.items()
-        for key in keys
-    }
+    host_requested_secrets = set(host_secret_request.secrets)
     if host_secret.secrets != host_requested_secrets:
         if added := host_requested_secrets - host_secret.secrets:
             reason = f"added secret {next(iter(added))}"
@@ -209,7 +227,7 @@ def is_outdated(
             if len(removed) > 1:
                 reason += " ..."
         return reason, True
-    for filename in host_secret_request.secrets:
+    for filename in host_secret_request.requiredSourceSecrets:
         source_secret = source_secrets.get(filename)
         if (
             source_secret is None
@@ -235,11 +253,11 @@ class EvaluationResult:
 class Action(Protocol):
     evaluation_result: Final[EvaluationResult | None]
 
-    async def execute(self, context: dict[str, JSONValue], dry_run: bool) -> None: ...
+    async def execute(self, context: dict[str, YAMLValue], dry_run: bool) -> None: ...
 
 
 class BaseAction(ABC):
-    async def execute(self, context: dict[str, JSONValue], dry_run: bool) -> None:
+    async def execute(self, context: dict[str, YAMLValue], dry_run: bool) -> None:
         print(f"{self} ... ".ljust(40), end="", flush=True)
         if not dry_run:
             await self.do(context)
@@ -248,7 +266,7 @@ class BaseAction(ABC):
             print("DONE (dry run)")
 
     @abstractmethod
-    async def do(self, context: dict[str, JSONValue]) -> None:
+    async def do(self, context: dict[str, YAMLValue]) -> None:
         raise NotImplementedError
 
 
@@ -265,15 +283,15 @@ class DecryptAction(BaseAction):
     def __str__(self) -> str:
         return f"Decrypting {os.path.basename(self.path)}"
 
-    async def do(self, context: dict[str, JSONValue]) -> None:
+    async def do(self, context: dict[str, YAMLValue]) -> None:
         output = await run(
             "sops",
             "decrypt",
             "--output-type",
-            "json",
+            "yaml",
             self.path,
         )
-        data: JSONValue = json.loads(output)
+        data: YAMLValue = yaml.safe_load(output)
         context[self.name] = data
 
 
@@ -295,44 +313,59 @@ class EncryptAction(BaseAction):
     def __str__(self) -> str:
         return f"Encrypting {os.path.basename(self.path)}"
 
-    # well, make pyright happy
     @staticmethod
-    def get_src_node(src: JSONValue, component: str) -> JSONValue:
-        assert isinstance(src, dict)
-        return src.get(component)
-
-    @staticmethod
-    def get_dest_node(dest: JSONValue, component: str, src: JSONValue) -> JSONValue:
+    async def collect_secrets(
+        dest: YAMLValue,
+        src: YAMLValue,
+        dest_path: list[str],
+        src_path: list[str],
+        transform_script: list[str] | None,
+    ) -> None:
+        for component in src_path:
+            assert isinstance(src, dict)
+            src = src.get(component)
+        assert not isinstance(src, dict)
+        if transform_script:
+            assert isinstance(src, (str, bytes))
+            output = await run(
+                *transform_script, input=src.encode() if isinstance(src, str) else src
+            )
+            src = output
+        for component in dest_path[:-1]:
+            assert isinstance(dest, dict)
+            dest = dest.setdefault(component, {})
         assert isinstance(dest, dict)
-        if isinstance(src, dict):
-            return dest.setdefault(component, {})
-        return dest.setdefault(component, src)
+        dest[dest_path[-1]] = src
 
-    @staticmethod
-    def collect_secrets(dest: JSONValue, src: JSONValue, path: list[str]) -> None:
-        for component in path:
-            src = EncryptAction.get_src_node(src, component)
-            dest = EncryptAction.get_dest_node(dest, component, src)
-
-    async def do(self, context: dict[str, JSONValue]) -> None:
-        secrets: JSONValue = {}
-        for filename, keys in self.host_secret_request.secrets.items():
-            for key in keys:
-                self.collect_secrets(secrets, context, [filename] + key.split("/"))
+    async def do(self, context: dict[str, YAMLValue]) -> None:
+        secrets: YAMLValue = {}
+        for key in self.host_secret_request.secrets:
+            src_key = key
+            script: list[str] | None = None
+            if generation := self.host_secret_request.genSecrets.get(key):
+                src_key = generation.input
+                script = generation.script
+            await self.collect_secrets(
+                secrets,
+                context,
+                key.split("/"),
+                src_key.split("/"),
+                transform_script=script,
+            )
 
         assert self.host_secret_request.publicKey is not None
         await run(
             "sops",
             "encrypt",
             "--input-type",
-            "json",
+            "yaml",
             "--output",
             self.path,
             "--filename-override",
             self.path,
             "--age",
             self.host_secret_request.publicKey,
-            input=json.dumps(secrets).encode(),
+            input=yaml.safe_dump(secrets).encode(),
             env={"PATH": os.environ["PATH"], "SOPS_CONFIG": "/dev/null"},
         )
 
@@ -348,7 +381,7 @@ class DeleteAction(BaseAction):
     def __str__(self) -> str:
         return f"Deleting {os.path.basename(self.path)}"
 
-    async def do(self, context: JSONValue) -> None:
+    async def do(self, context: YAMLValue) -> None:
         os.remove(self.path)
 
 
@@ -362,14 +395,14 @@ class EvaluationResultAction:
         self.evaluation_result = evaluation_result
         self.message = message
 
-    async def execute(self, context: JSONValue, dry_run: bool) -> None:
+    async def execute(self, context: YAMLValue, dry_run: bool) -> None:
         if self.message is not None:
             print(self.message, file=sys.stderr)
             raise SystemExit(1)
 
 
 def plan_sync_secrets(
-    host_secret_requests: dict[str, HostSecretRequest],
+    flake: FlakeEvaluationResult,
     source_secrets: dict[str, SourceSecrets],
     host_secrets: dict[str, HostSecrets],
     root: Path,
@@ -377,28 +410,34 @@ def plan_sync_secrets(
     sources_to_decrypt: set[str] = set()
     hosts_to_encrypt: dict[str, str] = {}
     hosts_to_delete: dict[str, str] = {}
-    for host, host_secret_request in host_secret_requests.items():
-        host_secret = host_secrets.get(host)
-        reason, feasible = is_feasible(host_secret_request, source_secrets)
+    for host, host_secret_request in flake.hosts.items():
+        reason, feasible = is_feasible(
+            host_secret_request,
+            source_secrets,
+        )
         if not feasible:
             yield EvaluationResultAction(
                 EvaluationResult(host, EvaluationStatus.ERROR, reason),
                 f"ERROR: host {host} {reason}",
             )
             continue
-        reason, outdated = is_outdated(host_secret_request, host_secret, source_secrets)
+        reason, outdated = is_outdated(
+            host_secret_request,
+            host_secrets.get(host),
+            source_secrets,
+        )
         if not outdated:
             yield EvaluationResultAction(
                 EvaluationResult(host, EvaluationStatus.SYNCED, reason)
             )
             continue
-        if host_secret_request.secrets:
-            sources_to_decrypt.update(host_secret_request.secrets)
+        if host_secret_request.requiredSourceSecrets:
+            sources_to_decrypt.update(host_secret_request.requiredSourceSecrets)
             hosts_to_encrypt[host] = reason
         else:
             hosts_to_delete[host] = reason
     for host, host_secret in host_secrets.items():
-        if host not in host_secret_requests:
+        if host not in flake.hosts:
             hosts_to_delete[host] = "host disappeared"
     for source in sources_to_decrypt:
         yield DecryptAction(source, source_secrets[source].path)
@@ -407,7 +446,7 @@ def plan_sync_secrets(
             path = host_secret.path
         else:
             path = str(root / HOST_SECRET_PATH / f"{host}.yaml")
-        host_secret_request = host_secret_requests[host]
+        host_secret_request = flake.hosts[host]
         assert host_secret_request.publicKey is not None
         yield EncryptAction(
             EvaluationResult(host, EvaluationStatus.OUTDATED, reason),
@@ -423,41 +462,41 @@ def plan_sync_secrets(
 
 async def apply_secrets(
     dry_run: bool = False,
-    host_secret_requests_path: Path | None = None,
 ) -> None:
     root = get_root_directory()
-    host_secret_requests = await get_host_secret_requests(
-        root,
-        host_secret_requests_path,
-    )
-    source_secrets = get_source_secrets(root)
-    # filter out hosts which doesn't request any secrets
-    host_secrets = get_host_secrets(root)
-    # compute actions to be done
-    context: JSONValue = {}
-    for action in plan_sync_secrets(
-        host_secret_requests, source_secrets, host_secrets, root
-    ):
-        await action.execute(context, dry_run)
+    state_dir = root / ".data" / "secretmgr"
+    os.makedirs(state_dir, exist_ok=True)
+    async with contextlib.AsyncExitStack() as stack:
+        stack.enter_context(lock_file(state_dir / "lock"))
+        out_link_path = state_dir / "eval.json"
+        flake = await evaluate_flake(root, str(out_link_path))
+        stack.callback(lambda: out_link_path.unlink(missing_ok=True))
+        source_secrets = get_source_secrets(root)
+        # filter out hosts which doesn't request any secrets
+        host_secrets = get_host_secrets(root)
+        # compute actions to be done
+        context: YAMLValue = {}
+        for action in plan_sync_secrets(flake, source_secrets, host_secrets, root):
+            await action.execute(context, dry_run)
 
 
 async def status_secrets(
     check: bool = False,
-    host_secret_requests_path: Path | None = None,
+    evaluation_result_path: Path | None = None,
 ) -> None:
     root = get_root_directory()
-    host_secret_requests = await get_host_secret_requests(
-        root,
-        host_secret_requests_path,
-    )
+    if evaluation_result_path is not None:
+        flake = FlakeEvaluationResult.model_validate_json(
+            evaluation_result_path.read_text()
+        )
+    else:
+        flake = await evaluate_flake(root)
     source_secrets = get_source_secrets(root)
     host_secrets = get_host_secrets(root)
 
     evaluation_results: dict[str, EvaluationResult] = {}
     out_of_sync = False
-    for action in plan_sync_secrets(
-        host_secret_requests, source_secrets, host_secrets, root
-    ):
+    for action in plan_sync_secrets(flake, source_secrets, host_secrets, root):
         if action.evaluation_result is not None:
             evaluation_results[action.evaluation_result.host] = action.evaluation_result
         if (
@@ -477,12 +516,6 @@ async def status_secrets(
 
 @asyncio_run
 async def main() -> None:
-    secret_parent_parser = argparse.ArgumentParser(add_help=False)
-    secret_parent_parser.add_argument(
-        "--host-secret-requests-path",
-        type=Path,
-        help="path to the host secret requests evaluation result",
-    )
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         dest="subcommand",
@@ -490,7 +523,6 @@ async def main() -> None:
     )
     parser_apply = subparsers.add_parser(
         "apply",
-        parents=[secret_parent_parser],
         help="sync secrets from source to nodes",
     )
     parser_apply.add_argument(
@@ -500,7 +532,6 @@ async def main() -> None:
     )
     parser_status = subparsers.add_parser(
         "status",
-        parents=[secret_parent_parser],
         help="show status of secrets",
     )
     parser_status.add_argument(
@@ -508,15 +539,17 @@ async def main() -> None:
         action="store_true",
         help="check if secrets are in sync",
     )
+    parser_status.add_argument(
+        "--evaluation-result-path",
+        type=Path,
+        help="path to the host secret requests evaluation result",
+    )
     args = parser.parse_args()
     match args.subcommand:  # pyright: ignore[reportMatchNotExhaustive]
         case "apply":
-            await apply_secrets(
-                dry_run=args.dry_run,
-                host_secret_requests_path=args.host_secret_requests_path,
-            )
+            await apply_secrets(dry_run=args.dry_run)
         case "status":
             await status_secrets(
                 check=args.check,
-                host_secret_requests_path=args.host_secret_requests_path,
+                evaluation_result_path=args.evaluation_result_path,
             )
