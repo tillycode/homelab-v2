@@ -23,6 +23,9 @@
         programs.ruff-check.enable = true;
         programs.ruff-check.extendSelect = [ "I" ];
 
+        # lua
+        programs.stylua.enable = true;
+
         # nix
         programs.nixfmt.enable = true;
 

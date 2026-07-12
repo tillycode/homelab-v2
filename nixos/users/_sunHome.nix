@@ -11,6 +11,7 @@
     programs.desktop-apps
     programs.go-dev
     programs.k8s-dev
+    programs.neovim
     programs.nix-dev
     programs.niks3
     programs.podman
@@ -57,12 +58,6 @@
     enableExtraSocket = true;
     pinentry.package = pkgs.pinentry-gnome3;
   };
-
-  programs.neovim.enable = true;
-  programs.neovim.viAlias = true;
-  # default value changed to false in 26.05
-  programs.neovim.withRuby = false;
-  programs.neovim.withPython3 = false;
 
   programs.vscode.enable = true;
   programs.ghostty.enable = true;

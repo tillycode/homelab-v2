@@ -37,6 +37,10 @@
             name = "SEALED_SECRETS_CERT";
             value = "https://sealed-secrets.k8s.szp.io/v1/cert.pem";
           }
+          {
+            name = "VIMRUNTIME";
+            value = "${pkgs.neovim}/share/nvim/runtime";
+          }
         ];
       };
     };
