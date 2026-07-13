@@ -17,6 +17,7 @@
           kubeseal
           kubevirt
           nix-fast-build
+          tigervnc
 
           # for IDEs and documentation
           (python3.withPackages (
