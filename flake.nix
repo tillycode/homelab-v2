@@ -31,7 +31,6 @@
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.flake-compat.follows = "blank";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
-    git-hooks.inputs.gitignore.follows = "blank";
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
