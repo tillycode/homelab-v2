@@ -12,6 +12,15 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+  # sudo btrfs inspect-internal map-swapfile /swap/swapfile
+  boot.kernelParams = [
+    "resume_offset=533760"
+    "intel_iommu=on"
+  ];
+  boot.kernel.sysctl = {
+    "vm.nr_hugepages" = 8192;
+  };
+
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
 

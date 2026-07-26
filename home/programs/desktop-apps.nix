@@ -21,6 +21,7 @@
     # office
     evince
     wpsoffice
+    drawio
 
     # utilities
     blueman
