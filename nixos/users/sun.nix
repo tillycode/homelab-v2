@@ -22,6 +22,9 @@
   programs.zsh.enable = true;
   home-manager.users.sun = import ./_sunHome.nix;
 
+  preservation.preserveAt.default.users.sun.commonMountOptions = [
+    "x-gvfs-trash"
+  ];
   preservation.preserveAt.default.users.sun.directories = [
     ".cache"
     ".config"
