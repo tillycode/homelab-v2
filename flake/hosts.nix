@@ -88,7 +88,6 @@ let
         services.coredns
         services.headscale
         services.nginx
-        services.rke2-hasee.gateway
         services.sing-box
         services.tailscale
         system.disko
