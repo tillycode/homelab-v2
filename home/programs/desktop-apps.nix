@@ -47,6 +47,7 @@
     xfce4-systemload-plugin
     xfce4-weather-plugin
     xfce4-whiskermenu-plugin
+    xfce4-clipman-plugin
 
     # cli tools
     libqalculate

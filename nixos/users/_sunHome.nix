@@ -27,6 +27,7 @@
       user.name = "Ziping Sun";
       user.email = "me@szp.io";
       commit.gpgSign = true;
+      merge.conflictstyle = "zdiff3";
       push.autoSetupRemote = true;
       init.defaultBranch = "main";
     };
