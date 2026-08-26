@@ -10,6 +10,7 @@
     telegram-desktop
     remmina
     qbittorrent
+    wechat
 
     # games
     prismlauncher
@@ -22,6 +23,8 @@
     evince
     wpsoffice
     drawio
+    freecad
+    gimp
 
     # utilities
     blueman

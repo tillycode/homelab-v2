@@ -87,9 +87,10 @@
     code-cursor
     netease-cloud-music-gtk
     minikube
+    codex
   ];
-  # for opencode
   home.file.".claude".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/claude";
+  home.file.".codex".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/codex";
 
   programs.mise.enable = true;
   programs.mise.enableZshIntegration = false;

@@ -38,6 +38,7 @@ let
       ];
       suites.desktop = suites.base ++ [
         config.fonts
+        config.locale-zh
         config.timezone
         programs."1password"
         programs.nix-ld

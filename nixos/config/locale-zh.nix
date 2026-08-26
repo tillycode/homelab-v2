@@ -1,0 +1,3 @@
+{
+  i18n.extraLocales = [ "zh_CN.UTF-8/UTF-8" ];
+}

@@ -22,6 +22,7 @@
             "steam-unwrapped"
             "vscode"
             "wpsoffice"
+            "wechat"
 
             "corefonts"
             "vista-fonts"
