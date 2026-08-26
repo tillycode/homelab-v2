@@ -6,14 +6,14 @@
 }:
 buildGoModule (final: {
   pname = "zteonu";
-  version = "0.0.7";
+  version = "0.1.3";
   src = fetchFromGitHub {
     owner = "Septrum101";
     repo = "zteOnu";
     rev = "v${final.version}";
-    hash = "sha256-irw7q64MO9xdL0RXWnWN3ULkHqCGBWuYlsMl7avgfQI=";
+    hash = "sha256-SJahYl8ncjRFDsILySu5uk6qKipb2mC8ZVYa7dXKGP0=";
   };
-  vendorHash = "sha256-tecWPrGGCFmWGjeMA7ct3Vvm85A41dskjx2ntv5cIl8=";
+  vendorHash = "sha256-Y2QxtmLUjweRr7C3XkJZGD6G7q/PCHmc/MhIQvWEfRw=";
   meta = {
     description = "A tool that can open ZTE onu device factory mode";
     mainProgram = "zteOnu";
