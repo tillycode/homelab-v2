@@ -4,12 +4,8 @@
       matchConfig.Path = "pci-0000:03:00.0";
       linkConfig.Name = "eth0";
     };
-    "40-wlan0" = {
-      matchConfig.Path = "pci-0000:04:00.0";
-      linkConfig.Name = "wlan0";
-    };
     "40-svc" = {
-      matchConfig.Path = "pci-0000:00:14.0-usb-0:*:1.0";
+      matchConfig.Path = "pci-0000:04:00.0";
       linkConfig.Name = "svc";
     };
   };

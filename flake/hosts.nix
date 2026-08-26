@@ -30,9 +30,8 @@ let
       ];
       suites.hasee = suites.server ++ [
         hosts.hasee
+        programs.stress-cli
         services.ntp-home
-        services.rke2-hasee.server
-        services.tpm2-pkcs11
         system.disko
         system.systemd-boot
       ];
