@@ -75,6 +75,45 @@
           };
         });
       });
+
+    # Use sing-box from nixpkgs-unstable. See NixOS/nixpkgs#558400
+    sing-box = prev.sing-box.overrideAttrs (oldAttrs: rec {
+      version = "1.14.0";
+      src =
+        assert lib.assertMsg (lib.versionOlder oldAttrs.version "1.14.0")
+          "sing-box is updated in the upstream";
+        final.fetchFromGitHub {
+          owner = "SagerNet";
+          repo = "sing-box";
+          tag = "v${version}";
+          hash = "sha256-1v9bgM2H439ZoSkomv5dmT5SNrkuyOJ1iFFPlYPsW/k=";
+        };
+      vendorHash = "sha256-Bl73SkmnOyh5kULctDaxcOzXsYXRY2DOt80ME2+lBJo=";
+      tags = [
+        "with_gvisor"
+        "with_quic"
+        "with_dhcp"
+        "with_wireguard"
+        "with_utls"
+        "with_acme"
+        "with_clash_api"
+        "with_tailscale"
+        "with_ccm"
+        "with_ocm"
+        "with_cloudflared"
+        "with_usbip"
+        "with_openvpn"
+        "with_openconnect"
+        "badlinkname"
+        "tfogo_checklinkname0"
+      ];
+      ldflags = [
+        "-X=github.com/sagernet/sing-box/constant.Version=${version}"
+        "-X=internal/godebug.defaultGODEBUG=multipathtcp=0"
+        "-X=runtime.godebugDefault=multipathtcp=0,tlssha1=1"
+        "-checklinkname=0"
+      ];
+    });
   };
 
   flake.overlays.fixups = final: prev: {

@@ -67,6 +67,7 @@ in
         NETNS_NAME = cfg.name;
         NETNS_ADDRESS = cfg.address;
       };
+      unitConfig.StopWhenUnneeded = true;
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
