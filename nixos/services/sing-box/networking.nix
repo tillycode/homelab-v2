@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }:
 let
@@ -32,6 +33,7 @@ let
     "185.218.4.0/22"
     "209.209.59.0/24"
     "47.96.0.0/15"
+    "2408:4005::/33"
   ];
   mark = "0x01000000";
   table = 2023;
@@ -104,6 +106,7 @@ let
       fi
     '';
   };
+  cfg = config.profiles.sing-box;
 in
 {
   boot.kernel.sysctl = {
@@ -195,7 +198,15 @@ in
         Destination = "172.19.0.2/32";
         Gateway = "169.254.20.2";
       }
-    ];
+    ]
+    ++ lib.optionals cfg.tailscale.enable (
+      lib.map (route: {
+        Destination = route;
+        Gateway = "169.254.20.2";
+        # below WiFi
+        Metric = 1026;
+      }) cfg.tailscale.routes
+    );
     routingPolicyRules = [
       {
         Family = "both";
