@@ -78,17 +78,17 @@
 
     # Use sing-box from nixpkgs-unstable. See NixOS/nixpkgs#558400
     sing-box = prev.sing-box.overrideAttrs (oldAttrs: rec {
-      version = "1.14.0";
+      version = "1.14.1";
       src =
-        assert lib.assertMsg (lib.versionOlder oldAttrs.version "1.14.0")
+        assert lib.assertMsg (lib.versionOlder oldAttrs.version "1.14.1")
           "sing-box is updated in the upstream";
         final.fetchFromGitHub {
           owner = "SagerNet";
           repo = "sing-box";
           tag = "v${version}";
-          hash = "sha256-1v9bgM2H439ZoSkomv5dmT5SNrkuyOJ1iFFPlYPsW/k=";
+          hash = "sha256-Ce1eukO8ERZEKUoqwcJEJIZcO6VcG/cRnfCdg4FCYJw=";
         };
-      vendorHash = "sha256-Bl73SkmnOyh5kULctDaxcOzXsYXRY2DOt80ME2+lBJo=";
+      vendorHash = "sha256-ttkDc8vRomNMNwqrZcGuvS0/M7Yqrpkz/h8wO5IVRQ4=";
       tags = [
         "with_gvisor"
         "with_quic"

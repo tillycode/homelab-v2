@@ -1,0 +1,34 @@
+diff --git a/vendor/github.com/sagernet/sing-tun/redirect_nftables.go b/vendor/github.com/sagernet/sing-tun/redirect_nftables.go
+index 70e21466d..7e419975f 100644
+--- a/vendor/github.com/sagernet/sing-tun/redirect_nftables.go
++++ b/vendor/github.com/sagernet/sing-tun/redirect_nftables.go
+@@ -212,25 +212,10 @@ func (r *autoRedirect) setupNFTables() error {
+ 				},
+ 			},
+ 		})
+-		nft.AddRule(&nftables.Rule{
+-			Table: table,
+-			Chain: chainPreRoutingUDP,
+-			Exprs: []expr.Any{
+-				&expr.Meta{
+-					Key:      expr.MetaKeyIIFNAME,
+-					Register: 1,
+-				},
+-				&expr.Cmp{
+-					Op:       expr.CmpOpEq,
+-					Register: 1,
+-					Data:     nftablesIfname(r.tunOptions.Name),
+-				},
+-				&expr.Counter{},
+-				&expr.Verdict{
+-					Kind: expr.VerdictReturn,
+-				},
+-			},
+-		})
++		err = r.nftablesCreateExcludeRules(nft, table, chainPreRoutingUDP)
++		if err != nil {
++			return E.Cause(err, "create prerouting udp exclude rules")
++		}
+ 		nft.AddRule(&nftables.Rule{
+ 			Table: table,
+ 			Chain: chainPreRoutingUDP,

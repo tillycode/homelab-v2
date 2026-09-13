@@ -231,6 +231,12 @@
   networking.firewall.extraInputRules = ''
     meta nfproto ipv4 iifname {"lan", "vm"} udp sport 68 udp dport 67 accept comment "DHCPv4 client"
   '';
+
+  profiles.sing-box.tailscale.advertiseRoutes = [
+    "10.112.0.0/19"
+    "10.112.35.0/24"
+  ];
+
   # allow traffic from lan to service and VM
   # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''

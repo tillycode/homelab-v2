@@ -19,6 +19,9 @@ in
 
     ports = {
       niks3 = 50000;
+
+      sing-box-api = 50010;
+      sing-box-clash-api = 50011;
     };
   };
 }
