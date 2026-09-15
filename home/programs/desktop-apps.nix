@@ -25,6 +25,7 @@
     drawio
     freecad
     gimp
+    feishu
 
     # utilities
     blueman

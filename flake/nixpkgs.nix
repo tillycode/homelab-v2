@@ -23,6 +23,7 @@
             "vscode"
             "wpsoffice"
             "wechat"
+            "feishu"
 
             "corefonts"
             "vista-fonts"
