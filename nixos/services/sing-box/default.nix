@@ -351,11 +351,21 @@ in
         DNSDefaultRoute = false;
         IPv6AcceptRA = false;
       };
+      routes = lib.optionals cfg.tailscale.enable (
+        lib.map (x: {
+          Destination = x;
+        }) cfg.tailscale.routes
+      );
+
     };
     systemd.network.config.networkConfig = {
       ManageForeignRoutes = false;
       ManageForeignRoutingPolicyRules = false;
     };
+
+    environment.variables.BOX_API_URL = (
+      toString "http://127.0.0.1:${toString config.ports.sing-box-api}"
+    );
 
     ## -------------------------------------------------------------------------
     ## PERSISTENCE
