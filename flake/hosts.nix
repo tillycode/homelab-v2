@@ -60,6 +60,7 @@ let
       nixos.hasee03 = suites.hasee;
       nixos.router = suites.server ++ [
         hosts.router
+        networking.forwarding
         networking.wireguard
         services.chrony
         services.coredns
@@ -81,6 +82,7 @@ let
 
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
+        networking.forwarding
         networking.wireguard
         services.blog
         services.coredns
