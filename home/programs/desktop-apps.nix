@@ -4,6 +4,9 @@
 }:
 {
   home.packages = with pkgs; [
+    # development
+    zed-editor
+
     # internet
     firefox
     chromium
