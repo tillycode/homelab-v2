@@ -226,6 +226,19 @@ in
               outbound = "direct";
             }
             {
+              network = "icmp";
+              action = "reject";
+              method = "reply";
+            }
+            {
+              # to populate domain for accurate routing decisions
+              action = "sniff";
+              sniffer = [
+                "http"
+                "tls"
+              ];
+            }
+            {
               action = "route";
               rule_set = [
                 "geosite-openai"
@@ -233,11 +246,6 @@ in
                 "geosite-google-gemini"
               ];
               outbound = "US";
-            }
-            {
-              network = "icmp";
-              action = "reject";
-              method = "reply";
             }
           ];
           rule_set = [
