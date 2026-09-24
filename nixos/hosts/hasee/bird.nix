@@ -1,66 +1,59 @@
-{ config, lib, ... }:
-let
-  address = lib.head config.systemd.network.networks."40-svc".address;
-  routerId = lib.head (lib.splitString "/" address);
-in
 {
   services.bird = {
     enable = true;
     config = ''
       log syslog all;
-      router id ${routerId};
+      ipv6 sadr table sadr6;
 
       protocol device {
+        scan time 10;
       }
 
-      protocol kernel {
-        learn all;
+      protocol direct {
+        ipv4;
+        ipv6 sadr;
+        interface "lo";
+      }
+
+      protocol kernel kernel4 {
+        metric 2048;
         merge paths on;
         ipv4 {
-          import all;
-          export filter {
-            if source != RTS_BGP then reject;
-            if bgp_path.last = 64512 then reject;
-            accept;
-          };
+          import none;
+          export all;
         };
       }
 
-      protocol bgp svc {
-        local as 64513;
-        neighbor 10.112.8.1 internal;
-        keepalive time 3;
-        hold time 9;
-        connect retry time 5;
-        ipv4 {
-          import all;
-          export filter {
-            if source != RTS_BGP then reject;
-            accept;
-          };
-          next hop self;
-          add paths rx;
-          require add paths on;
+      protocol kernel kernel6 {
+        metric 2048;
+        merge paths on;
+        ipv6 sadr {
+          import none;
+          export all;
         };
       }
 
-      protocol bgp cilium {
-        local as 64513;
-        neighbor 127.0.0.1 as 64512;
-        passive on;
-        # bypass localhost check
-        multihop 2;
-        hold time 9;
-        keepalive time 3;
+      protocol babel {
+        randomize router id;
         ipv4 {
           import all;
-          export none;
+          export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+        };
+        ipv6 sadr {
+          import all;
+          export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+        };
+        interface "svc" {
+          type wired;
+          check link yes;
+          extended next hop yes;
+          next hop prefer ipv6;
         };
       }
     '';
   };
 
-  boot.kernel.sysctl = {
-    "net.ipv4.fib_multipath_hash_policy" = 1;
-  };
+  systemd.network.config.networkConfig.ManageForeignRoutes = false;
+
+  boot.kernel.sysctl."net.ipv4.fib_multipath_hash_policy" = 1;
 }

@@ -43,10 +43,6 @@
       id = 4;
       interface = "bond0";
     };
-    vm = {
-      id = 5;
-      interface = "bond0";
-    };
   };
 
   systemd.network.networks."40-eth0" = {
@@ -101,11 +97,11 @@
       IPv6SendRA = true;
     };
     dhcpPrefixDelegationConfig = {
-      UplinkInterface = ":auto";
+      UplinkInterface = "ppp0";
       Announce = true;
       Assign = true;
       Token = "static:::1";
-      SubnetId = "auto";
+      SubnetId = "0";
     };
     dhcpServerConfig = {
       ServerAddress = "192.168.23.1/24";
@@ -144,8 +140,6 @@
   networking.firewall.interfaces.lan.allowedTCPPorts = [ 53 ];
   networking.firewall.interfaces.svc.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 53 ];
-  networking.firewall.interfaces.vm.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.vm.allowedTCPPorts = [ 53 ];
   networking.firewall.interfaces.tailscale0.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 53 ];
 
@@ -159,52 +153,7 @@
   systemd.network.networks."40-svc" = {
     matchConfig.Name = "svc";
     linkConfig.MTUBytes = 9000;
-    address = [
-      "10.112.8.1/24"
-    ];
     networkConfig.IPv6AcceptRA = false;
-  };
-
-  ## ---------------------------------------------------------------------------
-  ## VM
-  ## ---------------------------------------------------------------------------
-  systemd.network.networks."40-vm" = {
-    matchConfig.Name = "vm";
-    address = [
-      "10.112.12.1/24"
-    ];
-    linkConfig.MTUBytes = 9000;
-    networkConfig = {
-      DHCPServer = true;
-      # IPv6
-      IPv6AcceptRA = false;
-      DHCPPrefixDelegation = true;
-      IPv6SendRA = true;
-    };
-    dhcpPrefixDelegationConfig = {
-      UplinkInterface = ":auto";
-      Announce = true;
-      Assign = true;
-      Token = "static:::1";
-      SubnetId = "auto";
-    };
-    dhcpServerConfig = {
-      ServerAddress = "10.112.12.1/24";
-      DNS = [
-        "10.112.35.1"
-        "10.112.35.2"
-      ];
-      EmitRouter = true;
-      PoolOffset = 100;
-      PoolSize = 100;
-    };
-    dhcpServerStaticLeases = [
-      {
-        # AI
-        MACAddress = "ba:be:ee:ee:00:01";
-        Address = "10.112.12.2";
-      }
-    ];
   };
 
   ## ---------------------------------------------------------------------------
@@ -218,14 +167,13 @@
       "lan"
       "svc"
       "coredns"
-      "vm"
     ];
   };
 
   networking.firewall.filterForward = true;
   # allow DHCP traffic from lan
   networking.firewall.extraInputRules = ''
-    meta nfproto ipv4 iifname {"lan", "vm"} udp sport 68 udp dport 67 accept comment "DHCPv4 client"
+    meta nfproto ipv4 iifname "lan" udp sport 68 udp dport 67 accept comment "DHCPv4 client"
   '';
 
   profiles.sing-box.tailscale.advertiseRoutes = [
@@ -237,7 +185,7 @@
   # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''
     iifname "lan" ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
-    iifname {"vm", "wg0", "tailscale0"} ip daddr 10.112.10.0/24 accept
+    iifname {"wg0", "tailscale0"} ip daddr 10.112.10.0/24 accept
     iifname "tailscale0" ip saddr 100.112.36.128/25 ip daddr 10.112.0.0/19 accept
   '';
 

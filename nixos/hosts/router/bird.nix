@@ -2,53 +2,59 @@
   services.bird.enable = true;
   services.bird.config = ''
     log syslog all;
-    router id 10.112.8.1;
+    ipv6 sadr table sadr6;
 
     protocol device {
+      scan time 10;
     }
 
-    protocol kernel {
-      learn all;
+    protocol direct {
+      ipv4;
+      ipv6 sadr;
+      interface "lo";
+    }
+
+    protocol kernel kernel4 {
+      learn;
+      metric 2048;
       merge paths on;
       ipv4 {
-        import all;
-        export filter {
-          if source != RTS_BGP then reject;
-          accept;
-        };
+        import where net = 0.0.0.0/0;
+        export all;
       };
     }
 
-    protocol bgp svc {
-      local as 64513;
-      neighbor range 10.112.8.0/24 internal;
-      rr client;
-      dynamic name "svc";
-      keepalive time 3;
-      hold time 9;
-      ipv4 {
-        import all;
-        export filter {
-          if source != RTS_BGP && source != RTS_STATIC then reject;
-          accept;
-        };
-        add paths tx;
-        require add paths on;
+    protocol kernel kernel6 {
+      learn;
+      metric 2048;
+      merge paths on;
+      ipv6 sadr {
+        import where net.dst = ::/0 && net.src = ::/0;
+        export all;
       };
     }
 
-    protocol static {
-      route 10.112.10.200/32 unreachable;
-      route 10.112.35.1/32 unreachable;
-      route 10.112.35.2/32 unreachable;
+    protocol babel {
+      randomize router id;
       ipv4 {
         import all;
-        export none;
+        export where source ~ [ RTS_BABEL, RTS_DEVICE, RTS_INHERIT ];
+      };
+      ipv6 sadr {
+        import all;
+        export where source ~ [ RTS_BABEL, RTS_DEVICE, RTS_INHERIT ];
+      };
+      interface "svc" {
+        type wired;
+        check link yes;
+        extended next hop yes;
+        next hop prefer ipv6;
       };
     }
   '';
 
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 179 ];
+  networking.firewall.interfaces.svc.allowedUDPPorts = [ 6696 ];
 
   boot.kernel.sysctl = {
     "net.ipv4.fib_multipath_hash_policy" = 1;

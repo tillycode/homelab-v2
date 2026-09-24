@@ -1,51 +1,62 @@
-let
-  routerId = "10.112.8.5";
-in
 {
   services.bird = {
     enable = true;
     config = ''
       log syslog all;
-      router id ${routerId};
+      ipv6 sadr table sadr6;
 
       protocol device {
+        scan time 10;
       }
 
-      protocol kernel {
-        learn all;
+      protocol direct {
+        ipv4;
+        ipv6 sadr;
+        interface "lo";
+      }
+
+      protocol kernel kernel4 {
+        metric 2048;
         merge paths on;
         ipv4 {
-          import all;
-          export filter {
-            if source != RTS_BGP then reject;
-            accept;
-          };
+          import none;
+          export all;
         };
       }
 
-      protocol bgp svc {
-        local as 64513;
-        neighbor 10.112.8.1 internal;
-        keepalive time 3;
-        hold time 9;
-        connect retry time 5;
+      protocol kernel kernel6 {
+        metric 2048;
+        merge paths on;
+        ipv6 sadr {
+          import none;
+          export all;
+        };
+      }
+
+      protocol babel {
+        randomize router id;
         ipv4 {
           import all;
-          export filter {
-            if source != RTS_BGP then reject;
-            accept;
-          };
-          next hop self;
-          add paths rx;
-          require add paths on;
+          export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+        };
+        ipv6 sadr {
+          import all;
+          export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+        };
+        interface "svc" {
+          type wired;
+          check link yes;
+          extended next hop yes;
+          next hop prefer ipv6;
         };
       }
     '';
   };
 
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 179 ];
+  networking.firewall.interfaces.svc.allowedUDPPorts = [ 6696 ];
 
-  boot.kernel.sysctl = {
-    "net.ipv4.fib_multipath_hash_policy" = 1;
-  };
+  systemd.network.config.networkConfig.ManageForeignRoutes = false;
+
+  boot.kernel.sysctl."net.ipv4.fib_multipath_hash_policy" = 1;
 }

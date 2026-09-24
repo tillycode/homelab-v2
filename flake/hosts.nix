@@ -193,27 +193,34 @@ in
     (mkHost {
       name = "hasee01";
       system = "x86_64-linux";
-      module = {
-        systemd.network.networks."40-svc".address = [ "10.112.8.2/24" ];
-      };
+      module.networking.loopback.address = [
+        "10.112.8.2/32"
+        "fdfe:3c59:ba97::2/128"
+      ];
     })
     (mkHost {
       name = "hasee02";
       system = "x86_64-linux";
-      module = {
-        systemd.network.networks."40-svc".address = [ "10.112.8.3/24" ];
-      };
+      module.networking.loopback.address = [
+        "10.112.8.3/32"
+        "fdfe:3c59:ba97::3/128"
+      ];
     })
     (mkHost {
       name = "hasee03";
       system = "x86_64-linux";
-      module = {
-        systemd.network.networks."40-svc".address = [ "10.112.8.4/24" ];
-      };
+      module.networking.loopback.address = [
+        "10.112.8.4/32"
+        "fdfe:3c59:ba97::4/128"
+      ];
     })
     (mkHost {
       name = "router";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.1/32"
+        "fdfe:3c59:ba97::1/128"
+      ];
     })
     (mkHost {
       name = "hgh0";
@@ -233,6 +240,10 @@ in
     (mkHost {
       name = "desktop";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.5/32"
+        "fdfe:3c59:ba97::5/128"
+      ];
     })
     (mkHost {
       name = "sjc1";

@@ -1,58 +1,40 @@
-{
-  systemd.network.links = {
-    "40-eth0" = {
-      matchConfig.Path = "pci-0000:03:00.0";
-      linkConfig.Name = "eth0";
-    };
-    "40-svc" = {
-      matchConfig.Path = "pci-0000:04:00.0";
-      linkConfig.Name = "svc";
-    };
-  };
-
-  networking.vlans = {
-    vm = {
-      id = 5;
-      interface = "svc";
-    };
-  };
-  networking.bridges = {
-    vmbr0.interfaces = [ "vm" ];
-  };
-
-  systemd.network.networks = {
-    "40-eth0" = {
-      matchConfig.Name = "eth0";
-      DHCP = "ipv4";
-      # avoid accidentally gain global IPv6 address
-      networkConfig.IPv6AcceptRA = false;
-    };
-    "40-wlan0" = {
-      matchConfig.Name = "wlan0";
-      linkConfig.Unmanaged = true;
-    };
-    "40-svc" = {
-      matchConfig.Name = "svc";
-      linkConfig.MTUBytes = 9000;
-      gateway = [ "10.112.8.1" ];
-      dns = [
-        "10.112.35.1"
-        "10.112.35.2"
-      ];
-      DHCP = "no";
-      networkConfig = {
-        IPv6AcceptRA = false;
+{ lib, ... }:
+lib.mkMerge [
+  {
+    systemd.network.links = {
+      "40-eth0" = {
+        matchConfig.Path = "pci-0000:03:00.0";
+        linkConfig.Name = "eth0";
+      };
+      "40-svc" = {
+        matchConfig.Path = "pci-0000:04:00.0";
+        linkConfig.Name = "svc";
       };
     };
-    "40-vm" = {
-      matchConfig.Name = "vm";
+
+    networking.useDHCP = false;
+    systemd.network.networks."40-svc" = {
+      name = "svc";
       linkConfig.MTUBytes = 9000;
-      DHCP = "no";
       networkConfig = {
         IPv6AcceptRA = false;
+        LinkLocalAddressing = "ipv6";
       };
     };
-  };
 
-  networking.firewall.enable = false;
-}
+    networking.firewall.enable = false;
+
+    networking.nameservers = [
+      "10.112.35.1"
+      "10.112.35.2"
+    ];
+  }
+  {
+    # trick systemd to think DNS is ready
+    # see https://github.com/systemd/systemd/blob/v260.2/src/resolve/resolved-link.c#L695-L734.
+    systemd.network.networks."40-svc".networkConfig = {
+      DNS = "fe80::1";
+      DNSDefaultRoute = false;
+    };
+  }
+]

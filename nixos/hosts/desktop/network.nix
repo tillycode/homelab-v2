@@ -32,13 +32,6 @@
   systemd.network.networks."40-svc" = {
     matchConfig.Name = "svc";
     linkConfig.MTUBytes = 9000;
-    address = [
-      "10.112.8.5/24"
-    ];
-    dns = [
-      "10.112.35.1"
-      "10.112.35.2"
-    ];
     networkConfig.IPv6AcceptRA = false;
   };
   systemd.network.networks."40-wlan0" = {
