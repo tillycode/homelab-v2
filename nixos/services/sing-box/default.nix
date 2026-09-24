@@ -247,6 +247,14 @@ in
               ];
               outbound = "US";
             }
+            {
+              action = "route";
+              domain_suffix = [
+                # speed up cache downloads
+                "cache.nixos.org"
+              ];
+              outbound = "US";
+            }
           ];
           rule_set = [
             (mkGeoipRuleSet "geoip-cn")
