@@ -1,6 +1,8 @@
 { pkgs, ... }:
 {
   fonts.packages = with pkgs; [
+    inter-nerdfont
+
     source-serif
     source-sans
     source-han-serif
