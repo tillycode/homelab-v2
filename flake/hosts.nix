@@ -86,6 +86,7 @@ let
         networking.wireguard
         services.blog
         services.coredns
+        services.haproxy
         services.headscale
         services.nginx
         services.sing-box
