@@ -37,13 +37,20 @@
     nix-direnv.enable = true;
   };
   programs.gpg.enable = true;
+  programs.gpg.scdaemonSettings = {
+    disable-ccid = true;
+  };
   # xfce4-session will launch gpg=agent by default.
   # See <https://docs.xfce.org/xfce/xfce4-session/advanced> for details.
-  # Use the following commands to disable it.
-  # ```shell
-  # xfconf-query -c xfce4-session -p /startup/ssh-agent/enabled -n -t bool -s false
-  # xfconf-query -c xfce4-session -p /startup/gpg-agent/enabled -n -t bool -s false
-  # ```
+  xfconf = {
+    enable = true;
+    settings = {
+      "xfce4-session" = {
+        "startup/ssh-agent/enabled" = false;
+        "startup/gpg-agent/enabled" = false;
+      };
+    };
+  };
   services.gpg-agent = {
     enable = true;
     # Yubikey supports multiple ways for ssh authentication and commit signing.
