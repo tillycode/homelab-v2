@@ -106,6 +106,7 @@ let
 
       nixos.sjc1 = suites.server ++ [
         hosts.sjc1
+        services.ipsec
         services.postgresql
         services.niks3
         services.nginx
@@ -113,18 +114,21 @@ let
       ];
       nixos.lax0 = suites.server ++ [
         hosts.lax0
+        services.ipsec
         services.nginx
         services.xray-server
         system.disko
       ];
       nixos.hkg0 = suites.server ++ [
         hosts.hkg0
+        services.ipsec
         services.nginx
         services.xray-server
         system.disko
       ];
       nixos.hkg1 = suites.server ++ [
         hosts.hkg1
+        services.ipsec
         services.nginx
         services.xray-server
         system.disko
@@ -253,6 +257,10 @@ in
     (mkHost {
       name = "sjc1";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.7/32"
+        "fdfe:3c59:ba97::7/128"
+      ];
     })
     (mkHost {
       name = "laptop";
@@ -271,14 +279,26 @@ in
     (mkHost {
       name = "lax0";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.8/32"
+        "fdfe:3c59:ba97::8/128"
+      ];
     })
     (mkHost {
       name = "hkg0";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.9/32"
+        "fdfe:3c59:ba97::9/128"
+      ];
     })
     (mkHost {
       name = "hkg1";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.10/32"
+        "fdfe:3c59:ba97::10/128"
+      ];
     })
   ];
 
