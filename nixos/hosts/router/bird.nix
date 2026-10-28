@@ -11,7 +11,7 @@
     protocol direct {
       ipv4;
       ipv6 sadr;
-      interface "lo";
+      interface "lo", "dummy0";
     }
 
     protocol kernel kernel4 {
@@ -51,10 +51,29 @@
         next hop prefer ipv6;
       };
     }
+
+    protocol babel {
+      randomize router id;
+      ipv4 {
+        import all;
+        export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+      };
+      ipv6 sadr {
+        import all;
+        export where source ~ [ RTS_BABEL, RTS_DEVICE ];
+      };
+      interface "mesh-*" {
+        type tunnel;
+        extended next hop yes;
+        next hop prefer ipv6;
+      };
+    }
   '';
 
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 179 ];
-  networking.firewall.interfaces.svc.allowedUDPPorts = [ 6696 ];
+  networking.firewall.extraInputRules = ''
+    iifname {"svc", "mesh-*"} udp dport 6696 accept
+  '';
 
   boot.kernel.sysctl = {
     "net.ipv4.fib_multipath_hash_policy" = 1;

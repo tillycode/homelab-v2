@@ -33,6 +33,7 @@ module "hgh0_security_group" {
       cidrs    = ["0.0.0.0/0", "::/0"]
       ports = [
         51820, # Wireguard
+        4500,  # IPsec
       ]
     }
   ]

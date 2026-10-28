@@ -19,4 +19,5 @@ lib.makeScope (self: newScope (extra // self)) (self: {
   images = lib.recurseIntoAttrs (self.callPackage ./images { });
   vault-plugin-secrets-github = self.callPackage ./vault-plugin-secrets-github.nix { };
   bbolt = self.callPackage ./bbolt.nix { };
+  swan-updown = self.callPackage ./swan-updown.nix { };
 })

@@ -126,7 +126,7 @@
       }
     ];
   };
-  networking.loopback.address = [
+  networking.dummy.address = [
     "10.112.35.1/32"
     "10.112.35.2/32"
   ];
@@ -136,13 +136,6 @@
       "10.112.35.2"
     ];
   };
-  networking.firewall.interfaces.lan.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.lan.allowedTCPPorts = [ 53 ];
-  networking.firewall.interfaces.svc.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.svc.allowedTCPPorts = [ 53 ];
-  networking.firewall.interfaces.tailscale0.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 53 ];
-
   services.fail2ban.ignoreIP = [
     "10.112.8.5" # desktop
   ];
@@ -174,6 +167,8 @@
   # allow DHCP traffic from lan
   networking.firewall.extraInputRules = ''
     meta nfproto ipv4 iifname "lan" udp sport 68 udp dport 67 accept comment "DHCPv4 client"
+    iifname {"lan", "svc", "tailscale0", "mesh-*"} udp dport 53 accept
+    iifname {"lan", "svc", "tailscale0", "mesh-*"} tcp dport 53 accept
   '';
 
   profiles.sing-box.tailscale.advertiseRoutes = [
@@ -184,8 +179,8 @@
   # allow traffic from lan to service and VM
   # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''
+    iifname {"mesh-*", "svc"} accept
     iifname "lan" ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
-    iifname {"wg0", "tailscale0"} ip daddr 10.112.10.0/24 accept
     iifname "tailscale0" ip saddr 100.112.36.128/25 ip daddr 10.112.0.0/19 accept
   '';
 

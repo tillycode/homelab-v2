@@ -13,6 +13,7 @@
           "secrets/*"
           "*.terraform.lock.hcl"
           ".cursorignore"
+          ".zedignore"
         ];
 
         # json, md

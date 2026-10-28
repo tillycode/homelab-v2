@@ -451,6 +451,7 @@ in
         chain prerouting {
           type filter hook prerouting priority mangle; policy accept;
           udp sport 51820 udp dport 51820 meta mark set 0x2024 accept;
+          udp sport 4500 udp dport 4500 meta mark set 0x2024 accept;
         }
         chain output {
           type route hook output priority mangle; policy accept;

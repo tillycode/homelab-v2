@@ -12,7 +12,7 @@
       protocol direct {
         ipv4;
         ipv6 sadr;
-        interface "lo";
+        interface "lo", "dummy0";
       }
 
       protocol kernel kernel4 {

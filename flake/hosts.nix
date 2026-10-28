@@ -61,10 +61,10 @@ let
       nixos.router = suites.server ++ [
         hosts.router
         networking.forwarding
-        networking.wireguard
         services.chrony
         services.coredns
         services.fail2ban
+        services.ipsec
         services.sing-box
         system.disko
         system.systemd-boot
@@ -83,11 +83,11 @@ let
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
         networking.forwarding
-        networking.wireguard
         services.blog
         services.coredns
         services.haproxy
         services.headscale
+        services.ipsec
         services.nginx
         services.sing-box
         system.disko
@@ -226,6 +226,10 @@ in
     (mkHost {
       name = "hgh0";
       system = "x86_64-linux";
+      module.networking.loopback.address = [
+        "10.112.8.6/32"
+        "fdfe:3c59:ba97::6/128"
+      ];
     })
     (mkHost {
       name = "kubevm";
