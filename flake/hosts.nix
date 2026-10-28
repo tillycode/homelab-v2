@@ -297,7 +297,7 @@ in
       system = "x86_64-linux";
       module.networking.loopback.address = [
         "10.112.8.10/32"
-        "fdfe:3c59:ba97::10/128"
+        "fdfe:3c59:ba97::a/128"
       ];
     })
   ];

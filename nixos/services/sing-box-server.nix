@@ -22,6 +22,11 @@
         final = "direct";
         rules = [
           {
+            auth_user = "me";
+            action = "route";
+            outbound = "direct";
+          }
+          {
             ip_is_private = true;
             action = "reject";
             method = "drop";

@@ -284,13 +284,13 @@ def generate_xray_server_config(
 
 
 def filter_items(
-    items: list[str], filter: re.Pattern[str] | None, exclude: re.Pattern[str] | None
+    items: list[Server], filter: re.Pattern[str] | None, exclude: re.Pattern[str] | None
 ) -> list[str]:
     return [
-        item
+        item.name
         for item in items
-        if (filter is None or filter.match(item))
-        and (exclude is None or not exclude.match(item))
+        if (filter is None or filter.match(item.display_name or item.name))
+        and (exclude is None or not exclude.match(item.display_name or item.name))
     ]
 
 
@@ -300,14 +300,11 @@ def generate_client_config(
     config: GenerationConfig,
 ) -> SingBoxConfig:
     _ = next(iter(user for user in source.users if user.name == user_name))
-    server_outbounds = [
-        server.display_name or server.server or server.name for server in source.servers
-    ]
     extra_outbounds = [
         group.model_copy(
             update={
                 "outbounds": group.outbounds
-                + filter_items(server_outbounds, group.filter, group.exclude),
+                + filter_items(source.servers, group.filter, group.exclude),
                 "filter": None,
                 "exclude": None,
             }
@@ -318,7 +315,7 @@ def generate_client_config(
         outbounds=extra_outbounds
         + [
             VLESSOutbound(
-                tag=server.display_name or server.server or server.name,
+                tag=server.name,
                 server=server.server or server.name,
                 uuid=generate_user_uuid(source.primary_key, server.name, user_name),
                 tls=TLS(
@@ -344,12 +341,14 @@ def generate_client_config(
 
 
 def write_reproducible_tarball(fp: BinaryIO, files: list[tuple[str, bytes]]) -> None:
-    with GzipFile(filename="", fileobj=fp, mode="wb", mtime=0) as gz:
-        with tarfile.open(fileobj=gz, mode="w") as tar:
-            for name, data in files:
-                info = tarfile.TarInfo(name=name)
-                info.size = len(data)
-                tar.addfile(info, io.BytesIO(data))
+    with (
+        GzipFile(filename="", fileobj=fp, mode="wb", mtime=0) as gz,
+        tarfile.open(fileobj=gz, mode="w") as tar,
+    ):
+        for name, data in files:
+            info = tarfile.TarInfo(name=name)
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
 
 
 def generate_subscription_files(source: Source) -> list[tuple[str, bytes]]:

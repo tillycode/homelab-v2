@@ -19,20 +19,25 @@ let
   cfg = config.profiles.sing-box;
 in
 {
-  options.profiles.sing-box.tailscale = {
-    enable = mkEnableOption "Enable sing-box tailscale" // {
+  options.profiles.sing-box = {
+    tailscale = {
+      enable = mkEnableOption "Enable sing-box tailscale" // {
+        default = true;
+      };
+      routeDNS = mkEnableOption "Route DNS to tailscale";
+      routes = mkOption {
+        type = types.listOf types.str;
+        description = "Routes to tailscale";
+        default = [ ];
+      };
+      advertiseRoutes = mkOption {
+        type = types.listOf types.str;
+        description = "Advertise routes to tailscale";
+        default = [ ];
+      };
+    };
+    ipsecIntegration = mkEnableOption "Enable IPsec integration" // {
       default = true;
-    };
-    routeDNS = mkEnableOption "Route DNS to tailscale";
-    routes = mkOption {
-      type = types.listOf types.str;
-      description = "Routes to tailscale";
-      default = [ ];
-    };
-    advertiseRoutes = mkOption {
-      type = types.listOf types.str;
-      description = "Advertise routes to tailscale";
-      default = [ ];
     };
   };
 
@@ -139,6 +144,7 @@ in
               "fdfe:dcba:9876::1/126"
             ];
             dns_mode = "disabled";
+            udp_mapping = "address_and_port_dependent";
 
             auto_route = true;
             auto_redirect = true;
@@ -177,6 +183,20 @@ in
               ];
               port = 53;
               action = "hijack-dns";
+            }
+          ]
+          ++ lib.optionals cfg.ipsecIntegration [
+            {
+              ip_cidr = "fdfe:3c59:ba97::8/128";
+              outbound = "lax0";
+            }
+            {
+              ip_cidr = "fdfe:3c59:ba97::9/128";
+              outbound = "hkg0";
+            }
+            {
+              ip_cidr = "fdfe:3c59:ba97::a/128";
+              outbound = "hkg1";
             }
           ]
           ++ lib.optional (cfg.tailscale.enable && cfg.tailscale.routes != [ ]) {

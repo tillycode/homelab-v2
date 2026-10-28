@@ -31,6 +31,10 @@
       ];
       routing.rules = [
         {
+          user = "me";
+          outboundTag = "direct";
+        }
+        {
           ip = [ "geoip:private" ];
           outboundTag = "blocked";
         }
