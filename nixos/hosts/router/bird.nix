@@ -11,7 +11,7 @@
     protocol direct {
       ipv4;
       ipv6 sadr;
-      interface "lo", "dummy0";
+      interface "lo", "vip";
     }
 
     protocol kernel kernel4 {
@@ -64,15 +64,27 @@
       };
       interface "mesh-*" {
         type tunnel;
+        hello interval 20 s;
         extended next hop yes;
         next hop prefer ipv6;
+        rtt cost 256;
+        rtt max 270 ms;
+      };
+      interface "cross-*" {
+        type tunnel;
+        rxcost 512;
+        hello interval 20 s;
+        extended next hop yes;
+        next hop prefer ipv6;
+        rtt cost 256;
+        rtt max 270 ms;
       };
     }
   '';
 
   networking.firewall.interfaces.svc.allowedTCPPorts = [ 179 ];
   networking.firewall.extraInputRules = ''
-    iifname {"svc", "mesh-*"} udp dport 6696 accept
+    iifname {"svc", "mesh-*", "cross-*"} udp dport 6696 accept
   '';
 
   boot.kernel.sysctl = {

@@ -187,15 +187,15 @@ in
           ]
           ++ lib.optionals cfg.ipsecIntegration [
             {
-              ip_cidr = "fdfe:3c59:ba97::8/128";
+              ip_cidr = "fd57:b9d9:4a63::1/128";
               outbound = "lax0";
             }
             {
-              ip_cidr = "fdfe:3c59:ba97::9/128";
+              ip_cidr = "fd57:b9d9:4a63::2/128";
               outbound = "hkg0";
             }
             {
-              ip_cidr = "fdfe:3c59:ba97::a/128";
+              ip_cidr = "fd57:b9d9:4a63::3/128";
               outbound = "hkg1";
             }
           ]

@@ -24,19 +24,19 @@ let
       id = 3;
       endpoint = [ "lax0.eh578599.xyz" ];
       region = "global";
-      crossRegionEndpoints.cn = [ "fdfe:3c59:ba97::8" ];
+      crossRegionVIP = "fd57:b9d9:4a63::1";
     };
     hkg0 = {
       id = 4;
       endpoint = [ "hkg0.eh578599.xyz" ];
       region = "global";
-      crossRegionEndpoints.cn = [ "fdfe:3c59:ba97::9" ];
+      crossRegionVIP = "fd57:b9d9:4a63::2";
     };
     hkg1 = {
       id = 5;
       endpoint = [ "hkg1.eh578599.xyz" ];
       region = "global";
-      crossRegionEndpoints.cn = [ "fdfe:3c59:ba97::a" ];
+      crossRegionVIP = "fd57:b9d9:4a63::3";
     };
   };
 
@@ -50,11 +50,18 @@ let
       version = 2;
       proposals = [ "aes128gcm16-prfsha256-curve25519" ];
       encap = true;
+      mobike = !crossRegion;
       local_port = 4500;
       remote_port = 4500;
       keyingtries = 0;
       dpd_delay = "30s";
-      local_addrs = [ "%any" ];
+      local_addrs =
+        if crossRegion && initiatesPeer then
+          map (x: lib.head (lib.splitString "/" x)) (
+            lib.filter (lib.hasInfix ":") config.networking.loopback.address
+          )
+        else
+          [ "%any" ];
       remote_addrs = if initiatesPeer then endpoint self peer else [ "%any" ];
       local.host = {
         auth = "pubkey";
@@ -95,88 +102,92 @@ let
   endpoint =
     from: to:
     if from.region == to.region then
-      to.endpoint or null
+      to.endpoint or [ ]
     else
-      to.crossRegionEndpoints.${from.region} or null;
-  initiates = peer: endpoint self peer != null && (endpoint peer self == null || self.id < peer.id);
+      lib.optional (to ? crossRegionVIP) to.crossRegionVIP;
+  initiates = peer: endpoint self peer != [ ] && (endpoint peer self == [ ] || self.id < peer.id);
   peers = lib.filterAttrs (
-    peerName: peer: peerName != selfName && (endpoint self peer != null || endpoint peer self != null)
+    peerName: peer: peerName != selfName && (endpoint self peer != [ ] || endpoint peer self != [ ])
   ) allNodes;
-  proxyEndpoints = lib.concatMap (
-    peer: lib.optionals (self.region != peer.region && endpoint self peer != null) (endpoint self peer)
-  ) (lib.attrValues peers);
   nodeNames = [ selfName ] ++ lib.attrNames peers;
+  hasCrossRegionPeers = lib.any (peer: self.region != peer.region) (lib.attrValues peers);
 in
-{
-  services.strongswan-swanctl = {
-    enable = true;
-    strongswan.extraConfig = ''
-      charon {
-        interfaces_ignore = sing0
-      }
-    '';
-    swanctl = {
-      connections = lib.mapAttrs mkConnection peers;
+lib.mkMerge [
+  {
+    services.strongswan-swanctl = {
+      enable = true;
+      strongswan.extraConfig = ''
+        charon {
+          interfaces_ignore = sing0
+        }
+      '';
+      swanctl = {
+        connections = lib.mapAttrs mkConnection peers;
+      };
     };
-  };
 
-  networking.firewall.allowedUDPPorts = [ 4500 ];
+    networking.firewall.allowedUDPPorts = [ 4500 ];
 
-  # strongswan doesn't provide an option to set a per-connection IKE mark.
-  # only ESP traffic is marked. Therefore, we need to mark IKE traffic manually.
-  networking.nftables.tables.ipsec-ike = lib.mkIf (proxyEndpoints != [ ]) {
-    family = "inet";
-    content = ''
-      chain output {
-        type route hook output priority mangle; policy accept;
-        ${lib.concatMapStringsSep "\n" (
-          addr:
-          let
-            family = if lib.hasInfix ":" addr then "ip6" else "ip";
-          in
-          ''
-            ${family} daddr ${addr} udp sport 4500 udp dport 4500 meta mark set 0x2023;
-          ''
-        ) proxyEndpoints}
-      }
-    '';
-  };
+    sops.secrets = {
+      "ipsec/privateKeys/${selfName}" = {
+        name = "ipsec/privateKeys/${selfName}.der";
+      };
+    }
+    // lib.listToAttrs (
+      lib.map (
+        name:
+        lib.nameValuePair "ipsec/publicKeys/${name}" {
+          name = "ipsec/publicKeys/${name}.der";
+        }
+      ) nodeNames
+    );
 
-  sops.secrets = {
-    "ipsec/privateKeys/${selfName}" = {
-      name = "ipsec/privateKeys/${selfName}.der";
-    };
+    sops.genSecrets = lib.listToAttrs (
+      lib.map (
+        name:
+        lib.nameValuePair "ipsec/publicKeys/${name}" {
+          script = [
+            "${lib.getExe pkgs.openssl}"
+            "pkey"
+            "-inform"
+            "DER"
+            "-pubout"
+            "-outform"
+            "DER"
+          ];
+          input = "ipsec/privateKeys/${name}";
+        }
+      ) nodeNames
+    );
+
+    systemd.tmpfiles.rules = [
+      "L+ /etc/swanctl/private/node.der - - - - ${
+        config.sops.secrets."ipsec/privateKeys/${selfName}".path
+      }"
+    ];
   }
-  // lib.listToAttrs (
-    lib.map (
-      name:
-      lib.nameValuePair "ipsec/publicKeys/${name}" {
-        name = "ipsec/publicKeys/${name}.der";
+  (lib.mkIf (self ? crossRegionVIP) {
+    # install the cross region endpoint VIP without advertising it to the peers
+    systemd.network.netdevs."40-ipsec-vip".netdevConfig = {
+      Kind = "dummy";
+      Name = "ipsec-vip";
+    };
+    systemd.network.networks."40-ipsec-vip" = {
+      name = "ipsec-vip";
+      address = [ "${self.crossRegionVIP}/128" ];
+      networkConfig.LinkLocalAddressing = "no";
+    };
+  })
+  (lib.mkIf hasCrossRegionPeers {
+    systemd.network.networks."40-loopback".routingPolicyRules = [
+      {
+        To = "fd57:b9d9:4a63::/64";
+        IPProtocol = "udp";
+        SourcePort = 4500;
+        DestinationPort = 4500;
+        Table = 2022;
+        Priority = 8999;
       }
-    ) nodeNames
-  );
-
-  sops.genSecrets = lib.listToAttrs (
-    lib.map (
-      name:
-      lib.nameValuePair "ipsec/publicKeys/${name}" {
-        script = [
-          "${lib.getExe pkgs.openssl}"
-          "pkey"
-          "-inform"
-          "DER"
-          "-pubout"
-          "-outform"
-          "DER"
-        ];
-        input = "ipsec/privateKeys/${name}";
-      }
-    ) nodeNames
-  );
-
-  systemd.tmpfiles.rules = [
-    "L+ /etc/swanctl/private/node.der - - - - ${
-      config.sops.secrets."ipsec/privateKeys/${selfName}".path
-    }"
-  ];
-}
+    ];
+  })
+]

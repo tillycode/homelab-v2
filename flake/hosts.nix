@@ -83,6 +83,7 @@ let
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
         networking.forwarding
+        services.bird
         services.blog
         services.coredns
         services.haproxy
@@ -106,6 +107,8 @@ let
 
       nixos.sjc1 = suites.server ++ [
         hosts.sjc1
+        networking.forwarding
+        services.bird
         services.ipsec
         services.postgresql
         services.niks3
@@ -114,6 +117,8 @@ let
       ];
       nixos.lax0 = suites.server ++ [
         hosts.lax0
+        networking.forwarding
+        services.bird
         services.ipsec
         services.nginx
         services.xray-server
@@ -121,6 +126,8 @@ let
       ];
       nixos.hkg0 = suites.server ++ [
         hosts.hkg0
+        networking.forwarding
+        services.bird
         services.ipsec
         services.nginx
         services.xray-server
@@ -128,6 +135,8 @@ let
       ];
       nixos.hkg1 = suites.server ++ [
         hosts.hkg1
+        networking.forwarding
+        services.bird
         services.ipsec
         services.nginx
         services.xray-server

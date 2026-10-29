@@ -11,7 +11,7 @@ in
     };
   };
 
-  options.networking.dummy = {
+  options.networking.vip = {
     address = mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -26,16 +26,16 @@ in
         address = config.networking.loopback.address;
       };
 
-  config.systemd.network.netdevs."40-dummy" = lib.mkIf (config.networking.dummy.address != [ ]) {
+  config.systemd.network.netdevs."40-vip" = lib.mkIf (config.networking.vip.address != [ ]) {
     netdevConfig = {
       Kind = "dummy";
-      Name = "dummy0";
+      Name = "vip";
     };
   };
 
-  config.systemd.network.networks."40-dummy" = lib.mkIf (config.networking.dummy.address != [ ]) {
-    matchConfig.Name = "dummy0";
-    address = config.networking.dummy.address;
+  config.systemd.network.networks."40-vip" = lib.mkIf (config.networking.vip.address != [ ]) {
+    matchConfig.Name = "vip";
+    address = config.networking.vip.address;
     networkConfig.LinkLocalAddressing = "no";
   };
 }
