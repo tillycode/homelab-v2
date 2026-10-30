@@ -30,7 +30,7 @@ let
       id = 4;
       endpoint = [ "hkg0.eh578599.xyz" ];
       region = "global";
-      crossRegionVIP = "fd57:b9d9:4a63::2";
+      # crossRegionVIP = "fd57:b9d9:4a63::2";
     };
     hkg1 = {
       id = 5;
@@ -110,7 +110,6 @@ let
     peerName: peer: peerName != selfName && (endpoint self peer != [ ] || endpoint peer self != [ ])
   ) allNodes;
   nodeNames = [ selfName ] ++ lib.attrNames peers;
-  hasCrossRegionPeers = lib.any (peer: self.region != peer.region) (lib.attrValues peers);
 in
 lib.mkMerge [
   {
@@ -177,17 +176,5 @@ lib.mkMerge [
       address = [ "${self.crossRegionVIP}/128" ];
       networkConfig.LinkLocalAddressing = "no";
     };
-  })
-  (lib.mkIf hasCrossRegionPeers {
-    systemd.network.networks."40-loopback".routingPolicyRules = [
-      {
-        To = "fd57:b9d9:4a63::/64";
-        IPProtocol = "udp";
-        SourcePort = 4500;
-        DestinationPort = 4500;
-        Table = 2022;
-        Priority = 8999;
-      }
-    ];
   })
 ]

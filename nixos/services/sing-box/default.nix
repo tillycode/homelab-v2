@@ -36,9 +36,6 @@ in
         default = [ ];
       };
     };
-    ipsecIntegration = mkEnableOption "Enable IPsec integration" // {
-      default = true;
-    };
   };
 
   config = {
@@ -185,7 +182,7 @@ in
               action = "hijack-dns";
             }
           ]
-          ++ lib.optionals cfg.ipsecIntegration [
+          ++ [
             {
               ip_cidr = "fd57:b9d9:4a63::1/128";
               outbound = "lax0";
@@ -465,19 +462,16 @@ in
     networking.firewall.extraReversePathFilterRules = ''
       iifname "sing0" ct state { established, related } accept
     '';
-    networking.nftables.tables.sing-box-extra = {
-      family = "inet";
-      content = ''
-        chain prerouting {
-          type filter hook prerouting priority mangle; policy accept;
-          udp sport 51820 udp dport 51820 meta mark set 0x2024 accept;
-          udp sport 4500 udp dport 4500 meta mark set 0x2024 accept;
-        }
-        chain output {
-          type route hook output priority mangle; policy accept;
-          udp sport 51820 udp dport 51820 meta mark set 0x2024 accept;
-        }
-      '';
-    };
+
+    systemd.network.networks."40-loopback".routingPolicyRules = [
+      {
+        To = "fd57:b9d9:4a63::/64";
+        IPProtocol = "udp";
+        SourcePort = 4500;
+        DestinationPort = 4500;
+        Table = 2022;
+        Priority = 8999;
+      }
+    ];
   };
 }
