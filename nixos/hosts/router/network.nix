@@ -126,7 +126,7 @@
       }
     ];
   };
-  networking.vip.address = [
+  networking.vip = [
     "10.112.35.1/32"
     "10.112.35.2/32"
   ];

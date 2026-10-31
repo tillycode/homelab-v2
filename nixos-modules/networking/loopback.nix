@@ -11,12 +11,10 @@ in
     };
   };
 
-  options.networking.vip = {
-    address = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = "Address to be added to the dummy interface";
-    };
+  options.networking.vip = mkOption {
+    type = types.listOf types.str;
+    default = [ ];
+    description = "Address to be added to the dummy interface";
   };
 
   config.systemd.network.networks."40-loopback" =
@@ -26,16 +24,16 @@ in
         address = config.networking.loopback.address;
       };
 
-  config.systemd.network.netdevs."40-vip" = lib.mkIf (config.networking.vip.address != [ ]) {
+  config.systemd.network.netdevs."40-vip" = lib.mkIf (config.networking.vip != [ ]) {
     netdevConfig = {
       Kind = "dummy";
       Name = "vip";
     };
   };
 
-  config.systemd.network.networks."40-vip" = lib.mkIf (config.networking.vip.address != [ ]) {
+  config.systemd.network.networks."40-vip" = lib.mkIf (config.networking.vip != [ ]) {
     matchConfig.Name = "vip";
-    address = config.networking.vip.address;
+    address = config.networking.vip;
     networkConfig.LinkLocalAddressing = "no";
   };
 }
