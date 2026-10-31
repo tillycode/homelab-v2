@@ -20,4 +20,5 @@ lib.makeScope (self: newScope (extra // self)) (self: {
   vault-plugin-secrets-github = self.callPackage ./vault-plugin-secrets-github.nix { };
   bbolt = self.callPackage ./bbolt.nix { };
   swan-updown = self.callPackage ./swan-updown.nix { };
+  dnsmasq-china-list = self.callPackage ./dnsmasq-china-list.nix { };
 })
