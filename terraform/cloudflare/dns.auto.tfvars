@@ -11,21 +11,17 @@ zones = {
       mc        = { name = "mc", type = "CNAME", content = "hgh0.szp15.com" }
       tailnet   = { name = "tailnet", type = "CNAME", content = "hgh0.szp15.com" }
       "@"       = { name = "@", type = "CNAME", content = "hgh0.szp15.com" }
-
-      ingress1 = { name = "ingress", type = "A", content = "47.96.145.133" }
-      ingress2 = { name = "ingress", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
-      whoami   = { name = "whoami", type = "CNAME", content = "ingress.szp15.com" }
-      vault    = { name = "vault", type = "CNAME", content = "ingress.szp15.com" }
     }
   }
 
   "eh578599.xyz" = {
     records = {
-      hkg0 = { name = "hkg0", type = "A", content = "87.83.107.23" }
-      hkg1 = { name = "hkg1", type = "A", content = "194.104.147.179" }
-      sjc0 = { name = "sjc0", type = "A", content = "185.218.6.162" }
-      sjc1 = { name = "sjc1", type = "A", content = "185.218.5.211" }
-      lax0 = { name = "lax0", type = "A", content = "209.209.59.219" }
+      hkg0      = { name = "hkg0", type = "A", content = "87.83.107.23" }
+      hkg0_aaaa = { name = "hkg0", type = "AAAA", content = "2401:f460:1073:817c::1" }
+      hkg1      = { name = "hkg1", type = "A", content = "194.104.147.179" }
+      sjc0      = { name = "sjc0", type = "A", content = "185.218.6.162" }
+      sjc1      = { name = "sjc1", type = "A", content = "185.218.5.211" }
+      lax0      = { name = "lax0", type = "A", content = "209.209.59.219" }
     }
   }
 
