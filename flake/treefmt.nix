@@ -14,6 +14,7 @@
           "*.terraform.lock.hcl"
           ".cursorignore"
           ".zedignore"
+          "*.crt"
         ];
 
         # json, md
