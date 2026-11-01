@@ -61,6 +61,7 @@ let
       nixos.router = suites.server ++ [
         hosts.router
         networking.forwarding
+        services.bind
         services.chrony
         services.coredns
         services.fail2ban
