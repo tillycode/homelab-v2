@@ -60,6 +60,7 @@ let
       nixos.hasee03 = suites.hasee;
       nixos.router = suites.server ++ [
         hosts.router
+        networking.discard-routes
         networking.forwarding
         services.bind
         services.chrony
