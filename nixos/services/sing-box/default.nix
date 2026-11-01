@@ -164,6 +164,7 @@ in
           control_url = "https://tailnet.szp15.com";
           accept_routes = true;
           advertise_routes = cfg.tailscale.advertiseRoutes;
+          listen_port = 41641;
         };
         route = {
           default_domain_resolver = "local";
