@@ -25,6 +25,26 @@
       cronet-go = callPackage (unstable + "/pkgs/by-name/cr/cronet-go/package.nix") {
         gn = callPackage (unstable + "/pkgs/by-name/gn/gn/package.nix") { };
       };
+      ppp =
+        assert lib.assertMsg (lib.versionOlder prev.ppp.version "2.5.5") "ppp is updated in the upstream";
+        prev.ppp.overrideAttrs (oldAttrs: rec {
+          patches =
+            # gcc15 build patch, merged sinced 2.5.3
+            assert lib.assertMsg (
+              lib.length oldAttrs.patches == 1
+              &&
+                (lib.head oldAttrs.patches).url
+                == "https://github.com/ppp-project/ppp/commit/05361692ee7d6260ce5c04c9fa0e5a1aa7565323.patch"
+            ) "ppp has an unexpected patch";
+            [ ];
+          version = "2.5.5";
+          src = final.fetchFromGitHub {
+            owner = "ppp-project";
+            repo = "ppp";
+            tag = "v${version}";
+            hash = "sha256-Ny1To4tzfqUT13jMVgKuW36tjMB07bKDFUV+sLdOobM=";
+          };
+        });
     };
 
   flake.overlays.fixups = final: prev: {
