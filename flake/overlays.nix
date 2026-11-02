@@ -25,7 +25,7 @@
       cronet-go = callPackage (unstable + "/pkgs/by-name/cr/cronet-go/package.nix") {
         gn = callPackage (unstable + "/pkgs/by-name/gn/gn/package.nix") { };
       };
-      ppp =
+      ppp_2_5_5 =
         assert lib.assertMsg (lib.versionOlder prev.ppp.version "2.5.5") "ppp is updated in the upstream";
         prev.ppp.overrideAttrs (oldAttrs: rec {
           patches =
@@ -45,6 +45,10 @@
             hash = "sha256-Ny1To4tzfqUT13jMVgKuW36tjMB07bKDFUV+sLdOobM=";
           };
         });
+      bird3 =
+        assert lib.assertMsg (lib.versionOlder prev.bird3.version "3.4.0")
+          "bird is updated in the upstream";
+        callPackage (unstable + "/pkgs/by-name/bi/bird3/package.nix") { };
     };
 
   flake.overlays.fixups = final: prev: {

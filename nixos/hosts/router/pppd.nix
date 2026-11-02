@@ -35,6 +35,7 @@ in
   ## ---------------------------------------------------------------------------
   services.pppd = {
     enable = true;
+    package = pkgs.ppp_2_5_5;
     peers.dialer = {
       autostart = true;
       config = ''
