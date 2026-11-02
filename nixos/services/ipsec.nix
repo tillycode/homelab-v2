@@ -92,6 +92,7 @@ let
           updown = "${lib.getExe pkgs.swan-updown} --prefix ${
             lib.escapeShellArg (if crossRegion then "cross-" else "mesh-")
           } --mtu 1400";
+          set_mark_in = "0/0xffffffff";
           set_mark_out = if crossRegion then "0x2023" else "0x2024";
         };
       };

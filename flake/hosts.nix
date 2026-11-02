@@ -84,6 +84,7 @@ let
 
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
+        networking.discard-routes
         networking.forwarding
         services.bird
         services.blog
