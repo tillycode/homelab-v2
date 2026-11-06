@@ -56,12 +56,7 @@ let
       keyingtries = 0;
       dpd_delay = "30s";
       local_addrs =
-        if crossRegion && initiatesPeer then
-          map (x: lib.head (lib.splitString "/" x)) (
-            lib.filter (lib.hasInfix ":") config.networking.loopback.address
-          )
-        else
-          [ "%any" ];
+        if crossRegion && initiatesPeer then [ config.networking.ipv6Address ] else [ "%any" ];
       remote_addrs = if initiatesPeer then endpoint self peer else [ "%any" ];
       local.host = {
         auth = "pubkey";

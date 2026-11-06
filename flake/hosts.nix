@@ -16,6 +16,7 @@ let
         config.sops
         config.sudo
         networking.firewall
+        networking.ipam
         networking.networkd
         programs.nix
         programs.tools
@@ -61,6 +62,7 @@ let
       nixos.router = suites.server ++ [
         hosts.router
         networking.discard-routes
+        networking.evpn
         networking.forwarding
         services.bind
         services.chrony
@@ -73,6 +75,7 @@ let
       ];
       nixos.desktop = suites.desktop ++ [
         hosts.desktop
+        networking.evpn
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [
@@ -96,16 +99,6 @@ let
         services.sing-box
         system.disko
         system.systemd-boot
-      ];
-
-      nixos.kubevm = suites.server ++ [
-        hosts.kubevm
-        system.disko
-      ];
-      nixos.aivm = nixos.kubevm ++ [
-        hosts.aivm
-        services.openbao-proxy
-        users.ai
       ];
 
       nixos.sjc1 = suites.server ++ [
@@ -210,69 +203,30 @@ in
     (mkHost {
       name = "hasee01";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.2/32"
-        "fdfe:3c59:ba97::2/128"
-      ];
     })
     (mkHost {
       name = "hasee02";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.3/32"
-        "fdfe:3c59:ba97::3/128"
-      ];
     })
     (mkHost {
       name = "hasee03";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.4/32"
-        "fdfe:3c59:ba97::4/128"
-      ];
     })
     (mkHost {
       name = "router";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.1/32"
-        "fdfe:3c59:ba97::1/128"
-      ];
     })
     (mkHost {
       name = "hgh0";
-      system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.6/32"
-        "fdfe:3c59:ba97::6/128"
-      ];
-    })
-    (mkHost {
-      name = "kubevm";
-      system = "x86_64-linux";
-      module = {
-        system.stateVersion = lib.trivial.release;
-      };
-    })
-    (mkHost {
-      name = "aivm";
       system = "x86_64-linux";
     })
     (mkHost {
       name = "desktop";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.5/32"
-        "fdfe:3c59:ba97::5/128"
-      ];
     })
     (mkHost {
       name = "sjc1";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.7/32"
-        "fdfe:3c59:ba97::7/128"
-      ];
     })
     (mkHost {
       name = "laptop";
@@ -291,26 +245,14 @@ in
     (mkHost {
       name = "lax0";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.8/32"
-        "fdfe:3c59:ba97::8/128"
-      ];
     })
     (mkHost {
       name = "hkg0";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.9/32"
-        "fdfe:3c59:ba97::9/128"
-      ];
     })
     (mkHost {
       name = "hkg1";
       system = "x86_64-linux";
-      module.networking.loopback.address = [
-        "10.112.8.10/32"
-        "fdfe:3c59:ba97::a/128"
-      ];
     })
   ];
 

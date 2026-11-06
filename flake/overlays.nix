@@ -52,6 +52,15 @@
     };
 
   flake.overlays.fixups = final: prev: {
+    frr = prev.frr.overrideAttrs (oldAttrs: {
+      patches = oldAttrs.patches or [ ] ++ [
+        # fix systemd compatibility issue
+        (final.fetchpatch {
+          url = "https://github.com/FRRouting/frr/commit/152fa011e439fdbc636753e265b7b3d1a08cd06f.patch";
+          hash = "sha256-nFtGupvYOATLmtbKZ1TKlrTxJt4u3KJCtWuShJ/7xK4=";
+        })
+      ];
+    });
   };
 
   flake.overlays.hacks = final: prev: {

@@ -20,7 +20,7 @@
       merge paths on;
       ipv4 {
         import where net = 0.0.0.0/0;
-        export all;
+        export where source != RTS_DEVICE;
       };
     }
 
@@ -30,7 +30,7 @@
       merge paths on;
       ipv6 sadr {
         import where net.dst = ::/0 && net.src = ::/0;
-        export all;
+        export where source != RTS_DEVICE;
       };
     }
 
