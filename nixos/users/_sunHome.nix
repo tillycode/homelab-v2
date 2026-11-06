@@ -37,6 +37,9 @@
     nix-direnv.enable = true;
   };
   programs.gpg.enable = true;
+  programs.gpg.settings = {
+    no-autostart = true;
+  };
   programs.gpg.scdaemonSettings = {
     disable-ccid = true;
   };

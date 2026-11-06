@@ -464,15 +464,18 @@ in
       iifname "sing0" ct state { established, related } accept
     '';
 
-    systemd.network.networks."40-loopback".routingPolicyRules = [
-      {
-        To = "fd57:b9d9:4a63::/64";
-        IPProtocol = "udp";
-        SourcePort = 4500;
-        DestinationPort = 4500;
-        Table = 2022;
-        Priority = 8999;
-      }
-    ];
+    systemd.network.networks."40-loopback" = {
+      name = "lo";
+      routingPolicyRules = [
+        {
+          To = "fd57:b9d9:4a63::/64";
+          IPProtocol = "udp";
+          SourcePort = 4500;
+          DestinationPort = 4500;
+          Table = 2022;
+          Priority = 8999;
+        }
+      ];
+    };
   };
 }
