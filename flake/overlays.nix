@@ -49,6 +49,10 @@
         assert lib.assertMsg (lib.versionOlder prev.bird3.version "3.4.0")
           "bird is updated in the upstream";
         callPackage (unstable + "/pkgs/by-name/bi/bird3/package.nix") { };
+
+      # current stable nixpkgs buildVscode contains a bug due to ripgrep path being update
+      # let's check if this is fixed in the future.
+      buildVscode = callPackage (unstable + "/pkgs/applications/editors/vscode/generic.nix") { };
     };
 
   flake.overlays.fixups = final: prev: {

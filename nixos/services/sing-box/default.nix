@@ -51,7 +51,7 @@ in
             patch -d "$out" -p2 < ${./prerouting-udp-icmp-exclude.patch}
           '';
         });
-        vendorHash = "sha256-AZMLtRCEFZ4CljoJuSL3nhkNXzCbOs5rXxNxod18LHY=";
+        vendorHash = "sha256-Tv1DnM6Iih6cDYTjesQigXSIuKPelEpbDHrfS1NYVGc=";
       });
       settings = {
         log.level = "warn";
