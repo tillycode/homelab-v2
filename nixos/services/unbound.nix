@@ -37,6 +37,12 @@ in
           ];
           forward-tls-upstream = true;
         }
+        {
+          name = "szp15.com";
+          forward-addr = [
+            "fdfe:3c59:ba97:1::2"
+          ];
+        }
       ];
       include = "\"${chinaZones}\"";
     };

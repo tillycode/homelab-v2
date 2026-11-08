@@ -1,0 +1,29 @@
+$ORIGIN szp15.com.
+$TTL 600
+@                           IN   SOA        ns1 me.szp.io. (
+                                               2026110801   ; serial  Sun, 08 Nov 2026 00:14:00 UTC
+                                               3H           ; refresh
+                                               40M          ; retry
+                                               1W           ; expire
+                                               30M          ; minimum
+                                               )
+                            IN   NS         ns1.szp.com.
+                            IN   A          47.96.145.133
+                            IN   AAAA       2408:4005:3c4:a40:d5b6:55ed:95b4:4eed
+
+ns1                         IN   AAAA       fdfe:3c59:ba97:1::2
+
+hgh0                        IN   CNAME      @
+tailnet                     IN   CNAME      hgh0
+
+router.nodes                IN   A          10.112.8.1
+hasee01.nodes               IN   A          10.112.8.2
+hasee02.nodes               IN   A          10.112.8.3
+hasee03.nodes               IN   A          10.112.8.4
+desktop.nodes               IN   A          10.112.8.5
+
+hgh0.nodes                  IN   CNAME      hgh0
+hkg0.nodes                  IN   CNAME      hkg0.eh578599.xyz.
+hkg1.nodes                  IN   CNAME      hkg1.eh578599.xyz.
+sjc1.nodes                  IN   CNAME      sjc1.eh578599.xyz.
+lax0.nodes                  IN   CNAME      lax0.eh578599.xyz.

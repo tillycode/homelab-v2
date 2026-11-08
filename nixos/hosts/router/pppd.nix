@@ -7,27 +7,6 @@
 let
   wanIface = "wan";
   pppIface = "ppp0";
-
-  resolvectl = lib.getExe' pkgs.systemd "resolvectl";
-  logger = lib.getExe' pkgs.util-linux "logger";
-  ip-up-script = pkgs.writeShellScript "ppp-ip-up.sh" ''
-    set -euo pipefail
-    dns=()
-    [[ -n ''${DNS1:-} ]] && dns+=("''$DNS1")
-    [[ -n ''${DNS2:-} ]] && dns+=("''$DNS2")
-    if [[ ''${#dns[@]} -gt 0 ]]; then
-      ${resolvectl} dns ${pppIface} "''${dns[@]}"
-      ${logger} -t pppd-dialer-ip-up "set DNS: ''${dns[*]}"
-    else
-      ${resolvectl} dns ${pppIface} ""
-      ${logger} -t pppd-dialer-ip-up "cleared DNS"
-    fi
-  '';
-  ip-down-script = pkgs.writeShellScript "ppp-ip-down.sh" ''
-    set -euo pipefail
-    resolvectl dns ${pppIface} ""
-    ${logger} -t pppd-dialer-ip-down "cleared DNS"
-  '';
 in
 {
   ## ---------------------------------------------------------------------------
@@ -49,8 +28,6 @@ in
         usepeerdns
         name ad87182800
         pap-secrets ${config.sops.secrets."ppp/pap-secrets".path}
-        ip-up-script ${ip-up-script}
-        ip-down-script ${ip-down-script}
 
         persist
         maxfail 0
@@ -89,6 +66,8 @@ in
       PrefixDelegationHint = "::/60";
       UseDelegatedPrefix = true;
       WithoutRA = "solicit";
+      # telecom advertise unusable IPv6 DNS servers
+      UseDNS = false;
     };
   };
 

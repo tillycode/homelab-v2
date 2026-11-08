@@ -1,7 +1,6 @@
 {
   pkgs,
   config,
-  lib,
   ...
 }:
 let
@@ -15,29 +14,8 @@ let
     type = "local";
     path = "${pkgs.sing-geosite}/share/sing-box/rule-set/${name}.srs";
   };
-  inherit (lib) mkEnableOption mkOption types;
-  cfg = config.profiles.sing-box;
 in
 {
-  options.profiles.sing-box = {
-    tailscale = {
-      enable = mkEnableOption "Enable sing-box tailscale" // {
-        default = true;
-      };
-      routeDNS = mkEnableOption "Route DNS to tailscale";
-      routes = mkOption {
-        type = types.listOf types.str;
-        description = "Routes to tailscale";
-        default = [ ];
-      };
-      advertiseRoutes = mkOption {
-        type = types.listOf types.str;
-        description = "Advertise routes to tailscale";
-        default = [ ];
-      };
-    };
-  };
-
   config = {
 
     ## -------------------------------------------------------------------------
@@ -76,59 +54,19 @@ in
         ];
         dns = {
           reverse_mapping = true;
-          final = "remote";
+          final = "unbound";
           servers = [
             {
-              tag = "local";
-              type = "local";
-            }
-            {
-              tag = "remote";
-              type = "tls";
-              server = "8.8.8.8";
-              detour = "Proxy";
-            }
-          ]
-          ++ lib.optional cfg.tailscale.enable (
-            {
-              tag = "private";
+              tag = "unbound";
               type = "udp";
-              server = "10.112.35.3";
-            }
-            // lib.optionalAttrs cfg.tailscale.routeDNS {
-              detour = "tailscale";
-            }
-          );
-          rules = [
-            {
-              domain_suffix = [
-                "szp.io"
-                "szp15.com"
-              ];
-              server = "private";
+              server = "fdfe:3c59:ba97:1::1";
+              server_port = 53;
             }
             {
-              rule_set = "geosite-geolocation-cn";
-              server = "local";
-            }
-            {
-              action = "evaluate";
-              server = "local";
-            }
-            {
-              type = "logical";
-              mode = "and";
-              rules = [
-                {
-                  rule_set = "geosite-geolocation-!cn";
-                  invert = true;
-                }
-                {
-                  match_response = true;
-                  rule_set = "geoip-cn";
-                }
-              ];
-              server = "local";
+              tag = "alidns";
+              type = "udp";
+              server = "223.5.5.5";
+              server_port = 53;
             }
           ];
         };
@@ -158,16 +96,8 @@ in
           }
           # more outbounds are added via sops
         ];
-        endpoints = lib.optional cfg.tailscale.enable {
-          type = "tailscale";
-          tag = "tailscale";
-          control_url = "https://tailnet.szp15.com";
-          accept_routes = true;
-          advertise_routes = cfg.tailscale.advertiseRoutes;
-          listen_port = 41641;
-        };
         route = {
-          default_domain_resolver = "local";
+          default_domain_resolver = "alidns";
           final = "Proxy";
           rules = [
             {
@@ -197,20 +127,6 @@ in
               outbound = "hkg1";
             }
           ]
-          ++ lib.optional (cfg.tailscale.enable && cfg.tailscale.routes != [ ]) {
-            ip_cidr = cfg.tailscale.routes;
-            outbound = "tailscale";
-          }
-          ++ lib.optional (cfg.tailscale.enable && cfg.tailscale.advertiseRoutes != [ ]) {
-            inbound = "tailscale";
-            ip_cidr = cfg.tailscale.advertiseRoutes;
-            outbound = "direct";
-          }
-          ++ lib.optional cfg.tailscale.enable {
-            inbound = "tailscale";
-            action = "reject";
-            method = "drop";
-          }
           ++ [
             {
               network = "udp";
@@ -385,12 +301,6 @@ in
         DNSDefaultRoute = false;
         IPv6AcceptRA = false;
       };
-      routes = lib.optionals cfg.tailscale.enable (
-        lib.map (x: {
-          Destination = x;
-        }) cfg.tailscale.routes
-      );
-
     };
     systemd.network.config.networkConfig = {
       ManageForeignRoutes = false;
@@ -453,7 +363,6 @@ in
     ## ---------------------------------------------------------------------------
     ## FIREWALL
     ## ---------------------------------------------------------------------------
-    networking.firewall.allowedUDPPorts = lib.mkIf cfg.tailscale.enable [ 41641 ];
     networking.firewall.extraInputRules = ''
       ct status & dnat == dnat accept
     '';

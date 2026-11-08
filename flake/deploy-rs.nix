@@ -12,7 +12,7 @@ let
       inherit ((getSystem system).allModuleArgs) pkgs;
     in
     {
-      hostname = "${name}.nodes.szp.io";
+      hostname = name;
       sshUser = "root";
       profiles.system = {
         path = pkgs.deploy-rs.lib.activate.nixos cfg;

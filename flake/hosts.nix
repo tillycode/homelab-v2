@@ -31,6 +31,7 @@ let
       ];
       suites.hasee = suites.server ++ [
         hosts.hasee
+        config.cn-dns
         programs.stress-cli
         services.ntp-home
         system.disko
@@ -61,41 +62,44 @@ let
       nixos.hasee03 = suites.hasee;
       nixos.router = suites.server ++ [
         hosts.router
+        config.cn-dns
         networking.discard-routes
         networking.forwarding
-        services.unbound
+        services.bind
         services.chrony
-        services.coredns
         services.fail2ban
         services.ipsec
         services.sing-box
+        services.unbound
         system.disko
         system.systemd-boot
       ];
       nixos.desktop = suites.desktop ++ [
         hosts.desktop
+        config.cn-dns
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [
         hosts.laptop
         system.disko
-        services.unbound
         services.sing-box
         system.systemd-boot
       ];
 
       nixos.hgh0 = suites.server ++ [
         hosts.hgh0
+        config.cn-dns
         networking.discard-routes
         networking.forwarding
+        services.bind
         services.bird
         services.blog
-        services.coredns
         services.haproxy
         services.headscale
         services.ipsec
         services.nginx
         services.sing-box
+        services.unbound
         system.disko
         system.systemd-boot
       ];

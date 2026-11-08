@@ -105,10 +105,7 @@
     };
     dhcpServerConfig = {
       ServerAddress = "192.168.23.1/24";
-      DNS = [
-        "10.112.35.1"
-        "10.112.35.2"
-      ];
+      DNS = [ "192.168.23.1" ];
       EmitRouter = true;
       PoolOffset = 100;
       PoolSize = 100;
@@ -159,9 +156,9 @@
     internalInterfaces = [
       "lan"
       "svc"
-      "coredns"
     ];
   };
+  services.unbound.settings.server.interface = [ "192.168.23.1" ];
 
   networking.firewall.filterForward = true;
   # allow DHCP traffic from lan
@@ -171,16 +168,11 @@
     iifname {"lan", "svc", "tailscale0", "mesh-*", "cross-*"} tcp dport 53 accept
   '';
 
-  profiles.sing-box.tailscale.advertiseRoutes = [
-    "10.112.0.0/19"
-    "10.112.35.0/24"
-  ];
-
   # allow traffic from lan to service and VM
   # allow traffic from VM and wireguard to service
   networking.firewall.extraForwardRules = ''
     iifname {"mesh-*", "cross-*", "svc"} accept
-    iifname "lan" ip daddr {10.112.10.0/24, 10.112.12.0/24} accept
+    iifname "lan" ip daddr {10.112.8.0/24, 10.112.10.0/24, 10.112.12.0/24} accept
     iifname "tailscale0" ip saddr 100.112.36.128/25 ip daddr 10.112.0.0/19 accept
   '';
 

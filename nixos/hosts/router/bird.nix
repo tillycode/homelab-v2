@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   services.bird.enable = true;
   services.bird.config = ''
@@ -30,7 +31,12 @@
       merge paths on;
       ipv6 sadr {
         import where net.dst = ::/0 && net.src = ::/0;
-        export where source != RTS_DEVICE;
+        export filter {
+          if source = RTS_DEVICE then
+            reject;
+          krt_prefsrc = ${config.networking.ipv6Address};
+          accept;
+        };
       };
     }
 

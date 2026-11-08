@@ -33,8 +33,4 @@
     "10.112.33.1"
     "[2408:4005:3c4:a40:d5b6:55ed:95b4:4eed]"
   ];
-
-  profiles.sing-box.tailscale.advertiseRoutes = [
-    "10.112.32.0/23"
-  ];
 }

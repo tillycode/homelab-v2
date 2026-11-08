@@ -10,10 +10,6 @@
     };
   };
   networking.vlans = {
-    lan = {
-      id = 3;
-      interface = "eno1";
-    };
     svc = {
       id = 4;
       interface = "eno1";
@@ -22,12 +18,6 @@
   systemd.network.networks."40-eno1" = {
     linkConfig.MTUBytes = 9000;
     networkConfig.IPv6AcceptRA = false;
-  };
-  systemd.network.networks."40-lan" = {
-    matchConfig.Name = "lan";
-    DHCP = "yes";
-    dhcpV4Config.RoutesToDNS = false;
-    linkConfig.MTUBytes = 9000;
   };
   systemd.network.networks."40-svc" = {
     matchConfig.Name = "svc";
@@ -44,7 +34,7 @@
     ipv6AcceptRAConfig.RouteMetric = 1025;
   };
   networking.hosts."10.112.8.1" = [
-    "router.nodes.szp.io"
+    "router.nodes.szp15.com"
     "router"
   ];
 }
