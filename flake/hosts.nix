@@ -62,9 +62,8 @@ let
       nixos.router = suites.server ++ [
         hosts.router
         networking.discard-routes
-        networking.evpn
         networking.forwarding
-        services.bind
+        services.unbound
         services.chrony
         services.coredns
         services.fail2ban
@@ -75,12 +74,12 @@ let
       ];
       nixos.desktop = suites.desktop ++ [
         hosts.desktop
-        networking.evpn
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [
         hosts.laptop
         system.disko
+        services.unbound
         services.sing-box
         system.systemd-boot
       ];
