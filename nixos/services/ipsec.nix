@@ -6,13 +6,14 @@
 }:
 let
   allNodes = {
-    hgh0 = {
+    router = {
       id = 0;
-      endpoint = [ "hgh0.szp15.com" ];
+      endpoint = [ "router.nodes.szp.io" ];
       region = "cn";
     };
-    router = {
+    hgh0 = {
       id = 1;
+      endpoint = [ "hgh0.szp15.com" ];
       region = "cn";
     };
     sjc1 = {
@@ -37,6 +38,10 @@ let
       endpoint = [ "hkg1.eh578599.xyz" ];
       region = "global";
       crossRegionVIP = "fd57:b9d9:4a63::3";
+    };
+    laptop = {
+      id = 6;
+      region = "cn";
     };
   };
 
@@ -114,6 +119,11 @@ lib.mkMerge [
       strongswan.extraConfig = ''
         charon {
           interfaces_ignore = sing0
+          plugins {
+            socket-default {
+              fwmark = 0x2024
+            }
+          }
         }
       '';
       swanctl = {
