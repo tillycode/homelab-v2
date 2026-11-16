@@ -125,14 +125,14 @@ lib.mkMerge [
 
     sops.secrets = {
       "ipsec/privateKeys/${selfName}" = {
-        name = "ipsec/privateKeys/${selfName}.der";
+        path = "/run/secrets/ipsec/privateKeys/${selfName}.der";
       };
     }
     // lib.listToAttrs (
       lib.map (
         name:
         lib.nameValuePair "ipsec/publicKeys/${name}" {
-          name = "ipsec/publicKeys/${name}.der";
+          path = "/run/secrets/ipsec/publicKeys/${name}.der";
         }
       ) nodeNames
     );

@@ -67,6 +67,7 @@ let
         networking.forwarding
         services.bind
         services.chrony
+        services.cloudflare-ddns
         services.fail2ban
         services.ipsec
         services.sing-box
