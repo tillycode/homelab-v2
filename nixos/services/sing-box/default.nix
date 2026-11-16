@@ -112,8 +112,6 @@ in
               port = 53;
               action = "hijack-dns";
             }
-          ]
-          ++ [
             {
               ip_cidr = "fd57:b9d9:4a63::1/128";
               outbound = "lax0";
@@ -125,6 +123,13 @@ in
             {
               ip_cidr = "fd57:b9d9:4a63::3/128";
               outbound = "hkg1";
+            }
+            {
+              ip_cidr = [
+                "223.5.5.5/32"
+                "119.29.29.29/32"
+              ];
+              outbound = "direct";
             }
           ]
           ++ [

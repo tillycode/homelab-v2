@@ -81,8 +81,10 @@ let
       ];
       nixos.laptop = suites.desktop ++ [
         hosts.laptop
-        system.disko
+        config.cn-dns
         services.sing-box
+        services.unbound
+        system.disko
         system.systemd-boot
       ];
 
