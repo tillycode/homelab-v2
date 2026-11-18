@@ -41,7 +41,9 @@ zones = {
         type    = "TXT",
         content = "\"v=DMARC1; p=quarantine; pct=100; ruf=mailto:me@szp.io; rua=mailto:me@szp.io\""
       }
-      "niks3" = { name = "niks3", type = "CNAME", content = "sjc1.eh578599.xyz" }
+      "niks3"         = { name = "niks3", type = "CNAME", content = "sjc1.eh578599.xyz" }
+      hgh0_nodes_a    = { name = "hgh0.nodes", type = "A", content = "47.96.145.133" }
+      hgh0_nodes_aaaa = { name = "hgh0.nodes", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
     }
   }
 }

@@ -13,7 +13,7 @@ let
     };
     hgh0 = {
       id = 1;
-      endpoint = [ "hgh0.szp15.com" ];
+      endpoint = [ "hgh0.nodes.szp.io" ];
       region = "cn";
     };
     sjc1 = {
@@ -119,6 +119,7 @@ lib.mkMerge [
       strongswan.extraConfig = ''
         charon {
           interfaces_ignore = sing0
+          retry_initiate_interval = 10s
           plugins {
             socket-default {
               fwmark = 0x2024

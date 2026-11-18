@@ -83,6 +83,7 @@ let
       nixos.laptop = suites.desktop ++ [
         hosts.laptop
         config.cn-dns
+        services.bird
         services.ipsec
         services.sing-box
         services.unbound
