@@ -45,18 +45,18 @@ SHA256_ARM64=$(curl -L "https://github.com/rancher/rke2/releases/download/v${RKE
 SHA256_SUMS="$SHA256_AMD64\n$SHA256_ARM64"
 # Get a list of images archives that are assets of this release, one entry (name and download_url) per line
 IMAGES_ARCHIVES=$(curl "https://api.github.com/repos/rancher/rke2/releases/tags/v${RKE2_VERSION}" |
-  # Filter the assets by name, discard .txt files and legacy image archives (e.g. rke2-images.linux-arm64.tar.gz)
-  jq -r '.assets[] | select(.name | test("^rke2-images-.*\\.tar\\.")) | "\(.name) \(.browser_download_url)"')
+	# Filter the assets by name, discard .txt files and legacy image archives (e.g. rke2-images.linux-arm64.tar.gz)
+	jq -r '.assets[] | select(.name | test("^rke2-images-.*\\.tar\\.")) | "\(.name) \(.browser_download_url)"')
 # Iterate over all lines of IMAGES_ARCHIVES, pick the appropriate sha256, and create a JSON file
 # that can be imported by builder.nix
 while read -r name url; do
-  sha256=$(grep "$name" <<<"$SHA256_SUMS" | cut -d ' ' -f 1)
-  # Remove the rke2 prefix and replace all dots in $name with hyphens
-  clean_name=$(sed -e "s/^rke2-//" -e "s/\./-/g" <<<"$name")
-  jq --null-input --arg name "$clean_name" \
-    --arg url "$url" \
-    --arg sha256 "$sha256" \
-    '{$name: {"url": $url, "sha256": $sha256}}'
+	sha256=$(grep "$name" <<<"$SHA256_SUMS" | cut -d ' ' -f 1)
+	# Remove the rke2 prefix and replace all dots in $name with hyphens
+	clean_name=$(sed -e "s/^rke2-//" -e "s/\./-/g" <<<"$name")
+	jq --null-input --arg name "$clean_name" \
+		--arg url "$url" \
+		--arg sha256 "$sha256" \
+		'{$name: {"url": $url, "sha256": $sha256}}'
 done <<<"${IMAGES_ARCHIVES}" | jq --slurp 'reduce .[] as $item ({}; . * $item)' >"${WORKDIR}/images-versions.json"
 
 cat <<EOF >"${WORKDIR}/versions.nix"
@@ -78,8 +78,8 @@ EOF
 PKGS_ROOT="$(git rev-parse --show-toplevel)/pkgs"
 RKE2_VENDOR_HASH=$(nurl -e "(import $PKGS_ROOT {}).rke2.goModules")
 if [ -n "${RKE2_VENDOR_HASH:-}" ]; then
-  sed -i "s#${FAKE_HASH}#${RKE2_VENDOR_HASH}#g" "${WORKDIR}/versions.nix"
+	sed -i "s#${FAKE_HASH}#${RKE2_VENDOR_HASH}#g" "${WORKDIR}/versions.nix"
 else
-  echo "Update failed. 'RKE2_VENDOR_HASH' is empty."
-  exit 1
+	echo "Update failed. 'RKE2_VENDOR_HASH' is empty."
+	exit 1
 fi
