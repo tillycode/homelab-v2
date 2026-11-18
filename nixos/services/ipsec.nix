@@ -50,52 +50,62 @@ let
     let
       crossRegion = self.region != peer.region;
       initiatesPeer = initiates peer;
-    in
-    {
-      version = 2;
-      proposals = [ "aes128gcm16-prfsha256-curve25519" ];
-      encap = true;
-      mobike = !crossRegion;
-      local_port = 4500;
-      remote_port = 4500;
-      keyingtries = 0;
-      dpd_delay = "30s";
-      local_addrs =
-        if crossRegion && initiatesPeer then [ config.networking.ipv6Address ] else [ "%any" ];
-      remote_addrs = if initiatesPeer then endpoint self peer else [ "%any" ];
-      local.host = {
-        auth = "pubkey";
-        id = "${selfName}.nodes.szp.io";
-        pubkeys = [ config.sops.secrets."ipsec/publicKeys/${selfName}".path ];
+      baseIfId = {
+        "4" = 1000;
+        "6" = 2000;
       };
-      remote.peer = {
-        auth = "pubkey";
-        id = "${peerName}.nodes.szp.io";
-        pubkeys = [ config.sops.secrets."ipsec/publicKeys/${peerName}".path ];
-      };
-      children = {
-        "${peerName}-net" = {
-          esp_proposals = [ "aes128gcm16-curve25519" ];
-          local_ts = [
-            "0.0.0.0/0"
-            "::/0"
-          ];
-          remote_ts = [
-            "0.0.0.0/0"
-            "::/0"
-          ];
-          if_id_in = toString (1000 + peer.id);
-          if_id_out = toString (1000 + peer.id);
-          start_action = if initiatesPeer then "trap|start" else "none";
-          dpd_action = if initiatesPeer then "restart" else "clear";
-          close_action = if initiatesPeer then "start" else "none";
-          updown = "${lib.getExe pkgs.swan-updown} --prefix ${
-            lib.escapeShellArg (if crossRegion then "cross-" else "mesh-")
-          } --mtu 1400";
-          set_mark_in = "0/0xffffffff";
-          set_mark_out = if crossRegion then "0x2023" else "0x2024";
+      mkSingleStackConnection = ver: {
+        version = 2;
+        proposals = [ "aes128gcm16-prfsha256-curve25519" ];
+        encap = true;
+        mobike = false;
+        local_port = 4500;
+        remote_port = 4500;
+        keyingtries = 0;
+        dpd_delay = "30s";
+        local_addrs =
+          if crossRegion && initiatesPeer then [ config.networking.ipv6Address ] else [ "%any${ver}" ];
+        remote_addrs = if initiatesPeer then endpoint self peer else [ "%any${ver}" ];
+        local.host = {
+          auth = "pubkey";
+          id = "${selfName}.nodes.szp.io";
+          pubkeys = [ config.sops.secrets."ipsec/publicKeys/${selfName}".path ];
+        };
+        remote.peer = {
+          auth = "pubkey";
+          id = "${peerName}.nodes.szp.io";
+          pubkeys = [ config.sops.secrets."ipsec/publicKeys/${peerName}".path ];
+        };
+        children = {
+          "${peerName}-v${ver}-net" = {
+            esp_proposals = [ "aes128gcm16-curve25519" ];
+            local_ts = [
+              "0.0.0.0/0"
+              "::/0"
+            ];
+            remote_ts = [
+              "0.0.0.0/0"
+              "::/0"
+            ];
+            if_id_in = toString (baseIfId.${ver} + peer.id);
+            if_id_out = toString (baseIfId.${ver} + peer.id);
+            start_action = if initiatesPeer then "trap|start" else "none";
+            dpd_action = if initiatesPeer then "restart" else "clear";
+            close_action = if initiatesPeer then "start" else "none";
+            updown = "${lib.getExe pkgs.swan-updown} --prefix ${
+              lib.escapeShellArg (if crossRegion then "cross-" else "mesh-")
+            } --mtu 1400";
+            set_mark_in = "0/0xffffffff";
+            set_mark_out = if crossRegion then "0x2023" else "0x2024";
+          };
         };
       };
+    in
+    {
+      "${peerName}-v6" = mkSingleStackConnection "6";
+    }
+    // lib.optionalAttrs (!crossRegion) {
+      "${peerName}-v4" = mkSingleStackConnection "4";
     };
 
   selfName = config.system.name;
@@ -119,7 +129,7 @@ lib.mkMerge [
       strongswan.extraConfig = ''
         charon {
           interfaces_ignore = sing0
-          retry_initiate_interval = 10s
+          retry_initiate_interval = 30s
           plugins {
             socket-default {
               fwmark = 0x2024
@@ -128,7 +138,7 @@ lib.mkMerge [
         }
       '';
       swanctl = {
-        connections = lib.mapAttrs mkConnection peers;
+        connections = lib.concatMapAttrs mkConnection peers;
       };
     };
 
