@@ -8,6 +8,7 @@
     in
     {
       # For GPT-6 Astra. Copied from nixos-unstable.
+      aws-lc = callPackage (unstable + "/pkgs/by-name/aw/aws-lc/package.nix") { };
       codex =
         assert lib.assertMsg (lib.versionOlder prev.codex.version "0.153.0")
           "codex is updated in the upstream";
