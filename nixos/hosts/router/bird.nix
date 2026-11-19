@@ -70,7 +70,7 @@
       };
       interface "mesh-*" {
         type tunnel;
-        hello interval 20 s;
+        hello interval 15 s;
         extended next hop yes;
         next hop prefer ipv6;
         rtt cost 256;
@@ -79,7 +79,7 @@
       interface "cross-*" {
         type tunnel;
         rxcost 512;
-        hello interval 20 s;
+        hello interval 15 s;
         extended next hop yes;
         next hop prefer ipv6;
         rtt cost 256;
