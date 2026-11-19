@@ -130,6 +130,8 @@ lib.mkMerge [
         charon {
           interfaces_ignore = sing0
           retry_initiate_interval = 30s
+          install_routes = no
+          routing_table = 0
           plugins {
             socket-default {
               fwmark = 0x2024
