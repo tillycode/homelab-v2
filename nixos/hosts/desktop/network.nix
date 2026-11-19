@@ -37,4 +37,10 @@
     "router.nodes.szp15.com"
     "router"
   ];
+
+  # same as hasee/network.nix tricks
+  systemd.network.networks."40-svc".networkConfig = {
+    DNS = "fe80::1";
+    DNSDefaultRoute = false;
+  };
 }
