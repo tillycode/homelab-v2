@@ -101,7 +101,6 @@ let
         services.blog
         services.caddy
         services.haproxy
-        services.headscale
         services.ipsec
         services.sing-box
         services.unbound

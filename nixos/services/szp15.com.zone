@@ -1,7 +1,7 @@
 $ORIGIN szp15.com.
 $TTL 600
 @                           IN   SOA        ns1 me.szp.io. (
-                                               2026110801   ; serial  Sun, 08 Nov 2026 00:14:00 UTC
+                                               2026112005   ; serial  Fri, 20 Nov 2026 01:10:00 UTC
                                                3H           ; refresh
                                                40M          ; retry
                                                1W           ; expire
@@ -13,17 +13,14 @@ $TTL 600
 
 ns1                         IN   AAAA       fdfe:3c59:ba97:1::2
 
-hgh0                        IN   CNAME      @
-tailnet                     IN   CNAME      hgh0
-
 router.nodes                IN   A          10.112.8.1
 hasee01.nodes               IN   A          10.112.8.2
 hasee02.nodes               IN   A          10.112.8.3
 hasee03.nodes               IN   A          10.112.8.4
 desktop.nodes               IN   A          10.112.8.5
 
-hgh0.nodes                  IN   CNAME      hgh0
-hkg0.nodes                  IN   CNAME      hkg0.eh578599.xyz.
-hkg1.nodes                  IN   CNAME      hkg1.eh578599.xyz.
-sjc1.nodes                  IN   CNAME      sjc1.eh578599.xyz.
-lax0.nodes                  IN   CNAME      lax0.eh578599.xyz.
+hgh0.nodes                  IN   CNAME      hgh0.nodes.szp.io.
+hkg0.nodes                  IN   CNAME      hkg0.nodes.szp.io.
+hkg1.nodes                  IN   CNAME      hkg1.nodes.szp.io.
+sjc1.nodes                  IN   CNAME      sjc1.nodes.szp.io.
+lax0.nodes                  IN   CNAME      lax0.nodes.szp.io.

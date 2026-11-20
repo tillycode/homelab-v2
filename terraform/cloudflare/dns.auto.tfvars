@@ -7,7 +7,6 @@ zones = {
       firefly   = { name = "firefly", type = "CNAME", content = "hgh0.nodes.szp.io" }
       login     = { name = "login", type = "CNAME", content = "hgh0.nodes.szp.io" }
       mc        = { name = "mc", type = "CNAME", content = "hgh0.nodes.szp.io" }
-      tailnet   = { name = "tailnet", type = "CNAME", content = "hgh0.nodes.szp.io" }
       "@"       = { name = "@", type = "CNAME", content = "hgh0.nodes.szp.io" }
     }
   }

@@ -17,6 +17,7 @@ let
   peerAddresses = addresses (lib.filterAttrs (_: node: node.config.system.name != name) nodes);
   anycastAddress = "fdfe:3c59:ba97:1::2";
   zoneFile = ./szp15.com.zone;
+  zonePath = "${cfg.directory}/szp15.com";
 in
 {
   networking = {
@@ -26,13 +27,16 @@ in
     resolvconf.useLocalResolver = false;
   };
 
-  environment.etc."zones/szp15.com" = lib.mkIf isPrimary {
-    source = zoneFile;
+  systemd.tmpfiles.settings.bind = lib.mkIf isPrimary {
+    "${zonePath}"."f+" = {
+      user = "named";
+      group = "named";
+      argument = "$INCLUDE ${zoneFile}\n";
+    };
   };
 
   systemd.services.bind = lib.mkIf isPrimary {
-    reloadTriggers = [ config.environment.etc."zones/szp15.com".source ];
-    # The /etc symlink is only available at runtime, outside the build sandbox.
+    reloadTriggers = [ zoneFile ];
     preStart = lib.mkAfter ''
       ${lib.getExe' cfg.package "named-checkconf"} -z ${cfg.configFile}
     '';
@@ -56,7 +60,7 @@ in
     zones = {
       "szp15.com" = {
         master = isPrimary;
-        file = if isPrimary then "/etc/zones/szp15.com" else "${cfg.directory}/szp15.com";
+        file = zonePath;
         masters = lib.mkIf (!isPrimary) primaryAddresses;
         slaves = lib.mkIf isPrimary peerAddresses;
         extraConfig =
