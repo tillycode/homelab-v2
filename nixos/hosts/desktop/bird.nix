@@ -18,7 +18,6 @@
 
       protocol kernel kernel4 {
         metric 2048;
-        merge paths on;
         ipv4 {
           import none;
           export where source != RTS_DEVICE;
@@ -27,7 +26,6 @@
 
       protocol kernel kernel6 {
         metric 2048;
-        merge paths on;
         ipv6 sadr {
           import none;
           export filter {
