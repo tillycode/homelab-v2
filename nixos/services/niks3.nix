@@ -1,4 +1,7 @@
 { config, ... }:
+let
+  domain = "niks3.szp.io";
+in
 {
   services.niks3 = {
     enable = true;
@@ -15,14 +18,9 @@
     signKeyFiles = [ config.sops.secrets."niks3/sign-key".path ];
 
     cacheUrl = "https://cache.szp.io";
-    nginx = {
-      enable = true;
-      domain = "niks3.szp.io";
-    };
-
     oidc.providers.github = {
       issuer = "https://token.actions.githubusercontent.com";
-      audience = "https://niks3.szp.io";
+      audience = "https://${domain}";
       boundClaims.repository_owner = [ "tillycode" ];
     };
 
@@ -31,6 +29,9 @@
     #   audience = "https://niks3.szp.io";
     # };
   };
+
+  services.caddy.virtualHosts.${domain}.extraConfig =
+    "reverse_proxy ${config.services.niks3.httpAddr}";
 
   sops.secrets."niks3/s3-access-key" = {
     owner = "niks3";

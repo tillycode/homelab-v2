@@ -18,6 +18,11 @@ in
     ];
 
     ports = {
+      headscale = 40010;
+      headscale-metrics = 40011;
+
+      xray-upstream = 40100;
+
       niks3 = 50000;
 
       sing-box-api = 50010;

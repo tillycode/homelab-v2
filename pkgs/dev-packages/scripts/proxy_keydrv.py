@@ -104,7 +104,7 @@ class VLESSUser(BaseModel):
 
 class Handshake(BaseModel):
     server: str = "::1"
-    server_port: int = 40100
+    server_port: int
 
 
 class UTLS(BaseModel):
@@ -169,6 +169,7 @@ def urlsafe_b64encode_nopad(data: bytes) -> str:
 def generate_sing_box_server_config(
     source: Source,
     server_name: str,
+    port: int,
 ) -> SingBoxConfig:
     server = next(
         iter(server for server in source.servers if server.name == server_name)
@@ -188,7 +189,7 @@ def generate_sing_box_server_config(
                 tls=TLS(
                     server_name=server.server or server.name,
                     reality=Reality(
-                        handshake=Handshake(),
+                        handshake=Handshake(server_port=port),
                         private_key=urlsafe_b64encode_nopad(
                             generate_server_private_key(source.primary_key, server.name)
                         ),
@@ -217,7 +218,7 @@ class VLESSXrayInboundSettings(BaseModel):
 
 
 class XRayRealitySettings(BaseModel):
-    dest: str = "[::1]:40100"
+    dest: str
     xver: int = 0
     serverNames: list[str]
     privateKey: str
@@ -246,6 +247,7 @@ class XRayConfig(BaseModel):
 def generate_xray_server_config(
     source: Source,
     server_name: str,
+    port: int,
 ) -> XRayConfig:
     server = next(
         iter(server for server in source.servers if server.name == server_name)
@@ -266,6 +268,7 @@ def generate_xray_server_config(
                 ),
                 streamSettings=XRaySteamSettings(
                     realitySettings=XRayRealitySettings(
+                        dest=f"[::1]:{port}",
                         serverNames=[server.server or server.name],
                         privateKey=urlsafe_b64encode_nopad(
                             generate_server_private_key(source.primary_key, server.name)
@@ -428,6 +431,12 @@ def main() -> None:
         default="sing-box",
     )
     parser.add_argument(
+        "--port",
+        type=int,
+        help="port of the server",
+        default=40100,
+    )
+    parser.add_argument(
         "action",
         choices=["gen-primary-key", "gen-subscription", "gen-server", "gen-client"],
         help="mode of the operation",
@@ -457,14 +466,14 @@ def main() -> None:
                 case "sing-box":
                     print(
                         generate_sing_box_server_config(
-                            source, args.name
+                            source, args.name, args.port
                         ).model_dump_json(exclude_none=True)
                     )
                 case "xray":
                     print(
-                        generate_xray_server_config(source, args.name).model_dump_json(
-                            exclude_none=True
-                        )
+                        generate_xray_server_config(
+                            source, args.name, args.port
+                        ).model_dump_json(exclude_none=True)
                     )
                 case _:
                     raise ValueError(f"Invalid format: {args.format}")

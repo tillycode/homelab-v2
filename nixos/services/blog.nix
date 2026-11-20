@@ -1,24 +1,23 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
     ./_proxy-subscriptions.nix
   ];
-  services.nginx.virtualHosts."szp15.com" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      root = "/var/www/blog";
-      tryFiles = "$uri $uri/ =404";
-    };
-    locations."/subscription/" = {
-      root = "/var/lib/proxy-subscriptions";
-      tryFiles = "$uri $uri/ =404";
-    };
-    extraConfig = ''
-      index index.html;
-      error_page 404 /404.html;
-    '';
-  };
+
+  services.caddy.virtualHosts."szp15.com".extraConfig = ''
+    root /var/www/blog
+    encode zstd gzip
+
+    file_server /subscription/* {
+      root /var/lib/proxy-subscriptions
+    }
+    file_server
+
+    handle_errors 404 {
+      rewrite /404.html
+      file_server
+    }
+  '';
 
   preservation.preserveAt.default.directories = [
     {
@@ -39,5 +38,5 @@
     shell = pkgs.bash;
   };
   users.groups.blog = { };
-  users.users.nginx.extraGroups = [ "blog" ];
+  users.users.${config.services.caddy.user}.extraGroups = [ "blog" ];
 }

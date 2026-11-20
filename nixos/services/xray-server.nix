@@ -4,10 +4,32 @@
   lib,
   ...
 }:
+let
+  domain = "${config.system.name}.eh578599.xyz";
+  port = config.ports.xray-upstream;
+in
 {
-  imports = [
-    ./_proxy-upstream.nix
-  ];
+  services.caddy = {
+    httpsPort = port;
+    globalConfig = ''
+      default_bind ::1
+      auto_https disable_redirects
+      cert_issuer acme {
+        disable_tlsalpn_challenge
+      }
+      servers {
+        protocols h1 h2
+      }
+    '';
+    virtualHosts = {
+      "http://".extraConfig = ''
+        bind ""
+        redir https://{host}{uri} permanent
+      '';
+      ${domain}.extraConfig = "respond 404";
+    };
+  };
+
   ## ---------------------------------------------------------------------------
   ## CONFIGURATION
   ## ---------------------------------------------------------------------------
@@ -64,6 +86,8 @@
       "xray"
       "--name"
       config.system.name
+      "--port"
+      (toString port)
     ];
     input = "proxy/settings.yaml";
   };

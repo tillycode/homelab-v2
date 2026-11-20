@@ -99,10 +99,10 @@ let
         services.bind
         services.bird
         services.blog
+        services.caddy
         services.haproxy
         services.headscale
         services.ipsec
-        services.nginx
         services.sing-box
         services.unbound
         system.disko
@@ -113,18 +113,18 @@ let
         hosts.sjc1
         networking.forwarding
         services.bird
+        services.caddy
         services.ipsec
         services.postgresql
         services.niks3
-        services.nginx
         system.disko
       ];
       nixos.lax0 = suites.server ++ [
         hosts.lax0
         networking.forwarding
         services.bird
+        services.caddy
         services.ipsec
-        services.nginx
         services.xray-server
         system.disko
       ];
@@ -132,8 +132,8 @@ let
         hosts.hkg0
         networking.forwarding
         services.bird
+        services.caddy
         services.ipsec
-        services.nginx
         services.xray-server
         system.disko
       ];
@@ -141,8 +141,8 @@ let
         hosts.hkg1
         networking.forwarding
         services.bird
+        services.caddy
         services.ipsec
-        services.nginx
         services.xray-server
         system.disko
       ];

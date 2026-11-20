@@ -19,7 +19,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      Group = "nginx";
+      Group = config.services.caddy.group;
       StateDirectory = "proxy-subscriptions";
     };
   };

@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   domain = "tailnet.szp15.com";
-  port = 40010;
-  metricsPort = 40011;
+  port = config.ports.headscale;
+  metricsPort = config.ports.headscale-metrics;
   jsonFormat = pkgs.formats.json { };
 in
 {
@@ -60,12 +60,10 @@ in
     }
   ];
 
-  services.nginx.virtualHosts."${domain}" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://[::1]:${toString port}";
-      proxyWebsockets = true;
-    };
-  };
+  services.caddy.virtualHosts.${domain}.extraConfig = ''
+    reverse_proxy [::1]:${toString port} {
+      header_up True-Client-IP {remote_host}
+      header_up X-Real-IP {remote_host}
+    }
+  '';
 }

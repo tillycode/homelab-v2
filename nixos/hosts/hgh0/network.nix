@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   systemd.network.networks."40-ens7" = {
     name = "ens7";
@@ -29,8 +34,7 @@
   };
   profiles.haproxy.netns = "ens7";
 
-  services.nginx.defaultListenAddresses = [
-    "10.112.33.1"
-    "[2408:4005:3c4:a40:d5b6:55ed:95b4:4eed]"
-  ];
+  services.caddy.globalConfig = lib.mkIf (!config.services.xray.enable) ''
+    default_bind 10.112.33.1 [2408:4005:3c4:a40:d5b6:55ed:95b4:4eed]
+  '';
 }
