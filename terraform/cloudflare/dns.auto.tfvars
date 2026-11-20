@@ -1,25 +1,23 @@
 zones = {
   "szp15.com" = {
     records = {
-      hgh0_a    = { name = "hgh0", type = "A", content = "47.96.145.133" }
-      hgh0_aaaa = { name = "hgh0", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
-      cache     = { name = "cache", type = "CNAME", content = "hgh0.szp15.com" }
-      file      = { name = "file", type = "CNAME", content = "hgh0.szp15.com" }
+      cache     = { name = "cache", type = "CNAME", content = "hgh0.nodes.szp.io" }
+      file      = { name = "file", type = "CNAME", content = "hgh0.nodes.szp.io" }
       downloads = { name = "downloads", type = "CNAME", content = "szpio-cloudreve-storage.oss-cn-hangzhou.aliyuncs.com" }
-      firefly   = { name = "firefly", type = "CNAME", content = "hgh0.szp15.com" }
-      login     = { name = "login", type = "CNAME", content = "hgh0.szp15.com" }
-      mc        = { name = "mc", type = "CNAME", content = "hgh0.szp15.com" }
-      tailnet   = { name = "tailnet", type = "CNAME", content = "hgh0.szp15.com" }
-      "@"       = { name = "@", type = "CNAME", content = "hgh0.szp15.com" }
+      firefly   = { name = "firefly", type = "CNAME", content = "hgh0.nodes.szp.io" }
+      login     = { name = "login", type = "CNAME", content = "hgh0.nodes.szp.io" }
+      mc        = { name = "mc", type = "CNAME", content = "hgh0.nodes.szp.io" }
+      tailnet   = { name = "tailnet", type = "CNAME", content = "hgh0.nodes.szp.io" }
+      "@"       = { name = "@", type = "CNAME", content = "hgh0.nodes.szp.io" }
     }
   }
 
+  # Used merely for xray
   "eh578599.xyz" = {
     records = {
       hkg0      = { name = "hkg0", type = "A", content = "87.83.107.23" }
       hkg0_aaaa = { name = "hkg0", type = "AAAA", content = "2401:f460:1073:817c::1" }
       hkg1      = { name = "hkg1", type = "A", content = "194.104.147.179" }
-      sjc0      = { name = "sjc0", type = "A", content = "185.218.6.162" }
       sjc1      = { name = "sjc1", type = "A", content = "185.218.5.211" }
       lax0      = { name = "lax0", type = "A", content = "209.209.59.219" }
     }
@@ -41,9 +39,21 @@ zones = {
         type    = "TXT",
         content = "\"v=DMARC1; p=quarantine; pct=100; ruf=mailto:me@szp.io; rua=mailto:me@szp.io\""
       }
-      "niks3"         = { name = "niks3", type = "CNAME", content = "sjc1.eh578599.xyz" }
+      "niks3" = { name = "niks3", type = "CNAME", content = "sjc1.eh578599.xyz" }
+
       hgh0_nodes_a    = { name = "hgh0.nodes", type = "A", content = "47.96.145.133" }
       hgh0_nodes_aaaa = { name = "hgh0.nodes", type = "AAAA", content = "2408:4005:3c4:a40:d5b6:55ed:95b4:4eed" }
+
+      hkg0_nodes_a    = { name = "hkg0.nodes", type = "A", content = "87.83.107.23" }
+      hkg0_nodes_aaaa = { name = "hkg0.nodes", type = "AAAA", content = "2401:f460:1073:817c::1" }
+
+      hkg1_nodes_a    = { name = "hkg1.nodes", type = "A", content = "194.104.147.179" }
+      hkg1_nodes_aaaa = { name = "hkg1.nodes", type = "AAAA", content = "2407:b9c0:f001:240:5054:ff:fe42:a628" }
+
+      lax0_nodes_a    = { name = "lax0.nodes", type = "A", content = "209.209.59.219" }
+      lax0_nodes_aaaa = { name = "lax0.nodes", type = "AAAA", content = "2a0e:6901:1b0:2a4:26a3:f0ff:fe47:4bd" }
+
+      sjc1_nodes_a = { name = "sjc1.nodes", type = "A", content = "185.218.5.211" }
     }
   }
 }

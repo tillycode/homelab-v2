@@ -18,24 +18,25 @@ let
     };
     sjc1 = {
       id = 2;
-      endpoint = [ "sjc1.eh578599.xyz" ];
+      endpoint = [ "sjc1.nodes.szp.io" ];
       region = "global";
+      ipv4Only = true;
     };
     lax0 = {
       id = 3;
-      endpoint = [ "lax0.eh578599.xyz" ];
+      endpoint = [ "lax0.nodes.szp.io" ];
       region = "global";
       crossRegionVIP = "fd57:b9d9:4a63::1";
     };
     hkg0 = {
       id = 4;
-      endpoint = [ "hkg0.eh578599.xyz" ];
+      endpoint = [ "hkg0.nodes.szp.io" ];
       region = "global";
       # crossRegionVIP = "fd57:b9d9:4a63::2";
     };
     hkg1 = {
       id = 5;
-      endpoint = [ "hkg1.eh578599.xyz" ];
+      endpoint = [ "hkg1.nodes.szp.io" ];
       region = "global";
       crossRegionVIP = "fd57:b9d9:4a63::3";
     };
@@ -96,12 +97,12 @@ let
               lib.escapeShellArg (if crossRegion then "cross-" else "mesh-")
             } --mtu 1400";
             set_mark_in = "0/0xffffffff";
-            set_mark_out = if crossRegion then "0x2023" else "0x2024";
+            set_mark_out = "0x2024";
           };
         };
       };
     in
-    {
+    lib.optionalAttrs (crossRegion || !(peer.ipv4Only or false) && !(self.ipv4Only or false)) {
       "${peerName}-v6" = mkSingleStackConnection "6";
     }
     // lib.optionalAttrs (!crossRegion) {
