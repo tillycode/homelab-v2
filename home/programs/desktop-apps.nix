@@ -29,6 +29,8 @@
     freecad
     gimp
     feishu
+    birdtray
+    thunderbird
 
     # utilities
     blueman
