@@ -18,6 +18,7 @@
     protocol kernel kernel4 {
       learn;
       metric 2048;
+      merge paths on;
       ipv4 {
         import where net = 0.0.0.0/0;
         export where source != RTS_DEVICE;
@@ -27,6 +28,7 @@
     protocol kernel kernel6 {
       learn;
       metric 2048;
+      merge paths on;
       ipv6 sadr {
         import where net.dst = ::/0 && net.src = ::/0;
         export filter {
