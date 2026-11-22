@@ -57,6 +57,20 @@
     };
 
   flake.overlays.fixups = final: prev: {
+    bird3 = prev.bird3.overrideAttrs (oldAttrs: {
+      patches = oldAttrs.patches or [ ] ++ [
+        # see https://trubka.network.cz/archives/list/bird-users@network.cz/thread/JDYJ2ZNHDJQY3HC7CPGYTT37L4SQ6IEM/
+        (final.fetchpatch {
+          url = "https://gitlab.nic.cz/labs/bird/-/commit/f6b9ad8be0b2f6eca29cf4b8967fb52dae55a69d.patch";
+          hash = "sha256-B8c+nLdPSUoSpkJNmMELLiDG4CbYrFFvUW4G5AwlHSs=";
+        })
+        (final.fetchpatch {
+          url = "https://gitlab.nic.cz/labs/bird/-/commit/082108137526e63bdbd447cddbf949b9ba7461d3.patch";
+          decode = "sed 's/SKIP_BACK(const struct rt_pending_export/SKIP_BACK(struct rt_pending_export/'";
+          hash = "sha256-tS/+UrYRAzxvZ2bq+odgNT3/eQ1hSzypnKP68rLOQ+M=";
+        })
+      ];
+    });
     frr = prev.frr.overrideAttrs (oldAttrs: {
       patches = oldAttrs.patches or [ ] ++ [
         # fix systemd compatibility issue
