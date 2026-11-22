@@ -32,6 +32,7 @@ let
       suites.hasee = suites.server ++ [
         hosts.hasee
         config.cn-dns
+        networking.net-svc
         programs.stress-cli
         services.ntp-home
         system.disko
@@ -78,6 +79,7 @@ let
       nixos.desktop = suites.desktop ++ [
         hosts.desktop
         config.cn-dns
+        networking.net-svc
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [

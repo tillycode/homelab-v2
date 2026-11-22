@@ -2,45 +2,16 @@
   systemd.network.links = {
     "10-eth0" = {
       matchConfig.Path = "pci-0000:07:00.0";
-      linkConfig.Name = "eno1";
+      linkConfig.Name = "svc";
     };
     "10-enp1s0" = {
       matchConfig.Path = "pci-0000:06:00.0";
       linkConfig.Name = "enp1s0";
     };
   };
-  networking.vlans = {
-    svc = {
-      id = 4;
-      interface = "eno1";
-    };
-  };
-  systemd.network.networks."40-eno1" = {
-    linkConfig.MTUBytes = 9000;
-    networkConfig.IPv6AcceptRA = false;
-  };
-  systemd.network.networks."40-svc" = {
-    matchConfig.Name = "svc";
-    linkConfig.MTUBytes = 9000;
-    networkConfig.IPv6AcceptRA = false;
-  };
-  systemd.network.networks."40-wlan0" = {
-    matchConfig.Name = "wlan0";
-    DHCP = "yes";
-    dhcpV4Config = {
-      RoutesToDNS = false;
-      RouteMetric = 1025;
-    };
-    ipv6AcceptRAConfig.RouteMetric = 1025;
-  };
+
   networking.hosts."10.112.8.1" = [
     "router.nodes.szp15.com"
     "router"
   ];
-
-  # same as hasee/network.nix tricks
-  systemd.network.networks."40-svc".networkConfig = {
-    DNS = "fe80::1";
-    DNSDefaultRoute = false;
-  };
 }

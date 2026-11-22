@@ -2,10 +2,6 @@ site_name: Homelab Documentation
 nav:
   - Designs And Guidelines:
       - index.md
-  - SOP:
-      - sop/rke2-hasee.md
-  - Registry:
-      - registry/ip-and-asn-allocation.md
 theme:
   name: material
   features:

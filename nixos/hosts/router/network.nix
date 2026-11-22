@@ -123,16 +123,7 @@
       }
     ];
   };
-  networking.vip = [
-    "10.112.35.1/32"
-    "10.112.35.2/32"
-  ];
-  services.resolved.settings.Resolve = {
-    DNSStubListenerExtra = [
-      "10.112.35.1"
-      "10.112.35.2"
-    ];
-  };
+
   services.fail2ban.ignoreIP = [
     "10.112.8.5" # desktop
   ];
