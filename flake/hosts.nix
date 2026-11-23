@@ -115,7 +115,9 @@ let
 
       nixos.sjc1 = suites.server ++ [
         hosts.sjc1
+        config.global-dns
         networking.forwarding
+        services.bind
         services.bird
         services.caddy
         services.ipsec
@@ -126,6 +128,7 @@ let
       nixos.lax0 = suites.server ++ [
         hosts.lax0
         networking.forwarding
+        config.global-dns
         services.bird
         services.caddy
         services.ipsec
@@ -134,6 +137,7 @@ let
       ];
       nixos.hkg0 = suites.server ++ [
         hosts.hkg0
+        config.global-dns
         networking.forwarding
         services.bird
         services.caddy
@@ -143,6 +147,7 @@ let
       ];
       nixos.hkg1 = suites.server ++ [
         hosts.hkg1
+        config.global-dns
         networking.forwarding
         services.bird
         services.caddy
