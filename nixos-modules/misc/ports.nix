@@ -27,6 +27,8 @@ in
 
       sing-box-api = 50010;
       sing-box-clash-api = 50011;
+      sing-box-redirect = 50012;
+      sing-box-dns = 50013;
     };
   };
 }

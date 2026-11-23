@@ -1,0 +1,133 @@
+diff --git a/redirect_linux.go b/redirect_linux.go
+index dd8c61f..9dc0f0e 100644
+--- a/redirect_linux.go
++++ b/redirect_linux.go
+@@ -146,8 +146,10 @@ func (r *autoRedirect) Start() error {
+ 	}
+ 	if r.customRedirectPortFunc != nil {
+ 		r.customRedirectPort = r.customRedirectPortFunc()
++	} else if r.tunOptions.AutoRedirectPort != 0 {
++		r.customRedirectPort = int(r.tunOptions.AutoRedirectPort)
+ 	}
+-	if r.customRedirectPort == 0 {
++	{
+ 		var listenAddr netip.Addr
+ 		if runtime.GOOS == "android" {
+ 			listenAddr = netip.AddrFrom4([4]byte{127, 0, 0, 1})
+@@ -156,7 +158,7 @@ func (r *autoRedirect) Start() error {
+ 		} else {
+ 			listenAddr = netip.IPv4Unspecified()
+ 		}
+-		server := newRedirectServer(r.ctx, r.handler, r.logger, listenAddr)
++		server := newRedirectServer(r.ctx, r.handler, r.logger, listenAddr, uint16(r.customRedirectPort))
+ 		err = runInNetworkNamespace(r.tunOptions.NetNs, server.Start)
+ 		if err != nil {
+ 			return E.Cause(err, "start redirect server")
+@@ -198,6 +200,9 @@ func (r *autoRedirect) Start() error {
+ 			r.ownedNetworkMonitor = true
+ 		}
+ 		err = runInNetworkNamespace(r.tunOptions.NetNs, func() error {
++			if r.tunOptions.DisableNetfilterSetup {
++				return nil
++			}
+ 			r.cleanupNFTables()
+ 			setupErr := r.setupNFTables()
+ 			if setupErr != nil {
+@@ -231,6 +236,9 @@ func (r *autoRedirect) Close() error {
+ 	}
+ 	if r.useNFTables {
+ 		_ = runInNetworkNamespace(r.tunOptions.NetNs, func() error {
++			if r.tunOptions.DisableNetfilterSetup {
++				return nil
++			}
+ 			r.cleanupNFTables()
+ 			r.cleanupRedirectRoutes()
+ 			return nil
+@@ -248,6 +256,9 @@ func (r *autoRedirect) Close() error {
+ 
+ func (r *autoRedirect) UpdateRouteAddressSet() {
+ 	if r.useNFTables {
++		if r.tunOptions.DisableNetfilterSetup {
++			return
++		}
+ 		err := runInNetworkNamespace(r.tunOptions.NetNs, r.nftablesUpdateRouteAddressSet)
+ 		if err != nil {
+ 			r.logger.Error("update route address set: ", err)
+diff --git a/redirect_server.go b/redirect_server.go
+index 1f138ec..11e38c6 100644
+--- a/redirect_server.go
++++ b/redirect_server.go
+@@ -22,16 +22,18 @@ type redirectServer struct {
+ 	handler    N.TCPConnectionHandlerEx
+ 	logger     logger.Logger
+ 	listenAddr netip.Addr
++	listenPort uint16
+ 	listener   *net.TCPListener
+ 	inShutdown atomic.Bool
+ }
+ 
+-func newRedirectServer(ctx context.Context, handler N.TCPConnectionHandlerEx, logger logger.Logger, listenAddr netip.Addr) *redirectServer {
++func newRedirectServer(ctx context.Context, handler N.TCPConnectionHandlerEx, logger logger.Logger, listenAddr netip.Addr, listenPort uint16) *redirectServer {
+ 	return &redirectServer{
+ 		ctx:        ctx,
+ 		handler:    handler,
+ 		logger:     logger,
+ 		listenAddr: listenAddr,
++		listenPort: listenPort,
+ 	}
+ }
+ 
+@@ -39,7 +41,7 @@ func (s *redirectServer) Start() error {
+ 	var listenConfig net.ListenConfig
+ 	// listenConfig.KeepAlive = C.TCPKeepAliveInitial
+ 	listenConfig.KeepAlive = 10 * time.Minute
+-	listener, err := listenConfig.Listen(s.ctx, M.NetworkFromNetAddr("tcp", s.listenAddr), M.SocksaddrFrom(s.listenAddr, 0).String())
++	listener, err := listenConfig.Listen(s.ctx, M.NetworkFromNetAddr("tcp", s.listenAddr), M.SocksaddrFrom(s.listenAddr, s.listenPort).String())
+ 	if err != nil {
+ 		return err
+ 	}
+diff --git a/tun.go b/tun.go
+index 875811f..7216506 100644
+--- a/tun.go
++++ b/tun.go
+@@ -110,6 +110,9 @@ type Options struct {
+ 	FileDescriptor                        int
+ 	Logger                                logger.Logger
+ 
++	AutoRedirectPort      uint16
++	DisableNetfilterSetup bool
++
+ 	// No work for TCP, do not use.
+ 	_TXChecksumOffload bool
+ 
+diff --git a/tun_linux.go b/tun_linux.go
+index 9f9e1f3..00b257b 100644
+--- a/tun_linux.go
++++ b/tun_linux.go
+@@ -324,7 +324,7 @@ func (t *NativeTun) start() error {
+ 		return E.Cause(err, "set tun up")
+ 	}
+ 
+-	if t.options.EXP_ExternalConfiguration {
++	if t.options.EXP_ExternalConfiguration || t.options.DisableNetfilterSetup {
+ 		return nil
+ 	}
+ 
+@@ -376,7 +376,7 @@ func (t *NativeTun) Close() error {
+ 	if t.interfaceCallback != nil {
+ 		t.options.InterfaceMonitor.UnregisterCallback(t.interfaceCallback)
+ 	}
+-	if t.options.EXP_ExternalConfiguration {
++	if t.options.EXP_ExternalConfiguration || t.options.DisableNetfilterSetup {
+ 		return common.Close(common.PtrOrNil(t.tunFile))
+ 	}
+ 	if t.options.DNSModeOrDefault() != DNSModeDisabled && t.options.NetNs == "" {
+@@ -625,7 +625,7 @@ func prefixToIPNet(prefix netip.Prefix) *net.IPNet {
+ func (t *NativeTun) UpdateRouteOptions(tunOptions Options) error {
+ 	if t.options.FileDescriptor > 0 {
+ 		return nil
+-	} else if t.options.EXP_ExternalConfiguration {
++	} else if t.options.EXP_ExternalConfiguration || t.options.DisableNetfilterSetup {
+ 		t.options = tunOptions
+ 		return nil
+ 	} else if !t.options.AutoRoute {

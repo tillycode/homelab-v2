@@ -1,0 +1,28 @@
+diff --git a/option/tun.go b/option/tun.go
+index aa959c5b1..b1ef55b66 100644
+--- a/option/tun.go
++++ b/option/tun.go
+@@ -53,6 +53,9 @@ type TunInboundOptions struct {
+ 	Platform                      *TunPlatformOptions              `json:"platform,omitempty"`
+ 	InboundOptions
+ 
++	AutoRedirectPort      uint16 `json:"auto_redirect_port,omitempty"`
++	DisableNetfilterSetup bool   `json:"disable_netfilter_setup,omitempty"`
++
+ 	// Deprecated: removed
+ 	GSO bool `json:"gso,omitempty" schema:"omit"`
+ 	// Deprecated: merged to Address
+diff --git a/protocol/tun/inbound.go b/protocol/tun/inbound.go
+index 231e88fec..bf085fb75 100644
+--- a/protocol/tun/inbound.go
++++ b/protocol/tun/inbound.go
+@@ -232,6 +232,9 @@ func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLo
+ 			InterfaceMonitor:                      networkManager.InterfaceMonitor(),
+ 			Logger:                                logger,
+ 			EXP_MultiPendingPackets:               multiPendingPackets,
++
++			AutoRedirectPort:      options.AutoRedirectPort,
++			DisableNetfilterSetup: options.DisableNetfilterSetup,
+ 		},
+ 		udpTimeout:           udpTimeout,
+ 		udpMapping:           tun.NATMapping(options.UDPMapping),

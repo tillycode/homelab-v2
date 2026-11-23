@@ -141,6 +141,17 @@
   ## NAT AND FIREWALL
   ## ---------------------------------------------------------------------------
 
+  profiles.sing-box = {
+    hijackDNSAddresses = [
+      "fdfe:3c59:ba97:1::1"
+      "192.168.23.1"
+    ];
+    proxyInterfaces = [
+      "lan"
+      "svc"
+    ];
+  };
+
   networking.nat = {
     enable = true;
     externalInterface = "ppp0";
