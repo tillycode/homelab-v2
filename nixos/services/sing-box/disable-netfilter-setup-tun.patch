@@ -101,10 +101,18 @@ index 875811f..7216506 100644
  	_TXChecksumOffload bool
  
 diff --git a/tun_linux.go b/tun_linux.go
-index 9f9e1f3..00b257b 100644
+index 9f9e1f3..1ab7973 100644
 --- a/tun_linux.go
 +++ b/tun_linux.go
-@@ -324,7 +324,7 @@ func (t *NativeTun) start() error {
+@@ -148,6 +148,7 @@ func (t *NativeTun) configure(tunLink netlink.Link) error {
+ 		if len(t.options.Inet6Address) > 0 {
+ 			for _, address := range t.options.Inet6Address {
+ 				addr6, _ := netlink.ParseAddr(address.String())
++				addr6.Flags |= unix.IFA_F_NODAD
+ 				err = netlink.AddrAdd(tunLink, addr6)
+ 				if err != nil && !errors.Is(err, unix.EEXIST) {
+ 					return E.Cause(err, "add address ", address)
+@@ -324,7 +325,7 @@ func (t *NativeTun) start() error {
  		return E.Cause(err, "set tun up")
  	}
  
@@ -113,7 +121,7 @@ index 9f9e1f3..00b257b 100644
  		return nil
  	}
  
-@@ -376,7 +376,7 @@ func (t *NativeTun) Close() error {
+@@ -376,7 +377,7 @@ func (t *NativeTun) Close() error {
  	if t.interfaceCallback != nil {
  		t.options.InterfaceMonitor.UnregisterCallback(t.interfaceCallback)
  	}
@@ -122,7 +130,7 @@ index 9f9e1f3..00b257b 100644
  		return common.Close(common.PtrOrNil(t.tunFile))
  	}
  	if t.options.DNSModeOrDefault() != DNSModeDisabled && t.options.NetNs == "" {
-@@ -625,7 +625,7 @@ func prefixToIPNet(prefix netip.Prefix) *net.IPNet {
+@@ -625,7 +626,7 @@ func prefixToIPNet(prefix netip.Prefix) *net.IPNet {
  func (t *NativeTun) UpdateRouteOptions(tunOptions Options) error {
  	if t.options.FileDescriptor > 0 {
  		return nil
