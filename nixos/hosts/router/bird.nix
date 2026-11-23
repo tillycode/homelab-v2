@@ -30,7 +30,7 @@
       metric 2048;
       merge paths on;
       ipv6 sadr {
-        import where net.dst = ::/0 && net.src = ::/0;
+        import none;
         export filter {
           if source = RTS_DEVICE then
             reject;

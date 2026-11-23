@@ -134,7 +134,18 @@
   systemd.network.networks."40-svc" = {
     matchConfig.Name = "svc";
     linkConfig.MTUBytes = 9000;
-    networkConfig.IPv6AcceptRA = false;
+    networkConfig = {
+      IPv6AcceptRA = false;
+      DHCPPrefixDelegation = true;
+      IPv6SendRA = true;
+    };
+    dhcpPrefixDelegationConfig = {
+      UplinkInterface = "ppp0";
+      Announce = true;
+      Assign = true;
+      Token = "static:::1";
+      SubnetId = "1";
+    };
   };
 
   ## ---------------------------------------------------------------------------
