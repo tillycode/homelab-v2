@@ -95,7 +95,10 @@ in
           {
             type = "api";
             listen_port = config.ports.sing-box-api;
-            dashboard.enabled = true;
+            dashboard = {
+              enabled = true;
+              path = "${pkgs.sing-box-dashboard}";
+            };
           }
         ];
         dns = {

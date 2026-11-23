@@ -23,6 +23,9 @@
         assert lib.assertMsg (lib.versionOlder prev.sing-box.version "1.14.0")
           "sing-box is updated in the upstream";
         callPackage (unstable + "/pkgs/by-name/si/sing-box/package.nix") { };
+      sing-box-dashboard =
+        assert lib.assertMsg (!prev ? sing-box-dashboard) "sing-box-dashboard is added in the upstream";
+        callPackage (unstable + "/pkgs/by-name/si/sing-box-dashboard/package.nix") { };
       cronet-go = callPackage (unstable + "/pkgs/by-name/cr/cronet-go/package.nix") {
         gn = callPackage (unstable + "/pkgs/by-name/gn/gn/package.nix") { };
       };
