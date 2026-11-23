@@ -1,4 +1,9 @@
 {
+  profiles.bird = {
+    wiredInterfaces = [ "svc" ];
+    enableMesh = false;
+  };
+
   systemd.network.links = {
     "10-eth0" = {
       matchConfig.Path = "pci-0000:07:00.0";

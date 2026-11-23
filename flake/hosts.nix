@@ -34,6 +34,7 @@ let
         config.cn-dns
         networking.net-svc
         programs.stress-cli
+        services.bird
         services.ntp-home
         system.disko
         system.systemd-boot
@@ -67,6 +68,7 @@ let
         networking.discard-routes
         networking.forwarding
         services.bind
+        services.bird
         services.chrony
         services.cloudflare-ddns
         services.fail2ban
@@ -80,6 +82,7 @@ let
         hosts.desktop
         config.cn-dns
         networking.net-svc
+        services.bird
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [
