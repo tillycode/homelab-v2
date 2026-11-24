@@ -80,8 +80,12 @@ async def evaluation(
             out_link,
             *args,
         )
-        with open(out_link) as f:
-            data = json.load(f)
+
+        def _read_json(path: str) -> Any:
+            with open(path) as f:
+                return json.load(f)
+
+        data = await asyncio.to_thread(lambda: _read_json(out_link))
     else:
         output = await run(
             "nix-instantiate",
@@ -103,7 +107,7 @@ async def evaluation(
 
 
 @contextlib.asynccontextmanager
-async def make_worktree() -> AsyncGenerator[tuple[str, str], None]:
+async def make_worktree() -> AsyncGenerator[tuple[str, str]]:
     with tempfile.TemporaryDirectory() as wt:
         branch_name = f"update-{os.path.basename(wt)}"
         target_directory = f"{wt}/flake"
@@ -230,8 +234,7 @@ async def update_worker(
                     "UPDATE_NIX_NAME": package.name,
                     "UPDATE_NIX_PNAME": package.pname,
                     "UPDATE_NIX_OLD_VERSION": package.version,
-                    # maybe we need to escape the dots?
-                    "UPDATE_NIX_ATTR_PATH": ".".join(package.attrPath),
+                    "UPDATE_NIX_ATTR_PATH": "/".join(package.attrPath),
                 },
                 cwd=worktree,
             )
