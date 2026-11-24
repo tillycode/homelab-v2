@@ -11,6 +11,7 @@ let
       suites.base = [
         config.acme
         config.bbr
+        config.ca
         config.home-manager
         config.nix-cache
         config.preservation
@@ -76,6 +77,7 @@ let
         services.ipsec
         services.openbao
         services.sing-box
+        services.spire-server
         services.tpm2-pkcs11
         services.unbound
         system.disko

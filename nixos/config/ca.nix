@@ -24,8 +24,8 @@
   #   bao secrets enable -path=pki pki
   #   bao secrets tune -max-lease-ttl=26280h pki
   #   bao write pki/config/cluster \
-  #     path="https://openbao.szp15.com" \
-  #     aia_path="https://openbao.szp15.com"
+  #     path="https://openbao.szp15.com/v1/pki" \
+  #     aia_path="https://openbao.szp15.com/v1/pki"
   #   bao write pki/config/urls \
   #     enable_templating=true \
   #     issuing_certificates="{{cluster_aia_path}}/issuer/{{issuer_id}}/der" \
@@ -38,6 +38,22 @@
   #   # 2 pin entries, then 1 touch
   #   step certificate sign --profile intermediate-ca --not-after 26280h pki-int.csr root-a.crt 'yubikey:slot-id=9c?pin-prompt=true' > pki-int.crt
   #   bao write /pki/intermediate/set-signed certificate=@pki-int.crt
+  #
+  #   bao write pki/config/crl auto_rebuild=true enable_delta=true
+  #   bao write pki/config/auto-tidy \
+  #     enabled=true \
+  #     tidy_cert_store=true \
+  #     tidy_revoked_certs=true \
+  #     tidy_acme=true
+  #
+  #
+  # To enable ACME
+  #
+  #   bao secrets tune \
+  #     -allowed-response-headers=Replay-Nonce \
+  #     -allowed-response-headers=Link \
+  #     -allowed-response-headers=Location pki/
+  #   bao write pki/config/acme enabled=true eab_policy=always-required
   security.pki.certificateFiles = [
     ./ca.crt
   ];
