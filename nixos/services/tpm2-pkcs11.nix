@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   security.tpm2 = {
     enable = true;
@@ -13,7 +13,7 @@
     tpm2-tools
   ];
   environment.variables.TPM2_PKCS11_STORE = "/var/lib/tpm2_pkcs11";
-  environment.shellAliases.tpm2pkcs11-tool = "pkcs11-tool --module ${pkgs.tpm2-pkcs11}/lib/libtpm2_pkcs11.so";
+  environment.shellAliases.tpm2pkcs11-tool = "pkcs11-tool --module ${config.security.tpm2.pkcs11.package}/lib/libtpm2_pkcs11.so";
 
   preservation.preserveAt.default.directories = [
     {

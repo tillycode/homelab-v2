@@ -20,14 +20,14 @@ in
   imports = [
     (unstable + "/nixos/modules/services/security/openbao.nix")
   ];
-  # Provision the TPM2 PKCS#11 module and tools
+  # Provision the OpenBao unseal key backed by TPM2 PKCS#11
   #
   #   tpm2 clear
-  #   pkcs11-tool --slot-index=0 --init-token --label=OpenBao
-  #   pkcs11-tool --slot-index=0 --init-pin --login
-  #   pkcs11-tool --slot-index=0 --keypairgen --login --label bao-unseal-01 --key-type RSA:2048
-  #
-  #   BAO_ADDR=https://openbao.szp15.com bao operator init -recovery-shares=1 -recovery-threshold=1
+  #   tpm2pkcs11-tool --slot-index=0 --init-token --label=OpenBao
+  #   tpm2pkcs11-tool --token-label=OpenBao --init-pin --login
+  #   tpm2pkcs11-tool --token-label=OpenBao --keypairgen --login --label bao-unseal-01 --key-type RSA:2048
+  #   export BAO_ADDR=https://openbao.szp15.com
+  #   bao operator init -recovery-shares=1 -recovery-threshold=1
   services.openbao = {
     enable = true;
     plugins = with pkgs.openbaoPlugins; [
@@ -43,18 +43,22 @@ in
         cluster_address = "[${config.networking.ipv6Address}]:${toString config.ports.openbao-cluster}";
         tls_cert_file = "${certDirectory}/fullchain.pem";
         tls_key_file = "${certDirectory}/key.pem";
+        tls_auto_reload = true;
       };
       storage.raft = {
         path = "/var/lib/openbao";
         node_id = config.system.name;
       };
       seal.pkcs11 = {
-        lib = "${pkgs.tpm2-pkcs11}/lib/libtpm2_pkcs11.so";
+        lib = "tpm2";
         mechanism = "CKM_RSA_PKCS_OAEP";
         token_label = "OpenBao";
         key_label = "bao-unseal-01";
         pin._secret = config.sops.secrets."openbao/hsm-pin".path;
       };
+      plugin.kms.pkcs11.args = [
+        "-alias=tpm2=${config.security.tpm2.pkcs11.package}/lib/libtpm2_pkcs11.so"
+      ];
     };
   };
 
