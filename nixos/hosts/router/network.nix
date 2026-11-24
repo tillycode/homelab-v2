@@ -183,9 +183,9 @@
   # allow DHCP traffic from lan
   networking.firewall.extraInputRules = ''
     meta nfproto ipv4 iifname "lan" udp sport 68 udp dport 67 accept comment "DHCPv4 client"
-    iifname {"lan", "svc", "tailscale0", "mesh-*", "cross-*"} udp dport 53 accept
-    iifname {"lan", "svc", "tailscale0", "mesh-*", "cross-*"} tcp dport 53 accept
-    iifname {"svc", "mesh-*", "cross-*"} udp dport 6696 accept
+    iifname {"svc", "mesh-*", "cross-*"} accept
+    iifname "lan" udp dport 53 accept
+    iifname "lan" tcp dport 53 accept
   '';
 
   # allow traffic from lan to service and VM

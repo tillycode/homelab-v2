@@ -18,6 +18,22 @@
           ];
         });
 
+      pnpm_10 =
+        assert lib.assertMsg (lib.versionOlder prev.pnpm_10.version "10.34.7")
+          "pnpm_10 is updated in the upstream";
+        callPackage (unstable + "/pkgs/development/tools/pnpm/generic.nix") {
+          version = "10.34.7";
+          hash = "sha256-xyn2U44AXSNIiZEEZv0cTESv+wso6obZP8+IqhrvppQ=";
+          nodejs = null;
+        };
+      openbao =
+        assert lib.assertMsg (lib.versionOlder prev.openbao.version "2.7.0")
+          "OpenBao is updated in the upstream";
+        callPackage (unstable + "/pkgs/by-name/op/openbao/package.nix") { };
+      openbaoPlugins =
+        assert lib.assertMsg (!prev ? openbaoPlugins) "openbaoPlugins is added in the upstream";
+        callPackage (unstable + "/pkgs/by-name/op/openbao/plugins.nix") { };
+
       # Use sing-box from nixpkgs-unstable. See NixOS/nixpkgs#558400
       sing-box =
         assert lib.assertMsg (lib.versionOlder prev.sing-box.version "1.14.0")

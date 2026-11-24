@@ -9,6 +9,7 @@ let
   profiles = (self.lib.listModules ../nixos).extend (
     final: prev: with final; {
       suites.base = [
+        config.acme
         config.bbr
         config.home-manager
         config.nix-cache
@@ -73,7 +74,9 @@ let
         services.cloudflare-ddns
         services.fail2ban
         services.ipsec
+        services.openbao
         services.sing-box
+        services.tpm2-pkcs11
         services.unbound
         system.disko
         system.systemd-boot
