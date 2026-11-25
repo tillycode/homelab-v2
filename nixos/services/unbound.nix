@@ -3,6 +3,7 @@ let
   chinaZones = pkgs.runCommand "unbound-china.conf" { } ''
     cat ${pkgs.dnsmasq-china-list}/accelerated-domains.china.raw.txt \
         ${pkgs.dnsmasq-china-list}/apple.china.raw.txt \
+        ${pkgs.dnsmasq-china-list}/google.china.raw.txt \
       | LC_ALL=C sort -u \
       | sed -e 's|\(.*\)|forward-zone:\n  name: "\1."\n  forward-addr: 119.29.29.29\n  forward-addr: 223.5.5.5|' \
       > "$out"
