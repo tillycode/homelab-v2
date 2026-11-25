@@ -21,4 +21,5 @@ lib.makeScope (self: newScope (extra // self)) (self: {
   bbolt = self.callPackage ./bbolt.nix { };
   swan-updown = self.callPackage ./swan-updown.nix { };
   dnsmasq-china-list = self.callPackage ./dnsmasq-china-list.nix { };
+  spire-controller-manager = self.callPackage ./spire-controller-manager.nix { };
 })
