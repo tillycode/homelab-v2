@@ -46,67 +46,68 @@ let
     };
   };
 
-  mkConnection =
+  mkPeerTunnels =
     peerName: peer:
     let
       crossRegion = self.region != peer.region;
       initiatesPeer = initiates peer;
-      baseIfId = {
-        "4" = 1000;
-        "6" = 2000;
-      };
-      mkSingleStackConnection = ver: {
-        version = 2;
-        proposals = [ "aes128gcm16-prfsha256-curve25519" ];
-        encap = true;
-        mobike = false;
-        local_port = 4500;
-        remote_port = 4500;
-        keyingtries = 0;
-        dpd_delay = "30s";
-        local_addrs =
-          if crossRegion && initiatesPeer then [ config.networking.ipv6Address ] else [ "%any${ver}" ];
-        remote_addrs = if initiatesPeer then endpoint self peer else [ "%any${ver}" ];
-        local.host = {
-          auth = "pubkey";
-          id = "${selfName}.nodes.szp.io";
-          pubkeys = [ config.sops.secrets."ipsec/publicKeys/${selfName}".path ];
-        };
-        remote.peer = {
-          auth = "pubkey";
-          id = "${peerName}.nodes.szp.io";
-          pubkeys = [ config.sops.secrets."ipsec/publicKeys/${peerName}".path ];
-        };
-        children = {
-          "${peerName}-v${ver}-net" = {
-            esp_proposals = [ "aes128gcm16-curve25519" ];
-            local_ts = [
-              "0.0.0.0/0"
-              "::/0"
-            ];
-            remote_ts = [
-              "0.0.0.0/0"
-              "::/0"
-            ];
-            if_id_in = toString (baseIfId.${ver} + peer.id);
-            if_id_out = toString (baseIfId.${ver} + peer.id);
-            start_action = if initiatesPeer then "trap|start" else "none";
-            dpd_action = if initiatesPeer then "restart" else "clear";
-            close_action = if initiatesPeer then "start" else "none";
-            updown = "${lib.getExe pkgs.swan-updown} --prefix ${
-              lib.escapeShellArg (if crossRegion then "cross-" else "mesh-")
-            } --mtu 1400";
-            set_mark_in = "0/0xffffffff";
-            set_mark_out = "0x2024";
+      prefix = if crossRegion then "cross-" else "mesh-";
+      mkTunnel =
+        ver:
+        let
+          ifId = (if ver == "4" then 1000 else 2000) + peer.id;
+        in
+        {
+          inherit ifId;
+          interfaceName = "${prefix}${peerName}-v${ver}";
+          connection = {
+            version = 2;
+            proposals = [ "aes128gcm16-prfsha256-curve25519" ];
+            encap = true;
+            mobike = false;
+            local_port = 4500;
+            remote_port = 4500;
+            keyingtries = 0;
+            dpd_delay = "30s";
+            local_addrs =
+              if crossRegion && initiatesPeer then [ config.networking.ipv6Address ] else [ "%any${ver}" ];
+            remote_addrs = if initiatesPeer then endpoint self peer else [ "%any${ver}" ];
+            local.host = {
+              auth = "pubkey";
+              id = "${selfName}.nodes.szp.io";
+              pubkeys = [ config.sops.secrets."ipsec/publicKeys/${selfName}".path ];
+            };
+            remote.peer = {
+              auth = "pubkey";
+              id = "${peerName}.nodes.szp.io";
+              pubkeys = [ config.sops.secrets."ipsec/publicKeys/${peerName}".path ];
+            };
+            children."${peerName}-v${ver}-net" = {
+              esp_proposals = [ "aes128gcm16-curve25519" ];
+              local_ts = [
+                "0.0.0.0/0"
+                "::/0"
+              ];
+              remote_ts = [
+                "0.0.0.0/0"
+                "::/0"
+              ];
+              if_id_in = toString ifId;
+              if_id_out = toString ifId;
+              start_action = if initiatesPeer then "trap|start" else "none";
+              dpd_action = if initiatesPeer then "restart" else "clear";
+              close_action = if initiatesPeer then "start" else "none";
+              set_mark_in = "0/0xffffffff";
+              set_mark_out = "0x2024";
+            };
           };
         };
-      };
     in
     lib.optionalAttrs (crossRegion || !(peer.ipv4Only or false) && !(self.ipv4Only or false)) {
-      "${peerName}-v6" = mkSingleStackConnection "6";
+      "${peerName}-v6" = mkTunnel "6";
     }
     // lib.optionalAttrs (!crossRegion) {
-      "${peerName}-v4" = mkSingleStackConnection "4";
+      "${peerName}-v4" = mkTunnel "4";
     };
 
   selfName = config.system.name;
@@ -121,6 +122,10 @@ let
   peers = lib.filterAttrs (
     peerName: peer: peerName != selfName && (endpoint self peer != [ ] || endpoint peer self != [ ])
   ) allNodes;
+  tunnels = lib.concatMapAttrs mkPeerTunnels peers;
+  interfaces = lib.mapAttrs' (
+    _: tunnel: lib.nameValuePair "40-${tunnel.interfaceName}" tunnel
+  ) tunnels;
   nodeNames = [ selfName ] ++ lib.attrNames peers;
 in
 lib.mkMerge [
@@ -141,8 +146,33 @@ lib.mkMerge [
         }
       '';
       swanctl = {
-        connections = lib.concatMapAttrs mkConnection peers;
+        connections = lib.mapAttrs (_: tunnel: tunnel.connection) tunnels;
       };
+    };
+
+    systemd.network = {
+      netdevs = lib.mapAttrs (_: tunnel: {
+        netdevConfig = {
+          Kind = "xfrm";
+          Name = tunnel.interfaceName;
+          MTUBytes = 1400;
+        };
+        xfrmConfig = {
+          InterfaceId = tunnel.ifId;
+          Independent = true;
+        };
+      }) interfaces;
+      networks = lib.mapAttrs (_: tunnel: {
+        name = tunnel.interfaceName;
+        linkConfig = {
+          Multicast = true;
+          RequiredForOnline = false;
+        };
+        networkConfig = {
+          LinkLocalAddressing = "ipv6";
+          IPv6AcceptRA = false;
+        };
+      }) interfaces;
     };
 
     networking.firewall.allowedUDPPorts = [ 4500 ];
