@@ -86,6 +86,7 @@ in
       }
     ];
 
+    # Note: systemd-networkd can remove transient Babel unreachable routes.
     services.bird = {
       enable = true;
       config = ''
@@ -132,7 +133,5 @@ in
     };
 
     networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ 6696 ];
-
-    systemd.network.config.networkConfig.ManageForeignRoutes = false;
   };
 }

@@ -169,6 +169,7 @@ lib.mkMerge [
           RequiredForOnline = false;
         };
         networkConfig = {
+          KeepConfiguration = "yes";
           LinkLocalAddressing = "ipv6";
           IPv6AcceptRA = false;
         };

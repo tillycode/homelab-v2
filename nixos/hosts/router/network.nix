@@ -141,6 +141,7 @@
     matchConfig.Name = "svc";
     linkConfig.MTUBytes = 9000;
     networkConfig = {
+      KeepConfiguration = "yes";
       IPv6AcceptRA = false;
       DHCPPrefixDelegation = true;
       IPv6SendRA = true;

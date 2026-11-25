@@ -59,7 +59,8 @@ in
     matchConfig.Name = pppIface;
     DHCP = "ipv6";
     networkConfig = {
-      KeepConfiguration = "static";
+      # Preserve the IPv4 default route installed by pppd.
+      KeepConfiguration = "yes";
       IPv6AcceptRA = true;
     };
     dhcpV6Config = {
@@ -82,9 +83,5 @@ in
   ## ---------------------------------------------------------------------------
   sops.secrets."ppp/pap-secrets" = {
     restartUnits = [ "pppd-dialer.service" ];
-  };
-
-  systemd.network.config.networkConfig = {
-    ManageForeignRoutes = false;
   };
 }
