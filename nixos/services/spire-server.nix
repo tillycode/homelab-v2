@@ -60,7 +60,6 @@ in
           database_type = "sqlite3";
           connection_string = "$STATE_DIRECTORY/datastore.sqlite3";
         };
-        NodeAttestor.join_token.plugin_data = { };
         NodeAttestor.tpm = {
           plugin_cmd = lib.getExe' pkgs.spire-tpm-plugin "tpm_attestor_server";
           plugin_data = {
@@ -87,6 +86,13 @@ in
               } ''mkdir -p $out && touch "''${hashes[@]/#/$out/}"''
             );
           };
+        };
+        NodeAttestor.sshpop.plugin_data = {
+          cert_authorities = [
+            config.programs.ssh.knownHosts.szp15-com.publicKey
+          ];
+          canonical_domain = "nodes.szp15.com";
+          agent_path_template = "/{{ .PluginName }}/static/{{ .Hostname }}";
         };
       };
     };

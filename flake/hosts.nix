@@ -16,6 +16,7 @@ let
         config.nix-cache
         config.preservation
         config.sops
+        config.sshd-ca
         config.sudo
         networking.firewall
         networking.ipam
@@ -38,6 +39,7 @@ let
         programs.stress-cli
         services.bird
         services.ntp-home
+        services.spire-agent-tpm
         system.disko
         system.systemd-boot
       ];
@@ -77,6 +79,7 @@ let
         services.ipsec
         services.openbao
         services.sing-box
+        services.spire-agent-tpm
         services.spire-server
         services.tpm2-pkcs11
         services.unbound
@@ -88,6 +91,7 @@ let
         config.cn-dns
         networking.net-svc
         services.bird
+        services.spire-agent-tpm
         system.systemd-boot
       ];
       nixos.laptop = suites.desktop ++ [
@@ -96,6 +100,7 @@ let
         services.bird
         services.ipsec
         services.sing-box
+        services.spire-agent-tpm
         services.unbound
         system.disko
         system.systemd-boot
@@ -113,6 +118,7 @@ let
         services.haproxy
         services.ipsec
         services.sing-box
+        services.spire-agent-ssh
         services.unbound
         system.disko
         system.systemd-boot
@@ -126,8 +132,9 @@ let
         services.bird
         services.caddy
         services.ipsec
-        services.postgresql
         services.niks3
+        services.postgresql
+        services.spire-agent-ssh
         system.disko
       ];
       nixos.lax0 = suites.server ++ [
@@ -137,6 +144,7 @@ let
         services.bird
         services.caddy
         services.ipsec
+        services.spire-agent-ssh
         services.xray-server
         system.disko
       ];
@@ -147,6 +155,7 @@ let
         services.bird
         services.caddy
         services.ipsec
+        services.spire-agent-ssh
         services.xray-server
         system.disko
       ];
@@ -157,6 +166,7 @@ let
         services.bird
         services.caddy
         services.ipsec
+        services.spire-agent-ssh
         services.xray-server
         system.disko
       ];
