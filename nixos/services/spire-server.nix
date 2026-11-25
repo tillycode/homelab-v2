@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   address = "fdfe:3c59:ba97:1::4";
   certDirectory = config.security.acme.certs."spire.szp15.com".directory;
@@ -56,6 +61,33 @@ in
           connection_string = "$STATE_DIRECTORY/datastore.sqlite3";
         };
         NodeAttestor.join_token.plugin_data = { };
+        NodeAttestor.tpm = {
+          plugin_cmd = lib.getExe' pkgs.spire-tpm-plugin "tpm_attestor_server";
+          plugin_data = {
+            hash_path = toString (
+              pkgs.runCommandLocal "tpm2-hashes" {
+                # Use the following command to get hash
+                #
+                #    nix shell nixpkgs#spire-tpm-plugin --command sudo get_tpm_pubhash
+                hashes = [
+                  # desktop
+                  "3a9ac1712bb701bd4b1793f850116fba97f96b3ae7724a152d64eb0f50238989"
+                  # laptop
+                  "31c8d0600aad3f9bcffec0792dfbdf29a5c15c3973c1dccb32ba6b392596a4b5"
+                  # router
+                  "e502c147d3a4361fee2464da055f1eabc470ace05ded7c1384fb4043a4bafef1"
+                  # hasee01
+                  "989c9419c2c975f8396f1d72f082fe356c94cac1ddb8fbe991f0de367e82dc87"
+                  # hasee02
+                  "b8cfd66983f1441995b1632a6c2fa9c551ac05a12957d48fd11e10dcb9e5be29"
+                  # hasee03
+                  "c0f967ba48f6f71a8e2b9d6c7f0fc47ec53db8f906410b3554b777350de5bcbe"
+                ];
+                __structuredAttrs = true;
+              } ''mkdir -p $out && touch "''${hashes[@]/#/$out/}"''
+            );
+          };
+        };
       };
     };
   };
