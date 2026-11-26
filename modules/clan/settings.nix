@@ -1,7 +1,7 @@
 {
   flake.clan = {
     meta = {
-      name = "ziping-clan";
+      name = "homelab";
       description = "Ziping Sun's homelab";
       domain = "nodes.szp15.com";
     };

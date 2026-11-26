@@ -2,6 +2,7 @@
   inputs,
   self,
   lib,
+  getSystem,
   ...
 }@args:
 let
@@ -174,63 +175,57 @@ let
 
   homeProfiles = (self.lib.listModules ../home);
 
-  nixosModules = lib.attrValues self.nixosModules ++ [
-    inputs.preservation.nixosModules.default
-    inputs.disko.nixosModules.default
-    inputs.home-manager.nixosModules.default
-    inputs.sops-nix.nixosModules.default
-    inputs.niks3.nixosModules.default
-    inputs.nixpkgs.nixosModules.readOnlyPkgs
-  ];
+  nixosModules =
+    lib.attrValues (lib.filterAttrs (x: _: !(lib.hasPrefix "clan-" x)) self.nixosModules)
+    ++ [
+      inputs.preservation.nixosModules.default
+      inputs.disko.nixosModules.default
+      inputs.home-manager.nixosModules.default
+      inputs.sops-nix.nixosModules.default
+      inputs.niks3.nixosModules.default
+      # inputs.nixpkgs.nixosModules.readOnlyPkgs
+    ];
   nixosSpecialArgs = {
     inherit
+      self
+      inputs
       profiles
       homeProfiles
       ;
     flakeConfig = args.config;
   };
+  nodes = [
+    "router"
+    "hasee01"
+    "hasee02"
+    "hasee03"
+    "hgh0"
+    "desktop"
+    "laptop"
+    "sjc1"
+    "lax0"
+    "hkg0"
+    "hkg1"
+  ];
 in
 {
-  options.easy-hosts.hosts = lib.mkOption {
-    type = lib.types.attrsOf (
-      lib.types.submodule (
-        { name, ... }: {
-          modules = self.lib.mkImports profiles.nixos.${name};
-          deployable = lib.mkDefault true;
-        }
-      )
-    );
-  };
   config = {
-    easy-hosts.path = ./non-existent;
-    easy-hosts.useGlobalPkgs = true;
-    easy-hosts.shared = {
-      modules = nixosModules;
-      specialArgs = nixosSpecialArgs;
-    };
+    # To make nixos-anywhere work on lax0, please turn on swapfile before kexec,
+    # and manually turn on zramswap and increase
+    # writable nix store size before the disko phase.
+    #
+    #     mount -o remount,size=70% -t tmpfs tmpfs /nix/.rw-store
+    #     modprobe zram
+    #     zramctl /dev/zram0 --algorithm zstd --size 800000KiB
+    #     mkswap -U clear /dev/zram0
+    #     swapon --discard --priority 100 /dev/zram0
+    #
+    clan.machines = lib.genAttrs nodes (name: {
+      imports = nixosModules ++ self.lib.mkImports profiles.nixos.${name};
+      nixpkgs.hostPlatform = "x86_64-linux";
+      nixpkgs.pkgs = (getSystem "x86_64-linux").allModuleArgs.pkgs;
+    });
 
-    easy-hosts.hosts = {
-      router = { };
-      hasee01 = { };
-      hasee02 = { };
-      hasee03 = { };
-      hgh0 = { };
-      desktop = { };
-      laptop = { };
-      sjc1 = { };
-      # To make nixos-anywhere work, please turn on swapfile before kexec,
-      # and manually turn on zramswap and increase
-      # writable nix store size before the disko phase.
-      #
-      #     mount -o remount,size=70% -t tmpfs tmpfs /nix/.rw-store
-      #     modprobe zram
-      #     zramctl /dev/zram0 --algorithm zstd --size 800000KiB
-      #     mkswap -U clear /dev/zram0
-      #     swapon --discard --priority 100 /dev/zram0
-      #
-      lax0 = { };
-      hkg0 = { };
-      hkg1 = { };
-    };
+    clan.specialArgs = nixosSpecialArgs;
   };
 }

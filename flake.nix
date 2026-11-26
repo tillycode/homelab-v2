@@ -2,7 +2,7 @@
   description = "A very basic flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05-small";
+    nixpkgs.follows = "clan-core/nixpkgs";
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
     # libraries
@@ -41,8 +41,6 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    easy-hosts.url = "github:tgirlcloud/easy-hosts";
-
     # nixos modules
 
     preservation.url = "github:nix-community/preservation";
@@ -60,7 +58,6 @@
 
     # frameworks
     clan-core.url = "https://git.clan.lol/clan/clan-core/archive/26.05.tar.gz";
-    clan-core.inputs.nixpkgs.follows = "nixpkgs";
     clan-core.inputs.systems.follows = "systems";
     clan-core.inputs.treefmt-nix.follows = "blank";
   };
@@ -80,7 +77,6 @@
         inputs.git-hooks.flakeModule
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.default
-        inputs.easy-hosts.flakeModule
         (import-tree ./modules)
       ]
       ++ self-lib.mkImports modules
