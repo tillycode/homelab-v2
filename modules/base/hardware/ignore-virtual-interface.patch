@@ -1,0 +1,13 @@
+diff --git a/pkg/hwinfo/virtual_network_devices.go b/pkg/hwinfo/virtual_network_devices.go
+index bdb5292..070308f 100644
+--- a/pkg/hwinfo/virtual_network_devices.go
++++ b/pkg/hwinfo/virtual_network_devices.go
+@@ -34,4 +34,8 @@ var virtualNetworkDevices = map[string]bool{
+ 	// "xfrm": true,
+ 	// "erspan": true,
+ 	// "ip6tnl": true,
++
++	"xfrm":                true,
++	"ppp":                 true,
++	"802.1Q VLAN Support": true,
+ }
