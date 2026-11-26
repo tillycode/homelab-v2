@@ -1,0 +1,13 @@
+diff --git a/zonefile/zonefile.go b/zonefile/zonefile.go
+index 06f89c6..dc22863 100644
+--- a/zonefile/zonefile.go
++++ b/zonefile/zonefile.go
+@@ -560,7 +560,7 @@ func lexComment(l *lexer) lexerState {
+ }
+ 
+ func lexItem(l *lexer) lexerState {
+-	l.acceptUntil("\r\n\t ;\000") // XXX + eof instead of \000
++	l.acceptUntil("\r\n\t ;)\000") // XXX + eof instead of \000
+ 	l.emit(tokenItem)
+ 	return lexInitial
+ }

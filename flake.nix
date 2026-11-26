@@ -24,6 +24,10 @@
     deploy-rs.inputs.utils.follows = "flake-utils";
     deploy-rs.inputs.flake-compat.follows = "blank";
 
+    dns.url = "github:kirelagin/dns.nix";
+    dns.inputs.nixpkgs.follows = "nixpkgs";
+    dns.inputs.flake-utils.follows = "flake-utils";
+
     # flake modules
 
     devshell.url = "github:numtide/devshell";

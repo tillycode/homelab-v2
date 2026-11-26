@@ -13,6 +13,9 @@ buildGoModule (final: {
     rev = "v${final.version}";
     hash = "sha256-9bAifsK6LO/ouV1ChyzhVmiN5MLQ18m9nViPD37QwGc=";
   };
+  patches = [
+    ./dnsfmt-lexer.patch
+  ];
   vendorHash = "sha256-DWrHwr+hc9JEKBlUMuGJFKzSzJ57zzjsX+1P3XZk92I=";
   # serial_test.go has a test that depends on the current time
   doCheck = false;

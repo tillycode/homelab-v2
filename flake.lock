@@ -78,6 +78,29 @@
         "type": "github"
       }
     },
+    "dns": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788076475,
+        "narHash": "sha256-sD4UyILWAhk7aexE3YpDOdb71ZEeL+1/+LV05XIWCBo=",
+        "owner": "kirelagin",
+        "repo": "dns.nix",
+        "rev": "4710a34f2c36e7a0d634d7ba8fe2499d75f012a2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kirelagin",
+        "repo": "dns.nix",
+        "type": "github"
+      }
+    },
     "easy-hosts": {
       "locked": {
         "lastModified": 1779046777,
@@ -253,6 +276,7 @@
         "deploy-rs": "deploy-rs",
         "devshell": "devshell",
         "disko": "disko",
+        "dns": "dns",
         "easy-hosts": "easy-hosts",
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",

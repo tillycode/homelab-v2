@@ -3,7 +3,7 @@
   self,
   lib,
   ...
-}:
+}@args:
 let
   profiles = (self.lib.listModules ../nixos).extend (
     final: prev: with final; {
@@ -187,6 +187,7 @@ let
       profiles
       homeProfiles
       ;
+    flakeConfig = args.config;
   };
 in
 {

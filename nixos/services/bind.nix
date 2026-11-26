@@ -2,6 +2,8 @@
   lib,
   config,
   self,
+  pkgs,
+  flakeConfig,
   ...
 }:
 let
@@ -16,7 +18,7 @@ let
   );
   peerAddresses = addresses (lib.filterAttrs (_: node: node.config.system.name != name) nodes);
   anycastAddress = "fdfe:3c59:ba97:1::2";
-  zoneFile = ./szp15.com.zone;
+  zoneFile = pkgs.writeText "szp15.com.zone" (toString flakeConfig.zones."szp15.com");
   zonePath = "${cfg.directory}/szp15.com";
 in
 {
