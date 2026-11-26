@@ -1,7 +1,7 @@
 import argparse
 import json
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -30,23 +30,24 @@ def load_lock(path: str) -> Lock:
     )
 
 
-@dataclass(frozen=True)
-class CheckFlatFlake:
-    nodes: dict[str, Node]
-    paths: list[str] = field(default_factory=list[str], init=False)
-    violations: list[list[str]] = field(default_factory=list[list[str]], init=False)
+def check_flat_flake(lock: Lock) -> dict[str, list[list[str]]]:
+    definitions = dict[str, list[list[str]]]()
+    paths = list[str]()
 
-    def check(self, current: str, depth: int = 0) -> None:
-        node = self.nodes[current]
+    def traverse(current: str) -> None:
+        node = lock.nodes[current]
         for name, value in node.inputs.items():
-            self.paths.append(name)
+            paths.append(name)
             # we only care about new dependencies
             if isinstance(value, str):
-                if depth > 0:
-                    self.violations.append(self.paths.copy())
-                else:
-                    self.check(value, depth + 1)
-            self.paths.pop()
+                definitions.setdefault(name, []).append(paths[:])
+                traverse(value)
+            paths.pop()
+
+    traverse(lock.root)
+    print(definitions)
+
+    return {k: v for k, v in definitions.items() if len(v) > 1}
 
 
 def main() -> None:
@@ -60,12 +61,14 @@ def main() -> None:
     args = parser.parse_args()
     for file in args.file:
         lock = load_lock(file)
-        check = CheckFlatFlake(nodes=lock.nodes)
-        check.check(lock.root)
-        if len(check.violations) > 0:
-            print(f"found violations in {file}", file=sys.stderr)
-            for violation in check.violations:
-                print(f"  {'/'.join(violation)}", file=sys.stderr)
+        violations = check_flat_flake(lock)
+        if violations:
+            print(f"found {len(violations)} violation(s) in {file}", file=sys.stderr)
+            for key, paths in violations.items():
+                print(
+                    f"  {key}: {', '.join('/'.join(path) for path in paths)}",
+                    file=sys.stderr,
+                )
             sys.exit(1)
     print("no violations found", file=sys.stderr)
 
