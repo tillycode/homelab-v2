@@ -36,6 +36,8 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
 
+    easy-hosts.url = "github:tgirlcloud/easy-hosts";
+
     # nixos modules
 
     preservation.url = "github:nix-community/preservation";
@@ -67,6 +69,7 @@
         inputs.git-hooks.flakeModule
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.default
+        inputs.easy-hosts.flakeModule
       ]
       ++ self-lib.mkImports modules
       ++ self-lib.mkImports profiles;
