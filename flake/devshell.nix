@@ -8,7 +8,6 @@
         devshell.packages = with pkgs; [
           # for deployment
           nixos-anywhere
-          deploy-rs
           sops
           ssh-to-age
           opentofu

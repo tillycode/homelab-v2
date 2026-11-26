@@ -67,32 +67,6 @@
         "url": "https://git.clan.lol/clan/data-mesher/archive/main.tar.gz"
       }
     },
-    "deploy-rs": {
-      "inputs": {
-        "flake-compat": [
-          "blank"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "utils": [
-          "flake-utils"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792446739,
-        "narHash": "sha256-eINUtQW48bf9G3EYprthHMll8VDKxaXQP52TZFuwMmE=",
-        "owner": "serokell",
-        "repo": "deploy-rs",
-        "rev": "1cec0527bd09074bbee6d4461900ce5d58267217",
-        "type": "github"
-      },
-      "original": {
-        "owner": "serokell",
-        "repo": "deploy-rs",
-        "type": "github"
-      }
-    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -363,7 +337,6 @@
       "inputs": {
         "blank": "blank",
         "clan-core": "clan-core",
-        "deploy-rs": "deploy-rs",
         "devshell": "devshell",
         "disko": [
           "clan-core",

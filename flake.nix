@@ -18,11 +18,6 @@
     flake-utils.url = "github:numtide/flake-utils";
     flake-utils.inputs.systems.follows = "systems";
 
-    deploy-rs.url = "github:serokell/deploy-rs";
-    deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
-    deploy-rs.inputs.utils.follows = "flake-utils";
-    deploy-rs.inputs.flake-compat.follows = "blank";
-
     dns.url = "github:kirelagin/dns.nix";
     dns.inputs.nixpkgs.follows = "nixpkgs";
     dns.inputs.flake-utils.follows = "flake-utils";
