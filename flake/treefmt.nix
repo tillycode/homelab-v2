@@ -11,6 +11,7 @@
         settings.on-unmatched = "fatal";
         settings.excludes = [
           "secrets/*"
+          "vars/*"
           "*.terraform.lock.hcl"
           ".cursorignore"
           ".zedignore"
