@@ -138,7 +138,7 @@ let
         system.disko
       ];
       nixos.lax0 = suites.server ++ [
-        hosts.lax0
+        # hosts.lax0
         networking.forwarding
         config.global-dns
         services.bird
@@ -160,7 +160,7 @@ let
         system.disko
       ];
       nixos.hkg1 = suites.server ++ [
-        hosts.hkg1
+        # hosts.hkg1
         config.global-dns
         networking.forwarding
         services.bird
@@ -183,7 +183,6 @@ let
       inputs.home-manager.nixosModules.default
       inputs.sops-nix.nixosModules.default
       inputs.niks3.nixosModules.default
-      # inputs.nixpkgs.nixosModules.readOnlyPkgs
     ];
   nixosSpecialArgs = {
     inherit
@@ -222,8 +221,6 @@ in
     #
     clan.machines = lib.genAttrs nodes (name: {
       imports = nixosModules ++ self.lib.mkImports profiles.nixos.${name};
-      nixpkgs.hostPlatform = "x86_64-linux";
-      nixpkgs.pkgs = (getSystem "x86_64-linux").allModuleArgs.pkgs;
     });
 
     clan.specialArgs = nixosSpecialArgs;

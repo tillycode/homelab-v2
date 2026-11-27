@@ -2,6 +2,7 @@
   lib,
   inputs,
   config,
+  withSystem,
   ...
 }:
 let
@@ -26,4 +27,8 @@ in
 
       legacyPackages = pkgs;
     };
+
+  flake.modules.nixos.base = { config, ... }: {
+    nixpkgs.pkgs = withSystem config.nixpkgs.hostPlatform.system (x: x.pkgs);
+  };
 }

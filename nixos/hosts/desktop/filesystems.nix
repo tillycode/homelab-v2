@@ -43,6 +43,5 @@ in
       size = 32 * 1024;
     }
   ];
-  boot.kernelParams = [ "resume_offset=533760" ];
   boot.resumeDevice = "/dev/disk/by-partlabel/nixos";
 }
