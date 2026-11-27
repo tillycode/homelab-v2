@@ -5,6 +5,17 @@
         patches = oldAttrs.patches or [ ] ++ [
           # eliminate false-positive hardware network interfaces.
           ./ignore-virtual-interface.patch
+          # Apply the upstream formatting change required by the fix on 0.4.4.
+          (final.fetchpatch {
+            url = "https://github.com/nix-community/nixos-facter/commit/ae7c0d0c19a32b160569cc2aba13a29f11d23985.patch";
+            includes = [ "pkg/hwinfo/utils.go" ];
+            hash = "sha256-yt7QcaQL57pe/A9O6ycaz6pUXlAWosPw0ct6AsV1fSs=";
+          })
+          # Fix C array decoding, including SMBIOS group handles.
+          (final.fetchpatch {
+            url = "https://github.com/nix-community/nixos-facter/commit/532a16ec2e1470380bf70f2eef21905ba0442c45.patch";
+            hash = "sha256-v5QaKSy/iOBtMp8vATT/DqIsjb2yM51eDwzdzkT36kU=";
+          })
         ];
       });
 
