@@ -21,8 +21,8 @@ in
 
     subdomains = {
       ns1.AAAA = [ (a "fdfe:3c59:ba97:1::2") ];
-      openbao.AAAA = [ (a "fdfe:3c59:ba97:1::2") ];
-      spire.AAAA = [ (a "fdfe:3c59:ba97:1::2") ];
+      openbao.AAAA = [ (a "fdfe:3c59:ba97:1::3") ];
+      spire.AAAA = [ (a "fdfe:3c59:ba97:1::4") ];
       nodes.subdomains = {
         router.A = [ (a "10.112.8.1") ];
         hasee01.A = [ (a "10.112.8.2") ];
